@@ -43,10 +43,6 @@
 
       .app-container {
         display: grid;
-        grid-template-rows: 97% 3%;
-        grid-template-areas:
-          "video resizeBar captions"
-          "video resizeBar controls";
       }
 
       .video-subtitles-missing {
@@ -71,7 +67,7 @@
         width: 100%;
       }
 
-      .sidebar {
+      .sidebar-captions {
         grid-area: captions;
         position: relative;
       }
@@ -140,15 +136,82 @@
 
       .controls {
         grid-area: controls;
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        height: 100%;
+        color: #555;
       }
 
-      input {
-        background-color: black;
-        color: #AAA;
+      .subtitles-offset-input {
         border: 0;
-        padding: 4px;
+        color: #555;
+        background-color: black;
+        font-size: 1.5vh;
+        text-align: center;
+        flex-grow: 1;
+        width: 100%;
+        border: 1px solid #111;
+      }
+
+      .shift-mode, .cancel-shift-mode {
+        padding: .2rem;
+        font-size: 1.5vh;
+        flex-grow: 1;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      .shift-mode {
+        background-color: #151515;
+      }
+
+      .shift-mode:hover {
+        background-color: #333;
+        cursor: pointer;
+      }
+
+      .cancel-shift-mode {
+        background-color: #100;
+      }
+
+      .cancel-shift-mode:hover {
+        background-color: #322;
+        cursor: pointer;
+      }
+
+      .caption-time-offset {
+        position: absolute;
+        top: 0;
+        right: 2px;
+        font-size: x-small;
+        color: #644
+      }
+
+      .caption-time-offset:hover {
+        color: #200;
+      }
+
+      .controls-expand {
+        grid-area: controlsexpand;
+        box-sizing: border-box;
+        background-color: #111;
+        text-align: center;
+        position: relative;
         width: 100%;
       }
+
+      .controls-expand:hover {
+        background-color: #777;
+      }
+
     </style>
   </head>
   <body>
@@ -191,6 +254,7 @@
               class="video-element"
               :src="videoUrl"
               @error="onVideoError"
+              @timeupdate="onTimeUpdate"
               crossorigin="anonymous"
               controls
               disablePictureInPicture
@@ -206,25 +270,33 @@
 
             <div class="current-caption" v-html="'「' + displayedText + '」'"></div>
           </div>
-          <div class="sidebar" v-if="captionsUrl">
-            <div class="captions-container" v-if="captionsUrl">
-              <div
-                v-for="(caption, index) in captions"
-                :id="caption.id"
-                :class="captionStyle(caption, index)"
-                @click="selectCaption(caption)"
-                v-html="'「' + caption.text + '」'">
-              </div>
-            </div>
-            <div class="controls">
-              <input v-model="subtitlesOffsetInput"></input>
-            </div>
-          </div>
           <div class="resize-bar-wrapper">
             <div 
               class="resize-bar"
               @mousedown.stop.prevent="onResizeBarMouseDown">
             </div>
+          </div>
+          <div class="sidebar-captions" v-if="captionsUrl">
+            <div class="captions-container" v-if="captionsUrl">
+              <div v-for="(caption, index) in captions" style="position: relative;">
+                <div
+                  :id="caption.id"
+                  :class="captionStyle(caption, index)"
+                  @click="selectCaption(caption)"
+                  v-html="'「' + caption.text + '」'">
+                </div>
+                <div v-if="isShiftMode" class='caption-time-offset'>
+                  {{calcCaptionOffsetDisplay(caption)}}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="controls-expand" @click="toggleControls()">
+            <!-- <span class="controls-expand-arrow"></span> -->
+          </div>
+          <div class="controls">
+            <input class="subtitles-offset-input" v-model="subtitlesOffsetInput"></input>
+            <a :class="shiftModeClass" @click="toggleShiftMode()"><span>{{this.isShiftMode ? 'Cancel' : 'Shift Subtitles'}}</span></a>
           </div>
         </div>
       </div>
@@ -250,6 +322,8 @@
           isDraggingFile: false,
           lastActiveCaption: null,
           currentActiveCaption: null,
+          isControlsExpanded: true,
+          isShiftMode: false
         },
         computed: {
           dropWrapperClass: function () {
@@ -270,6 +344,9 @@
               return null;
             var vtt = this.toVTT(this.subtitlesFileContent, this.subtitlesOffsetSeconds);
             return "data:text/vtt;charset=utf-8," + encodeURIComponent(vtt);
+          },
+          shiftModeClass: function () {
+            return this.isShiftMode ? 'cancel-shift-mode' : 'shift-mode';
           }
         },
         watch: {
@@ -280,11 +357,33 @@
         },
         methods: {
           calcAppStyle: function () {
+            return this.calcGridTemplateAreas() + this.calcGridTemplateColumns() + this.calcGridTemplateRows();
+          },
+          calcGridTemplateAreas: function () {
+            return "grid-template-areas: " +
+            "'video resizeBar captions' " +
+            "'video resizeBar " + (this.isControlsExpanded ? "controlsexpand" : "captions") + "' " +
+            "'video resizeBar " + (this.isControlsExpanded ? "controls" : "controlsexpand") + "' " +
+            ";"
+          },
+          calcGridTemplateColumns: function () {
             var leftWidth = this.sideBarX + this.sideBarDragDx;
             var middleWidth = 0;
             var rightWidth = (1 - leftWidth);
             var widths = [leftWidth, middleWidth, rightWidth]
             return "grid-template-columns: " + widths.map(function (x) { return x * 100 + "%"; }).join(" ") + ";"
+          },
+          calcGridTemplateRows: function () {
+            if (this.isControlsExpanded)
+              return 'grid-template-rows: 96% 0.6% 3.4%;';
+            else
+              return 'grid-template-rows: 96% 3.4% 0.6%;';
+          },
+          toggleControls: function () {
+            this.isControlsExpanded = !this.isControlsExpanded;
+          },
+          toggleShiftMode: function () {
+            this.isShiftMode = !this.isShiftMode;
           },
           onMouseMove: function (e) {
             if (!this.isDraggingSidebar) {
@@ -348,16 +447,20 @@
             this.isError = true;
           },
 
-          getVideoElement() {
+          getVideoElement: function() {
             return this.$el.querySelector("#video-element");
           },
 
-          getCurrentTime() {
+          onTimeUpdate: function () {
+            this.currentTime = this.getCurrentTime();
+          },
+
+          getCurrentTime: function() {
             var videoElement = this.getVideoElement();
             return videoElement ? videoElement.currentTime : 0;
           },
 
-          setCurrentTime(time) {
+          setCurrentTime: function(time) {
             var videoElement = this.getVideoElement();
             if (videoElement) {
               videoElement.currentTime = time;
@@ -420,8 +523,22 @@
               .join(" ");
           },
 
+          calcCaptionOffsetDisplay: function (caption) {
+            var offset = this.calcCaptionOffset(caption);
+            return (offset > 0 ? '+' : '') + this.calcCaptionOffset(caption).toFixed(2) + "s";
+          },
+
+          calcCaptionOffset: function (caption) {
+            return this.currentTime - caption.endTime;
+          },
+
           selectCaption: function (caption) {
-            this.setCurrentTime(caption.startTime);
+            if (this.isShiftMode) {
+              this.subtitlesOffsetInput = (this.subtitlesOffsetSeconds + this.calcCaptionOffset(caption)).toFixed(2);
+              this.isShiftMode = false;
+            } else {
+              this.setCurrentTime(caption.startTime);
+            }
           },
 
           getTrack: function () {
