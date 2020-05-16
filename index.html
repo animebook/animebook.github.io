@@ -151,7 +151,7 @@
         text-align: center;
         flex-grow: 1;
         width: 100%;
-        border: 1px solid #111;
+        border-left: 1px solid #0C0C0C;
       }
 
       .shift-mode, .cancel-shift-mode {
@@ -167,23 +167,26 @@
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
+        cursor: pointer;
+        transition: background-color 100ms linear;
       }
 
       .shift-mode {
-        background-color: #151515;
+        border-left: 1px solid #0C0C0C;
       }
 
       .shift-mode:hover {
-        background-color: #333;
-        cursor: pointer;
+        background-color: #91aab1;
+        color: black;
       }
 
       .cancel-shift-mode {
-        background-color: #100;
+        background-color: #300;
       }
 
       .cancel-shift-mode:hover {
-        background-color: #322;
+        background-color: #7d0909;
+        color: black;
         cursor: pointer;
       }
 
@@ -202,14 +205,23 @@
       .controls-expand {
         grid-area: controlsexpand;
         box-sizing: border-box;
-        background-color: #111;
+        cursor: pointer;
         text-align: center;
         position: relative;
+        transition: background-color 100ms linear;
         width: 100%;
       }
 
+      .controls-expand.open {
+        background-color: #0C0C0C;
+      }
+
+      .controls-expand.closed {
+        background-color: black;
+      }
+
       .controls-expand:hover {
-        background-color: #777;
+        background-color: #91aab1;
       }
 
     </style>
@@ -291,8 +303,7 @@
               </div>
             </div>
           </div>
-          <div class="controls-expand" @click="toggleControls()">
-            <!-- <span class="controls-expand-arrow"></span> -->
+          <div :class="controlsExpandClass" @click="toggleControls()">
           </div>
           <div class="controls">
             <input class="subtitles-offset-input" v-model="subtitlesOffsetInput"></input>
@@ -316,7 +327,7 @@
           isDraggingSidebar: false,
           sideBarDragStartX: 0,
           sideBarDragDx: 0,
-          sideBarX: 0.9,
+          sideBarX: 0.87,
           captionTracks: [],
           captions: [],
           isDraggingFile: false,
@@ -347,6 +358,9 @@
           },
           shiftModeClass: function () {
             return this.isShiftMode ? 'cancel-shift-mode' : 'shift-mode';
+          },
+          controlsExpandClass: function () {
+            return 'controls-expand' + (this.isControlsExpanded ? ' open' : ' closed')
           }
         },
         watch: {
@@ -375,9 +389,9 @@
           },
           calcGridTemplateRows: function () {
             if (this.isControlsExpanded)
-              return 'grid-template-rows: 96% 0.6% 3.4%;';
+              return 'grid-template-rows: 95.7% 1% 3.3%;';
             else
-              return 'grid-template-rows: 96% 3.4% 0.6%;';
+              return 'grid-template-rows: 95.7% 3.3% 1%;';
           },
           toggleControls: function () {
             this.isControlsExpanded = !this.isControlsExpanded;
