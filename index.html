@@ -1,0 +1,623 @@
+<!-- TODO -->
+<!-- DONE: Make the sidebar resizable -->
+<!-- DONE: Sometimes subtitles aren't parsed because their filename uses .ASS instead of .ass, and fluentcards fails on this -->
+<!-- Unescape html in the side bar and the main subtitles -->
+<!-- Fix the main subtitle pane so it doesn't prevent you from clicking play -->
+<!-- Put an options bar at the bottom that expands and collapses -->
+<!-- Put an audio track selector in the options -->
+<!-- Put a subtitle shift button in the options -->
+<!-- Make error messages specific -->
+<!-- Make the app a single html page -->
+<!-- If you use yomichan to add a word from the sidebar, 
+     it should only put a single caption into the sentence field in anki, 
+     not every visible caption on the page -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Animebook</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+      html,
+      body,
+      #app,
+      .drop-wrapper,
+      .app-container {
+        height: 100%;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        background-color: #000;
+        color: #fff;
+        font-family: Helvetica, sans-serif;
+      }
+
+      .drop-wrapper {
+        transition: background-color 100ms ease-out;
+      }
+
+      .drop-wrapper.dragging-file {
+        opacity: 0.4;
+      }
+
+      .app-container {
+        display: grid;
+        grid-template-rows: 97% 3%;
+        grid-template-areas:
+          "video resizeBar captions"
+          "video resizeBar controls";
+      }
+
+      .video-subtitles-missing {
+        grid-area: video;
+      }
+
+      .video-missing {
+        grid-area: video;
+      }
+
+      .subtitles-missing {
+        grid-area: captions;
+      }
+
+      .video-container {
+        grid-area: video;
+        position: relative;
+      }
+
+      .video-element {
+        max-height: 100vh;
+        width: 100%;
+      }
+
+      .sidebar {
+        grid-area: captions;
+        position: relative;
+      }
+
+      .captions-container {
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background-color: black;
+        color: #333;
+        position: relative
+      }
+
+      .caption {
+        font-size: medium;
+        cursor: pointer;
+        margin: 0;
+        padding: 1em;
+        transition: background-color 100ms linear;
+      }
+
+      .caption:hover {
+        background-color: #91aab1;
+        color: black;
+      }
+
+      .caption.active {
+        transition: background-color 300ms linear;
+        background-color: #59757d;
+        color: black;
+      }
+
+      .current-caption {
+        font-size: large;
+        text-align: center;
+        position: absolute;
+        width: 100%;
+        bottom: 0;
+        padding: 0 12% 30px 4%;
+        color: #696969;
+        z-index: 2;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        paint-order: stroke;
+        -webkit-text-stroke: unset;
+        text-shadow: 0.05em 0 black, 0 0.05em black, -0.05em 0 black,
+          0 -0.05em black, -0.05em -0.05em black, -0.05em 0.05em black,
+          0.05em -0.05em black, 0.05em 0.05em black;
+      }
+
+      .resize-bar-wrapper {
+        grid-area: resizeBar;
+        height: 100%;
+        position: relative;
+      }
+
+      .resize-bar {
+        position: absolute;
+        height: 100%;
+        top: 0px;
+        left: -3px;
+        width: 6px;
+        cursor: ew-resize;
+      }
+
+      .controls {
+        grid-area: controls;
+      }
+
+      input {
+        background-color: black;
+        color: #AAA;
+        border: 0;
+        padding: 4px;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="app"
+      @keyup.space.stop.prevent="playPause"
+      @keyup.enter.stop.prevent="replayCaption"
+      @keyup.left.stop.prevent="previousCaption"
+      @keyup.up.stop.prevent="previousCaption"
+      @keyup.right.stop.prevent="nextCaption"
+      @keyup.down.stop.prevent="nextCaption"
+      @mouseup="onMouseUp"
+      @mousemove="onMouseMove"
+      @mouseout="onMouseOut"
+    >
+      <div
+        class="drop-wrapper"
+        :class="dropWrapperClass"
+        @dragover.stop.prevent="onFileDragover"
+        @dragleave.stop.prevent="onFileDragleave"
+        @drop.stop.prevent="onFileDrop"
+      >
+        <div class="app-container" :style="calcAppStyle()">
+          <div class="video-subtitles-missing" v-if="!videoUrl && !captionsUrl">
+            Drag-and-drop a video file and the corresponding subtitles file to
+            this page
+          </div>
+          <div
+            class="video-missing"
+            v-if="!videoUrl && captionsUrl && !isError"
+          >
+            Drag-and-drop a video file
+          </div>
+          <div class="subtitles-missing" v-if="videoUrl && !captionsUrl">
+            Drag-and-drop a subtitles file<br />(vtt, srt or ass)
+          </div>
+          <div class="video-container" v-if="videoUrl && !isError">
+            <video
+              id="video-element"
+              class="video-element"
+              :src="videoUrl"
+              @error="onVideoError"
+              crossorigin="anonymous"
+              controls
+              disablePictureInPicture
+            >
+              <track
+                kind="subtitles"
+                :src="captionsUrl"
+                @load="onCaptionsLoad"
+                @cuechange="onCaptionsCueChange"
+                default
+              />
+            </video>
+
+            <div class="current-caption" v-html="'「' + displayedText + '」'"></div>
+          </div>
+          <div class="sidebar" v-if="captionsUrl">
+            <div class="captions-container" v-if="captionsUrl">
+              <div
+                v-for="(caption, index) in captions"
+                :id="caption.id"
+                :class="captionStyle(caption, index)"
+                @click="selectCaption(caption)"
+                v-html="'「' + caption.text + '」'">
+              </div>
+            </div>
+            <div class="controls">
+              <input v-model="subtitlesOffsetInput"></input>
+            </div>
+          </div>
+          <div class="resize-bar-wrapper">
+            <div 
+              class="resize-bar"
+              @mousedown.stop.prevent="onResizeBarMouseDown">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      new Vue({
+        el: "#app",
+        data: {
+          videoUrl: null,
+          subtitlesFileContent: null,
+          subtitlesOffsetInput: "0.0",
+          videoTitle: null,
+          activeCue: null,
+          currentTime: null,
+          isError: false,
+          isDraggingSidebar: false,
+          sideBarDragStartX: 0,
+          sideBarDragDx: 0,
+          sideBarX: 0.9,
+          captionTracks: [],
+          captions: [],
+          isDraggingFile: false,
+          lastActiveCaption: null,
+          currentActiveCaption: null,
+        },
+        computed: {
+          dropWrapperClass: function () {
+            return this.isDraggingFile ? "dragging-file" : "";
+          },
+          activeCaption: function () {
+            return this.cueToCaption(this.activeCue);
+          },
+          displayedText: function () {
+            return this.activeCaption ? this.activeCaption.text : "";
+          },
+          subtitlesOffsetSeconds: function () {
+            var num = parseFloat(this.subtitlesOffsetInput);
+            return num ? num : 0.0;
+          },
+          captionsUrl: function () {
+            if (!this.subtitlesFileContent)
+              return null;
+            var vtt = this.toVTT(this.subtitlesFileContent, this.subtitlesOffsetSeconds);
+            return "data:text/vtt;charset=utf-8," + encodeURIComponent(vtt);
+          }
+        },
+        watch: {
+          activeCaption: function (newCaption, oldCaption) {
+            var el = this.$el.querySelector("#" + newCaption.id);
+            el.scrollIntoViewIfNeeded ? el.scrollIntoViewIfNeeded() : el.scrollIntoView({ behavior: 'smooth' });
+          },
+        },
+        methods: {
+          calcAppStyle: function () {
+            var leftWidth = this.sideBarX + this.sideBarDragDx;
+            var middleWidth = 0;
+            var rightWidth = (1 - leftWidth);
+            var widths = [leftWidth, middleWidth, rightWidth]
+            return "grid-template-columns: " + widths.map(function (x) { return x * 100 + "%"; }).join(" ") + ";"
+          },
+          onMouseMove: function (e) {
+            if (!this.isDraggingSidebar) {
+              this.onMouseUp();
+              return;
+            }
+            this.sideBarDragDx = this.pixelsToFraction(e.clientX) - this.sideBarDragStartX;
+          },
+          onMouseUp: function (e) {
+            this.isDraggingSidebar = false;
+            this.sideBarDragStartX = 0;
+            this.sideBarX = this.sideBarX + this.sideBarDragDx;
+            this.sideBarDragDx = 0;
+          },
+          onMouseOut: function (e) {
+            mouseX = e.pageX;
+            mouseY = e.pageY;
+            if ((mouseY >= 0 && mouseY <= window.innerHeight)
+            && (mouseX >= 0 && mouseX <= window.innerWidth))
+                return;
+            this.onMouseUp(null);
+            console.log("MouseUp")
+          },
+          onResizeBarMouseDown: function (e) {
+            this.isDraggingSidebar = true;
+            this.sideBarDragStartX = this.pixelsToFraction(e.clientX);
+            console.log("MouseDown")
+          },
+          pixelsToFraction(numPixels) {
+            return numPixels / this.$el.clientWidth;
+          },
+          onFileDragover: function (e) {
+            this.isDraggingFile = true;
+          },
+
+          onFileDragleave: function (e) {
+            this.isDraggingFile = false;
+          },
+
+          onFileDrop: function (e) {
+            this.isDraggingFile = false;
+            for (var i = 0; i < e.dataTransfer.files.length; i++) {
+              var file = e.dataTransfer.files[i];
+              this.isCaptions(file)
+                ? this.loadCaptions(file)
+                : this.loadVideo(file);
+            }
+          },
+
+          loadVideo: function (file) {
+            if (this.videoUrl) {
+              URL.revokeObjectURL(this.videoUrl);
+            }
+
+            this.videoUrl = URL.createObjectURL(file);
+            this.isError = false;
+            this.videoTitle = file.name.split(".").slice(0, -1).join("");
+          },
+
+          onVideoError: function (event) {
+            this.isError = true;
+          },
+
+          getVideoElement() {
+            return this.$el.querySelector("#video-element");
+          },
+
+          getCurrentTime() {
+            var videoElement = this.getVideoElement();
+            return videoElement ? videoElement.currentTime : 0;
+          },
+
+          setCurrentTime(time) {
+            var videoElement = this.getVideoElement();
+            if (videoElement) {
+              videoElement.currentTime = time;
+              videoElement.play();
+            }
+          },
+
+          playPause: function (e) {
+            var video = this.getVideoElement();
+            if (video.paused) video.play();
+            else video.pause();
+          },
+
+          playCue: function (cue) {
+            if (!cue) return;
+            this.setCurrentTime(cue.startTime);
+          },
+
+          replayCaption: function (e) {
+            var track = this.getTrack();
+            if (!track) return;
+            this.playCue(this.activeCue || track.cues[0]);
+          },
+
+          previousCaption: function (e) {
+            this.moveCaptionsBy(-1);
+          },
+
+          nextCaption: function (e) {
+            this.moveCaptionsBy(1);
+          },
+
+          moveCaptionsBy: function (numCaptions) {
+            var track = this.getTrack();
+            if (!track) return;
+
+            if (!this.activeCue) {
+              this.replayCaption();
+            }
+
+            var index = track.cues.indexOf(this.activeCue);
+            var next = track.cues[index + numCaptions];
+
+            this.playCue(next);
+          },
+
+          isActive: function (caption) {
+            return this.activeCaption && this.activeCaption.id === caption.id;
+          },
+
+          captionStyle: function (caption, index) {
+            var classes = [
+              "caption",
+              this.isActive(caption) ? "active" : ""
+            ];
+            return classes
+              .filter(function (c) {
+                return c.length !== 0;
+              })
+              .join(" ");
+          },
+
+          selectCaption: function (caption) {
+            this.setCurrentTime(caption.startTime);
+          },
+
+          getTrack: function () {
+            var tracks = this.getVideoElement().textTracks;
+            var track = tracks && tracks[0];
+            if (!track) return null;
+
+            // TODO: Do this a better way?
+            track.mode = "hidden";
+
+            return track;
+          },
+
+          cueToCaption: function (cue) {
+            if (!cue) return null;
+
+            var caption = {
+              id: "id_" + cue.id,
+              startTime: cue.startTime,
+              endTime: cue.endTime,
+              text: cue.text.replace(/\n/g, "<br>"),
+            };
+            if (!caption.id) {
+              caption.id = JSON.stringify(caption);
+            }
+            return caption;
+          },
+
+          onCaptionsLoad: function (e) {
+            var track = this.getTrack();
+            if (!track) return;
+
+            this.captions = Array.prototype.map.call(
+              track.cues,
+              this.cueToCaption
+            );
+          },
+
+          onCaptionsCueChange: function (e) {
+            var track = this.getTrack();
+            if (!track) return;
+
+            var cue = track.activeCues[0];
+            if (cue) this.activeCue = cue;
+          },
+
+          isCaptions: function (file) {
+            return /\.(vtt|srt|ass|ssa)$/i.test(file.name);
+          },
+
+          loadCaptions: function (file) {
+            const reader = new FileReader();
+            reader.readAsText(file);
+            var self = this;
+            reader.onload = function (e) {
+              self.subtitlesFileContent = reader.result;
+            };
+          },
+
+          ass: function (text) {
+            const reAss = new RegExp(
+              "Dialogue:\\s\\d," + // get time and subtitle
+              "(\\d+:\\d\\d:\\d\\d.\\d\\d)," + // start time
+              "(\\d+:\\d\\d:\\d\\d.\\d\\d)," + // end time
+              "([^,]*)," + // object
+              "([^,]*)," + // actor
+                "(?:[^,]*,){4}" +
+                "(.*)$", // subtitle
+              "i"
+            );
+            const reTime = /(\d+):(\d\d):(\d\d).(\d\d)/;
+            const reStyle = /\{[^}]+\}/g;
+
+            const getSeconds = function (timeStr) {
+              const match = timeStr.match(reTime);
+              return (
+                Math.round(
+                  parseInt(match[1], 10) * 60 * 60 * 1000 +
+                    parseInt(match[2], 10) * 60 * 1000 +
+                    parseInt(match[3], 10) * 1000 +
+                    parseInt(match[4], 10) * 10
+                ) / 1000
+              );
+            };
+
+            const lines = text.split(/[\n\r]+/g);
+            const captions = lines
+              .map(function (line, index) {
+                const match = line.match(reAss);
+                if (!match) {
+                  return null;
+                }
+                return {
+                  id: index + 1,
+                  startTime: getSeconds(match[1]),
+                  endTime: getSeconds(match[2]),
+                  text: match[5].replace(reStyle, "").replace(/\\N/g, "\n"),
+                  voice: match[3] && match[4] ? match[3] + " " + match[4] : "",
+                };
+              })
+              .filter(function (caption) {
+                return caption != null;
+              });
+
+            return captions.length ? captions : null;
+          },
+
+          srt: function (text) {
+            const reTime = /(\d\d):(\d\d):(\d\d),(\d\d\d)/;
+
+            if (!reTime.test(text)) {
+              return null;
+            }
+
+            const getSeconds = function (timeStr) {
+              const match = timeStr.match(reTime);
+              return (
+                Math.round(
+                  parseInt(match[1], 10) * 60 * 60 * 1000 +
+                    parseInt(match[2], 10) * 60 * 1000 +
+                    parseInt(match[3], 10) * 1000 +
+                    parseInt(match[4], 10)
+                ) / 1000
+              );
+            };
+
+            const entries = text.split(/\n[\r\n]+/g);
+            const captions = entries
+              .map(function (entry) {
+                const lines = entry.split(/\n+/g);
+                if (lines.length < 3) {
+                  return null;
+                }
+                const timestamps = lines[1].split(/\s*-->\s*/);
+                return {
+                  id: lines[0],
+                  startTime: getSeconds(timestamps[0]),
+                  endTime: getSeconds(timestamps[1]),
+                  text: lines.slice(2).join("\n"),
+                };
+              })
+              .filter(function (caption) {
+                return caption != null;
+              });
+
+            return captions.length ? captions : null;
+          },
+
+          formatVtt: function (captions) {
+            const padWithZeros = function (num, digits) {
+              return ("0000" + num).slice(-digits);
+            };
+
+            const formatTime = function (seconds) {
+              const date = new Date(2000, 0, 1, 0, 0, 0, seconds * 1000);
+              return [
+                padWithZeros(date.getHours(), 2),
+                padWithZeros(date.getMinutes(), 2),
+                padWithZeros(date.getSeconds(), 2) +
+                  "." +
+                  padWithZeros(date.getMilliseconds(), 3),
+              ].join(":");
+            };
+
+            const lines = captions.map(function (caption) {
+              return [
+                caption.id,
+                formatTime(caption.startTime) +
+                  " --> " +
+                  formatTime(caption.endTime),
+                (caption.voice ? "<v " + caption.voice + ">" : "") +
+                  caption.text,
+              ].join("\n");
+            });
+
+            return "WEBVTT\n\n" + lines.join("\n\n");
+          },
+
+          toVTT: function (text, offset) {
+            if (text.indexOf("WEBVTT") === 0) {
+              return text;
+            }
+
+            const parsed = this.ass(text) || this.srt(text);
+            parsed.forEach(function (cue) {
+              cue.startTime = Math.max(0, cue.startTime + offset);
+              cue.endTime = Math.max(0, cue.endTime + offset);
+            });
+            if (parsed) {
+              return this.formatVtt(parsed);
+            }
+
+            return text;
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
