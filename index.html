@@ -146,12 +146,11 @@
       .subtitles-offset-input {
         border: 0;
         color: #555;
-        background-color: black;
+        background-color: #060606;
         font-size: 1.5vh;
         text-align: center;
         flex-grow: 1;
         width: 100%;
-        border-left: 1px solid #0C0C0C;
       }
 
       .shift-mode, .cancel-shift-mode {
@@ -169,10 +168,12 @@
         user-select: none;
         cursor: pointer;
         transition: background-color 100ms linear;
+        box-sizing: border-box;
       }
 
       .shift-mode {
-        border-left: 1px solid #0C0C0C;
+        border-left: 1px solid black;
+        background-color: #060606;
       }
 
       .shift-mode:hover {
@@ -213,7 +214,7 @@
       }
 
       .controls-expand.open {
-        background-color: #0C0C0C;
+        background-color: #0A0A0A;
       }
 
       .controls-expand.closed {
