@@ -1,7 +1,7 @@
 <!-- TODO -->
 <!-- DONE: Make the sidebar resizable -->
 <!-- DONE: Sometimes subtitles aren't parsed because their filename uses .ASS instead of .ass, and fluentcards fails on this -->
-<!-- Fix the main subtitle pane so it doesn't prevent you from clicking play -->
+<!-- DONE: Fix the main subtitle pane so it doesn't prevent you from clicking play -->
 <!-- DONE: Put an options bar at the bottom that expands and collapses -->
 <!-- DONE: Put a subtitle shift button in the options -->
 <!-- DONE: Make error messages specific to subtitle or video errors -->
@@ -9,11 +9,12 @@
 <!-- DONE: If you use yomichan to add a word from the sidebar, 
      it should only put a single caption into the sentence field in anki, 
      not every visible caption on the page -->
-<!-- Make the arrow keys work -->
-<!-- Make the arrow keys not shift any more than X seconds max -->
+<!-- DONE: Make the arrow keys work -->
+<!-- DONE: Make the arrow keys not shift any more than X seconds max -->
 <!-- DONE: Make LoGH subs load up by default; newlines are tricky -->
-<!-- Make double click hide sidebar? -->
-<!-- Make resize bar area bigger -->
+<!-- DONE: Make double click hide sidebar -->
+<!-- DONE: Make resize bar area bigger -->
+<!-- Maybe add tooltip when using "Offset Subtitles" -->
 
 <!DOCTYPE html>
 <html>
@@ -252,12 +253,6 @@
   <body>
     <div
       id="app"
-      @keyup.space.stop.prevent="playPause"
-      @keyup.enter.stop.prevent="replayCaption"
-      @keyup.left.stop.prevent="previousCaption"
-      @keyup.up.stop.prevent="previousCaption"
-      @keyup.right.stop.prevent="nextCaption"
-      @keyup.down.stop.prevent="nextCaption"
       @mouseup="onMouseUp"
       @mousemove="onMouseMove"
       @mouseout="onMouseOut"
@@ -305,6 +300,9 @@
               crossorigin="anonymous"
               controls
               disablePictureInPicture
+              disabled
+              tabIndex="-1"
+              @focus="onVideoFocus"
             >
               <track
                 kind="subtitles"
@@ -411,6 +409,37 @@
           controlsExpandClass: function () {
             return 'controls-expand' + (this.isControlsExpanded ? ' open' : ' closed')
           }
+        },
+        created: function () {
+          var self = this;
+          window.addEventListener('keydown', function (e) {
+            if (!self.videoUrl || !self.captionsUrl || self.shouldShowSubtitlesError || self.shouldShowVideoError)
+              return;
+            var stopEvent = function () {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            switch (e.code) {
+              case 'Space':
+                stopEvent(e);
+                self.playPause();
+                break;
+              case 'Enter':
+                stopEvent(e);
+                self.replayCaption();
+                break;
+              case 'ArrowLeft':
+              case 'ArrowUp':
+                stopEvent(e);
+                self.previousCaption();
+                break;
+              case 'ArrowDown':
+              case 'ArrowRight':
+                stopEvent(e);
+                self.nextCaption();
+                break;
+            }
+          })
         },
         watch: {
           activeCaption: function (newCaption, oldCaption) {
@@ -536,6 +565,10 @@
             this.shouldShowVideoError = true;
           },
 
+          onVideoFocus: function (event) {
+            this.getVideoElement().blur();
+          },
+
           getVideoElement: function() {
             return this.$el.querySelector("#video-element");
           },
@@ -590,10 +623,16 @@
               this.replayCaption();
             }
 
-            var index = track.cues.indexOf(this.activeCue);
+            var index = Array.prototype.indexOf.call(track.cues, this.activeCue);
             var next = track.cues[index + numCaptions];
 
-            this.playCue(next);
+            if ((this.currentTime - next.startTime) > 6) {
+              this.setCurrentTime(this.currentTime - 6)
+            } else if ((next.startTime - this.currentTime) > 6) {
+              this.setCurrentTime(this.currentTime + 6);
+            } else {
+              this.playCue(next);
+            }
           },
 
           isActive: function (caption) {
