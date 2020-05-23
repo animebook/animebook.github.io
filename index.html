@@ -647,7 +647,7 @@
           loadCaptions: function (file) {
             this.subtitlesFileName = file.name;
             this.shouldShowSubtitlesError = false;
-            const reader = new FileReader();
+            var reader = new FileReader();
             reader.readAsText(file);
             var self = this;
             reader.onload = function (e) {
@@ -656,7 +656,7 @@
           },
 
           assToVTT: function (text) {
-            const reAss = new RegExp(
+            var reAss = new RegExp(
               "Dialogue:\\s\\d," + // get time and subtitle
               "(\\d+:\\d\\d:\\d\\d.\\d\\d)," + // start time
               "(\\d+:\\d\\d:\\d\\d.\\d\\d)," + // end time
@@ -666,11 +666,11 @@
                 "(.*)$", // subtitle
               "i"
             );
-            const reTime = /(\d+):(\d\d):(\d\d).(\d\d)/;
-            const reStyle = /\{[^}]+\}/g;
+            var reTime = /(\d+):(\d\d):(\d\d).(\d\d)/;
+            var reStyle = /\{[^}]+\}/g;
 
-            const getSeconds = function (timeStr) {
-              const match = timeStr.match(reTime);
+            var getSeconds = function (timeStr) {
+              var match = timeStr.match(reTime);
               return (
                 Math.round(
                   parseInt(match[1], 10) * 60 * 60 * 1000 +
@@ -681,10 +681,10 @@
               );
             };
 
-            const lines = text.split(/[\n\r]+/g);
-            const captions = lines
+            var lines = text.split(/[\n\r]+/g);
+            var captions = lines
               .map(function (line, index) {
-                const match = line.match(reAss);
+                var match = line.match(reAss);
                 if (!match) {
                   return null;
                 }
@@ -704,14 +704,14 @@
           },
 
           srtToVTT: function (text) {
-            const reTime = /(\d\d):(\d\d):(\d\d),(\d\d\d)/;
+            var reTime = /(\d\d):(\d\d):(\d\d),(\d\d\d)/;
 
             if (!reTime.test(text)) {
               return null;
             }
 
-            const getSeconds = function (timeStr) {
-              const match = timeStr.match(reTime);
+            var getSeconds = function (timeStr) {
+              var match = timeStr.match(reTime);
               return (
                 Math.round(
                   parseInt(match[1], 10) * 60 * 60 * 1000 +
@@ -722,14 +722,14 @@
               );
             };
 
-            const entries = text.split(/\n[\r\n]+/g);
-            const captions = entries
+            var entries = text.split(/\n[\r\n]+/g);
+            var captions = entries
               .map(function (entry) {
-                const lines = entry.split(/\n+/g);
+                var lines = entry.split(/\n+/g);
                 if (lines.length < 3) {
                   return null;
                 }
-                const timestamps = lines[1].split(/\s*-->\s*/);
+                var timestamps = lines[1].split(/\s*-->\s*/);
                 return {
                   id: lines[0],
                   startTime: getSeconds(timestamps[0]),
@@ -745,12 +745,12 @@
           },
 
           formatVtt: function (captions) {
-            const padWithZeros = function (num, digits) {
+            var padWithZeros = function (num, digits) {
               return ("0000" + num).slice(-digits);
             };
 
-            const formatTime = function (seconds) {
-              const date = new Date(2000, 0, 1, 0, 0, 0, seconds * 1000);
+            var formatTime = function (seconds) {
+              var date = new Date(2000, 0, 1, 0, 0, 0, seconds * 1000);
               return [
                 padWithZeros(date.getHours(), 2),
                 padWithZeros(date.getMinutes(), 2),
@@ -760,7 +760,7 @@
               ].join(":");
             };
 
-            const lines = captions.map(function (caption) {
+            var lines = captions.map(function (caption) {
               return [
                 caption.id,
                 formatTime(caption.startTime) +
@@ -779,7 +779,7 @@
               return text;
             }
 
-            const parsed = this.assToVTT(text) || this.srtToVTT(text);
+            var parsed = this.assToVTT(text) || this.srtToVTT(text);
             if (!parsed) {
               this.shouldShowSubtitlesError = true;
               return null;
