@@ -338,7 +338,7 @@
           </div>
           <div v-if="captionsUrl" class="controls">
             <a :class="offsetButtonClass" @click="toggleOffsetMode()"><span>{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span></a>
-            <input class="offset-input" v-model="subtitlesOffsetInput"></input>
+            <input @keydown.space.stop="" @keydown.right.stop="" @keydown.left.stop="" class="offset-input" v-model="subtitlesOffsetInput"></input>
           </div>
         </div>
       </div>
