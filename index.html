@@ -8,7 +8,7 @@
 <!-- Put a subtitle shift button in the options -->
 <!-- Make error messages specific -->
 <!-- Make the app a single html page -->
-<!-- If you use yomichan to add a word from the sidebar, 
+<!-- DONE: If you use yomichan to add a word from the sidebar, 
      it should only put a single caption into the sentence field in anki, 
      not every visible caption on the page -->
 <!-- Make the arrow keys not shift any more than X seconds max -->
@@ -284,7 +284,9 @@
               />
             </video>
 
-            <div class="current-caption" v-html="'「' + displayedText + '」'"></div>
+            {{"\n"}}
+            <div class="current-caption" v-html="'' + displayedText + ''"></div>
+            {{"\n"}}
           </div>
           <div class="resize-bar-wrapper">
             <div 
@@ -299,7 +301,7 @@
                   :id="caption.id"
                   :class="captionStyle(caption, index)"
                   @click="selectCaption(caption)"
-                  v-html="'「' + caption.text + '」'">
+                  v-html="'' + caption.text + '\n'">
                 </div>
                 <div v-if="isOffsetMode" class='caption-time-offset'>
                   {{displayCaptionOffset(caption)}}
