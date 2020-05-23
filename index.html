@@ -14,7 +14,7 @@
 <!-- DONE: Make LoGH subs load up by default; newlines are tricky -->
 <!-- DONE: Make double click hide sidebar -->
 <!-- DONE: Make resize bar area bigger -->
-<!-- Maybe add tooltip when using "Offset Subtitles" -->
+<!-- DONE: Maybe add tooltip when using "Offset Subtitles" -->
 
 <!DOCTYPE html>
 <html>
@@ -194,7 +194,7 @@
       }
 
       .offset-button.on:hover {
-        background-color: #7d0909;
+        background-color: #6d0a0a;
         color: black;
       }
 
@@ -208,6 +208,19 @@
 
       .caption-time-offset:hover {
         color: #200;
+      }
+
+      .offset-hint {
+        color: #303030;
+        background-color: #060606;
+        grid-area: controlsExpand;
+        display: flex;
+        justify-content: center;
+        padding: 4px;
+        align-items: center;
+        text-align: center;
+        font-size: 1.5vh;
+        overflow: hidden;
       }
 
       .controls-expand {
@@ -335,7 +348,8 @@
               </div>
             </div>
           </div>
-          <div v-if="captionsUrl" :class="controlsExpandClass" @click="toggleControls()">
+          <div v-if="captionsUrl && isOffsetMode" class="offset-hint">Select the subtitle that ends where the video currently is: {{displayAsVideoTime(currentTime)}}</div>
+          <div v-if="captionsUrl && !isOffsetMode" :class="controlsExpandClass" @click="toggleControls()">
           </div>
           <div v-if="captionsUrl" class="controls">
             <a :class="offsetButtonClass" @click="toggleOffsetMode()"><span>{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span></a>
@@ -477,7 +491,9 @@
             return "grid-template-columns: " + widths.map(function (x) { return x * 100 + "%"; }).join(" ") + ";"
           },
           calcGridTemplateRows: function () {
-            if (this.isControlsExpanded)
+            if (this.isOffsetMode)
+              return 'grid-template-rows: 90.7% 5.9% 3.4%;';
+            else if (this.isControlsExpanded)
               return 'grid-template-rows: 95.7% 0.9% 3.4%;';
             else
               return 'grid-template-rows: 95.7% 3.4% 0.9%;';
@@ -646,6 +662,10 @@
           displayCaptionOffset: function (caption) {
             var offset = this.calcCaptionOffset(caption);
             return (offset > 0 ? '+' : '') + this.calcCaptionOffset(caption).toFixed(2) + "s";
+          },
+
+          displayAsVideoTime: function (seconds) {
+            return new Date(seconds * 1000).toISOString().substr(11, 8).replace(/^00:/g, '');
           },
 
           calcCaptionOffset: function (caption) {
