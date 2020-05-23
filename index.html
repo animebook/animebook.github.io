@@ -12,6 +12,7 @@
      it should only put a single caption into the sentence field in anki, 
      not every visible caption on the page -->
 <!-- Make the arrow keys not shift any more than X seconds max -->
+<!-- Make LoGH subs load up by default; newlines are tricky -->
 
 <!DOCTYPE html>
 <html>
@@ -156,7 +157,7 @@
         border-left: 1px solid black;
       }
 
-      .shift-mode, .cancel-shift-mode {
+      .offset-mode, .cancel-offset-mode {
         padding: .2rem;
         font-size: 1.5vh;
         flex-grow: 1;
@@ -174,20 +175,20 @@
         box-sizing: border-box;
       }
 
-      .shift-mode {
+      .offset-mode {
         background-color: #060606;
       }
 
-      .shift-mode:hover {
+      .offset-mode:hover {
         background-color: #91aab1;
         color: black;
       }
 
-      .cancel-shift-mode {
+      .cancel-offset-mode {
         background-color: #300;
       }
 
-      .cancel-shift-mode:hover {
+      .cancel-offset-mode:hover {
         background-color: #7d0909;
         color: black;
         cursor: pointer;
@@ -300,7 +301,7 @@
                   @click="selectCaption(caption)"
                   v-html="'「' + caption.text + '」'">
                 </div>
-                <div v-if="isShiftMode" class='caption-time-offset'>
+                <div v-if="isOffsetMode" class='caption-time-offset'>
                   {{calcCaptionOffsetDisplay(caption)}}
                 </div>
               </div>
@@ -309,7 +310,7 @@
           <div :class="controlsExpandClass" @click="toggleControls()">
           </div>
           <div class="controls">
-            <a :class="shiftModeClass" @click="toggleShiftMode()"><span>{{this.isShiftMode ? 'Cancel' : 'Offset Subtitles'}}</span></a>
+            <a :class="offsetModeClass" @click="toggleOffsetMode()"><span>{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span></a>
             <input class="subtitles-offset-input" v-model="subtitlesOffsetInput"></input>
           </div>
         </div>
@@ -337,7 +338,7 @@
           lastActiveCaption: null,
           currentActiveCaption: null,
           isControlsExpanded: true,
-          isShiftMode: false
+          isOffsetMode: false
         },
         computed: {
           dropWrapperClass: function () {
@@ -359,8 +360,8 @@
             var vtt = this.toVTT(this.subtitlesFileContent, this.subtitlesOffsetSeconds);
             return "data:text/vtt;charset=utf-8," + encodeURIComponent(vtt);
           },
-          shiftModeClass: function () {
-            return this.isShiftMode ? 'cancel-shift-mode' : 'shift-mode';
+          offsetModeClass: function () {
+            return this.isOffsetMode ? 'cancel-offset-mode' : 'offset-mode';
           },
           controlsExpandClass: function () {
             return 'controls-expand' + (this.isControlsExpanded ? ' open' : ' closed')
@@ -399,8 +400,8 @@
           toggleControls: function () {
             this.isControlsExpanded = !this.isControlsExpanded;
           },
-          toggleShiftMode: function () {
-            this.isShiftMode = !this.isShiftMode;
+          toggleOffsetMode: function () {
+            this.isOffsetMode = !this.isOffsetMode;
           },
           onMouseMove: function (e) {
             if (!this.isDraggingSidebar) {
@@ -550,9 +551,9 @@
           },
 
           selectCaption: function (caption) {
-            if (this.isShiftMode) {
+            if (this.isOffsetMode) {
               this.subtitlesOffsetInput = (this.subtitlesOffsetSeconds + this.calcCaptionOffset(caption)).toFixed(2);
-              this.isShiftMode = false;
+              this.isOffsetMode = false;
             } else {
               this.setCurrentTime(caption.startTime);
             }
