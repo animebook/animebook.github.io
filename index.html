@@ -133,8 +133,8 @@
         position: absolute;
         height: 100%;
         top: 0px;
-        left: -3px;
-        width: 6px;
+        left: -6px;
+        width: 8px;
         z-index: 2;
         cursor: ew-resize;
       }
@@ -320,6 +320,7 @@
           <div class="resize-bar-wrapper">
             <div 
               class="resize-bar"
+              @click.stop.prevent="onResizeBarClick"
               @mousedown.stop.prevent="onResizeBarMouseDown">
             </div>
           </div>
@@ -370,7 +371,9 @@
           lastActiveCaption: null,
           currentActiveCaption: null,
           isControlsExpanded: true,
-          isOffsetMode: false
+          isOffsetMode: false,
+          resizeBarClick: null,
+          previousSideBarX: 0.87
         },
         computed: {
           dropWrapperClass: function () {
@@ -479,12 +482,24 @@
             && (mouseX >= 0 && mouseX <= window.innerWidth))
                 return;
             this.onMouseUp(null);
-            console.log("MouseUp")
           },
           onResizeBarMouseDown: function (e) {
             this.isDraggingSidebar = true;
             this.sideBarDragStartX = this.pixelsToFraction(e.clientX);
-            console.log("MouseDown")
+          },
+          onResizeBarClick: function (e) {
+            if (this.resizeBarClick) {
+              clearTimeout(this.click)
+              if (this.sideBarX <= 0.99) {
+                this.previousSideBarX = this.sideBarX;
+                this.sideBarX = 1.00;
+              } else {
+                this.sideBarX = Math.min(this.previousSideBarX, 0.90);
+              }
+            }
+            this.resizeBarClick = setTimeout(() => {
+              this.resizeBarClick = undefined
+            }, 200)
           },
           pixelsToFraction(numPixels) {
             return numPixels / this.$el.clientWidth;
