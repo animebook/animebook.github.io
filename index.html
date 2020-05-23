@@ -588,9 +588,15 @@
             return videoElement ? videoElement.currentTime : 0;
           },
 
+          getTotalDuration: function() {
+            var videoElement = this.getVideoElement();
+            return videoElement ? videoElement.duration : 0;
+          },
+
           setCurrentTime: function(time) {
             var videoElement = this.getVideoElement();
             if (videoElement) {
+              this.currentTime = time;
               videoElement.currentTime = time;
               videoElement.play();
             }
@@ -605,6 +611,7 @@
           playCue: function (cue) {
             if (!cue) return;
             this.setCurrentTime(cue.startTime);
+            this.activeCue = cue;
           },
 
           replayCaption: function (e) {
@@ -625,17 +632,21 @@
             var track = this.getTrack();
             if (!track) return;
 
-            if (!this.activeCue) {
+            if (!this.activeCue)
               this.replayCaption();
+
+            var getNext = function (cue) {
+              var index = Array.prototype.indexOf.call(track.cues, cue);
+              return track.cues[index + numCaptions];
             }
 
-            var index = Array.prototype.indexOf.call(track.cues, this.activeCue);
-            var next = track.cues[index + numCaptions];
-
-            if ((this.currentTime - next.startTime) > 6) {
-              this.setCurrentTime(this.currentTime - 6)
-            } else if ((next.startTime - this.currentTime) > 6) {
-              this.setCurrentTime(this.currentTime + 6);
+            var next = getNext(this.activeCue);
+            if (!next || Math.abs(this.currentTime - next.startTime) > 6) {
+              var newTime = this.currentTime + (numCaptions * 6);
+              if (numCaptions < 0)
+                this.setCurrentTime(Math.max(newTime, 0.0))
+              else
+                this.setCurrentTime(Math.min(newTime, this.getTotalDuration() - 0.1))
             } else {
               this.playCue(next);
             }
