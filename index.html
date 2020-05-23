@@ -1,7 +1,6 @@
 <!-- TODO -->
 <!-- DONE: Make the sidebar resizable -->
 <!-- DONE: Sometimes subtitles aren't parsed because their filename uses .ASS instead of .ass, and fluentcards fails on this -->
-<!-- Unescape html in the side bar and the main subtitles -->
 <!-- Fix the main subtitle pane so it doesn't prevent you from clicking play -->
 <!-- DONE: Put an options bar at the bottom that expands and collapses -->
 <!-- DONE: Put a subtitle shift button in the options -->
@@ -10,8 +9,9 @@
 <!-- DONE: If you use yomichan to add a word from the sidebar, 
      it should only put a single caption into the sentence field in anki, 
      not every visible caption on the page -->
+<!-- Make the arrow keys work -->
 <!-- Make the arrow keys not shift any more than X seconds max -->
-<!-- Make LoGH subs load up by default; newlines are tricky -->
+<!-- DONE: Make LoGH subs load up by default; newlines are tricky -->
 
 <!DOCTYPE html>
 <html>
@@ -289,6 +289,7 @@
           <div class="subtitles-error" v-show="shouldShowSubtitlesError">
             <div class="hint">
               There was an error parsing the subtitles file {{subtitlesFileName}}.
+              <span v-if="subtitlesError">{{subtitlesError}}</span>
             </div>
           </div>
           <div class="video-container" v-show="videoUrl && !shouldShowVideoError">
@@ -355,6 +356,7 @@
           currentTime: 0.0,
           shouldShowVideoError: false,
           shouldShowSubtitlesError: false,
+          subtitlesError: null,
           isDraggingSidebar: false,
           sideBarDragStartX: 0,
           sideBarDragDx: 0,
@@ -385,11 +387,17 @@
             if (!this.subtitlesFileContent)
               return null;
 
-            var vtt = this.toVTT(this.subtitlesFileContent, this.subtitlesOffsetSeconds);
-            if (!vtt)
-              return null;
+            try {
+              var vtt = this.toVTT(this.subtitlesFileContent, this.subtitlesOffsetSeconds);
+              if (!vtt)
+                return null;
 
-            return "data:text/vtt;charset=utf-8," + encodeURIComponent(vtt);
+              return "data:text/vtt;charset=utf-8," + encodeURIComponent(vtt);
+            } catch (error) {
+              this.subtitlesError = error.message;
+              this.shouldShowSubtitlesError = true;
+              return null;
+            }
           },
           offsetButtonClass: function () {
             return 'offset-button' + (this.isOffsetMode ? ' on' : ' off');
@@ -655,7 +663,7 @@
             };
           },
 
-          assToVTT: function (text) {
+          assToCaptions: function (text) {
             var reAss = new RegExp(
               "Dialogue:\\s\\d," + // get time and subtitle
               "(\\d+:\\d\\d:\\d\\d.\\d\\d)," + // start time
@@ -703,7 +711,8 @@
             return captions.length ? captions : null;
           },
 
-          srtToVTT: function (text) {
+          srtToCaptions: function (text) {
+            text = text.replace(/\r/g, '');
             var reTime = /(\d\d):(\d\d):(\d\d),(\d\d\d)/;
 
             if (!reTime.test(text)) {
@@ -722,7 +731,7 @@
               );
             };
 
-            var entries = text.split(/\n[\r\n]+/g);
+            var entries = text.split(/\n[\n]+(?=[0-9]+\n)/g);
             var captions = entries
               .map(function (entry) {
                 var lines = entry.split(/\n+/g);
@@ -779,7 +788,7 @@
               return text;
             }
 
-            var parsed = this.assToVTT(text) || this.srtToVTT(text);
+            var parsed = this.assToCaptions(text) || this.srtToCaptions(text);
             if (!parsed) {
               this.shouldShowSubtitlesError = true;
               return null;
