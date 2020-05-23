@@ -3,10 +3,9 @@
 <!-- DONE: Sometimes subtitles aren't parsed because their filename uses .ASS instead of .ass, and fluentcards fails on this -->
 <!-- Unescape html in the side bar and the main subtitles -->
 <!-- Fix the main subtitle pane so it doesn't prevent you from clicking play -->
-<!-- Put an options bar at the bottom that expands and collapses -->
-<!-- Put an audio track selector in the options -->
-<!-- Put a subtitle shift button in the options -->
-<!-- Make error messages specific -->
+<!-- DONE: Put an options bar at the bottom that expands and collapses -->
+<!-- DONE: Put a subtitle shift button in the options -->
+<!-- DONE: Make error messages specific to subtitle or video errors -->
 <!-- Make the app a single html page -->
 <!-- DONE: If you use yomichan to add a word from the sidebar, 
      it should only put a single caption into the sentence field in anki, 
@@ -18,7 +17,6 @@
 <html>
   <head>
     <title>Animebook</title>
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <style>
       html,
       body,
@@ -51,12 +49,14 @@
         grid-area: video;
       }
 
-      .video-missing {
+      .video-missing, .video-error {
         grid-area: video;
+        position: relative;
       }
 
-      .subtitles-missing {
+      .subtitles-missing, .subtitles-error {
         grid-area: captions;
+        position: relative;
       }
 
       .video-container {
@@ -228,7 +228,23 @@
         background-color: #91aab1;
       }
 
+      .hint {
+        font-size: 22px;
+        letter-spacing: 1.1px;
+        word-spacing: 0.05em;
+        line-height: 1.5;
+        font-weight: normal;
+        position: absolute;
+        top: 20%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 600px;
+        text-align: center;
+      }
+
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   </head>
   <body>
     <div
@@ -251,20 +267,31 @@
         @drop.stop.prevent="onFileDrop"
       >
         <div class="app-container" :style="calcAppStyle()">
-          <div class="video-subtitles-missing" v-if="!videoUrl && !captionsUrl">
+          <div class="video-subtitles-missing hint" v-show="!videoUrl && !captionsUrl">
             Drag-and-drop a video file and the corresponding subtitles file to
             this page
           </div>
-          <div
-            class="video-missing"
-            v-if="!videoUrl && captionsUrl && !isError"
-          >
-            Drag-and-drop a video file
+          <div class="video-missing" v-show="!videoUrl && captionsUrl && !shouldShowVideoError">
+            <div class="hint">
+              Drag-and-drop a video file
+            </div>
           </div>
-          <div class="subtitles-missing" v-if="videoUrl && !captionsUrl">
+          <div class="subtitles-missing" v-show="videoUrl && !captionsUrl && !shouldShowSubtitlesError">
+            <div class="hint">
             Drag-and-drop a subtitles file<br />(vtt, srt or ass)
+            </div>
           </div>
-          <div class="video-container" v-if="videoUrl && !isError">
+          <div class="video-error" v-show="shouldShowVideoError">
+            <div class="hint">
+              There was an error loading the video file {{videoFileName}}. Note that web players do not support support H.265 video or AC3 audio.
+            </div>
+          </div>
+          <div class="subtitles-error" v-show="shouldShowSubtitlesError">
+            <div class="hint">
+              There was an error parsing the subtitles file {{subtitlesFileName}}.
+            </div>
+          </div>
+          <div class="video-container" v-show="videoUrl && !shouldShowVideoError">
             <video
               id="video-element"
               class="video-element"
@@ -284,9 +311,7 @@
               />
             </video>
 
-            {{"\n"}}
-            <div class="current-caption" v-html="'' + displayedText + ''"></div>
-            {{"\n"}}
+            <div class="current-caption" v-html="'\n' + displayedText + '\n'"></div>
           </div>
           <div class="resize-bar-wrapper">
             <div 
@@ -295,7 +320,7 @@
             </div>
           </div>
           <div class="sidebar-captions" v-if="captionsUrl">
-            <div class="captions-container" v-if="captionsUrl">
+            <div class="captions-container">
               <div v-for="(caption, index) in captions" style="position: relative;">
                 <div
                   :id="caption.id"
@@ -303,15 +328,13 @@
                   @click="selectCaption(caption)"
                   v-html="'' + caption.text + '\n'">
                 </div>
-                <div v-if="isOffsetMode" class='caption-time-offset'>
-                  {{displayCaptionOffset(caption)}}
-                </div>
+                <div v-if="isOffsetMode" class='caption-time-offset' v-html="displayCaptionOffset(caption)"></div>
               </div>
             </div>
           </div>
-          <div :class="controlsExpandClass" @click="toggleControls()">
+          <div v-if="captionsUrl" :class="controlsExpandClass" @click="toggleControls()">
           </div>
-          <div class="controls">
+          <div v-if="captionsUrl" class="controls">
             <a :class="offsetButtonClass" @click="toggleOffsetMode()"><span>{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span></a>
             <input class="offset-input" v-model="subtitlesOffsetInput"></input>
           </div>
@@ -326,10 +349,12 @@
           videoUrl: null,
           subtitlesFileContent: null,
           subtitlesOffsetInput: "0.0",
-          videoTitle: null,
+          videoFileName: null,
+          subtitlesFileName: null,
           activeCue: null,
           currentTime: 0.0,
-          isError: false,
+          shouldShowVideoError: false,
+          shouldShowSubtitlesError: false,
           isDraggingSidebar: false,
           sideBarDragStartX: 0,
           sideBarDragDx: 0,
@@ -359,7 +384,11 @@
           captionsUrl: function () {
             if (!this.subtitlesFileContent)
               return null;
+
             var vtt = this.toVTT(this.subtitlesFileContent, this.subtitlesOffsetSeconds);
+            if (!vtt)
+              return null;
+
             return "data:text/vtt;charset=utf-8," + encodeURIComponent(vtt);
           },
           offsetButtonClass: function () {
@@ -380,6 +409,9 @@
             return this.calcGridTemplateAreas() + this.calcGridTemplateColumns() + this.calcGridTemplateRows();
           },
           calcGridTemplateAreas: function () {
+            if (!this.videoUrl && !this.captionsUrl && !this.shouldShowSubtitlesError)
+              return "grid-template-areas: video";
+
             if (this.isControlsExpanded) {
               return "grid-template-areas: " +
               "'video resizeBar captions' " +
@@ -470,12 +502,12 @@
             }
 
             this.videoUrl = URL.createObjectURL(file);
-            this.isError = false;
-            this.videoTitle = file.name.split(".").slice(0, -1).join("");
+            this.shouldShowVideoError = false;
+            this.videoFileName = file.name;
           },
 
           onVideoError: function (event) {
-            this.isError = true;
+            this.shouldShowVideoError = true;
           },
 
           getVideoElement: function() {
@@ -613,6 +645,8 @@
           },
 
           loadCaptions: function (file) {
+            this.subtitlesFileName = file.name;
+            this.shouldShowSubtitlesError = false;
             const reader = new FileReader();
             reader.readAsText(file);
             var self = this;
@@ -621,7 +655,7 @@
             };
           },
 
-          ass: function (text) {
+          assToVTT: function (text) {
             const reAss = new RegExp(
               "Dialogue:\\s\\d," + // get time and subtitle
               "(\\d+:\\d\\d:\\d\\d.\\d\\d)," + // start time
@@ -669,7 +703,7 @@
             return captions.length ? captions : null;
           },
 
-          srt: function (text) {
+          srtToVTT: function (text) {
             const reTime = /(\d\d):(\d\d):(\d\d),(\d\d\d)/;
 
             if (!reTime.test(text)) {
@@ -745,16 +779,18 @@
               return text;
             }
 
-            const parsed = this.ass(text) || this.srt(text);
+            const parsed = this.assToVTT(text) || this.srtToVTT(text);
+            if (!parsed) {
+              this.shouldShowSubtitlesError = true;
+              return null;
+            }
+
             parsed.forEach(function (cue) {
               cue.startTime = Math.max(0, cue.startTime + offset);
               cue.endTime = Math.max(0, cue.endTime + offset);
             });
-            if (parsed) {
-              return this.formatVtt(parsed);
-            }
 
-            return text;
+            return this.formatVtt(parsed);
           },
         },
       });
