@@ -145,23 +145,21 @@
         color: #444;
       }
 
-      .subtitles-offset-input {
+      .offset-input {
         border: 0;
         color: #444;
         background-color: #060606;
         font-size: 1.5vh;
         text-align: center;
-        flex-grow: 1;
-        width: 100%;
+        width: 10px;
+        flex: 1 1 50%;
         box-sizing: border-box;
         border-left: 1px solid black;
       }
 
-      .offset-mode, .cancel-offset-mode {
+      .offset-button {
         padding: .2rem;
         font-size: 1.5vh;
-        flex-grow: 1;
-        width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -173,25 +171,27 @@
         cursor: pointer;
         transition: background-color 100ms linear;
         box-sizing: border-box;
+        overflow: hidden;
+        cursor: pointer;
+        flex: 1 1 50%;
       }
 
-      .offset-mode {
+      .offset-button.off {
         background-color: #060606;
       }
 
-      .offset-mode:hover {
+      .offset-button.off:hover {
         background-color: #91aab1;
         color: black;
       }
 
-      .cancel-offset-mode {
+      .offset-button.on {
         background-color: #300;
       }
 
-      .cancel-offset-mode:hover {
+      .offset-button.on:hover {
         background-color: #7d0909;
         color: black;
-        cursor: pointer;
       }
 
       .caption-time-offset {
@@ -207,7 +207,7 @@
       }
 
       .controls-expand {
-        grid-area: controlsexpand;
+        grid-area: controlsExpand;
         box-sizing: border-box;
         cursor: pointer;
         text-align: center;
@@ -302,7 +302,7 @@
                   v-html="'「' + caption.text + '」'">
                 </div>
                 <div v-if="isOffsetMode" class='caption-time-offset'>
-                  {{calcCaptionOffsetDisplay(caption)}}
+                  {{displayCaptionOffset(caption)}}
                 </div>
               </div>
             </div>
@@ -310,8 +310,8 @@
           <div :class="controlsExpandClass" @click="toggleControls()">
           </div>
           <div class="controls">
-            <a :class="offsetModeClass" @click="toggleOffsetMode()"><span>{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span></a>
-            <input class="subtitles-offset-input" v-model="subtitlesOffsetInput"></input>
+            <a :class="offsetButtonClass" @click="toggleOffsetMode()"><span>{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span></a>
+            <input class="offset-input" v-model="subtitlesOffsetInput"></input>
           </div>
         </div>
       </div>
@@ -326,7 +326,7 @@
           subtitlesOffsetInput: "0.0",
           videoTitle: null,
           activeCue: null,
-          currentTime: null,
+          currentTime: 0.0,
           isError: false,
           isDraggingSidebar: false,
           sideBarDragStartX: 0,
@@ -360,8 +360,8 @@
             var vtt = this.toVTT(this.subtitlesFileContent, this.subtitlesOffsetSeconds);
             return "data:text/vtt;charset=utf-8," + encodeURIComponent(vtt);
           },
-          offsetModeClass: function () {
-            return this.isOffsetMode ? 'cancel-offset-mode' : 'offset-mode';
+          offsetButtonClass: function () {
+            return 'offset-button' + (this.isOffsetMode ? ' on' : ' off');
           },
           controlsExpandClass: function () {
             return 'controls-expand' + (this.isControlsExpanded ? ' open' : ' closed')
@@ -378,11 +378,19 @@
             return this.calcGridTemplateAreas() + this.calcGridTemplateColumns() + this.calcGridTemplateRows();
           },
           calcGridTemplateAreas: function () {
-            return "grid-template-areas: " +
-            "'video resizeBar captions' " +
-            "'video resizeBar " + (this.isControlsExpanded ? "controlsexpand" : "captions") + "' " +
-            "'video resizeBar " + (this.isControlsExpanded ? "controls" : "controlsexpand") + "' " +
-            ";"
+            if (this.isControlsExpanded) {
+              return "grid-template-areas: " +
+              "'video resizeBar captions' " +
+              "'video resizeBar controlsExpand' " +
+              "'video resizeBar controls' " +
+              ";";
+            } else {
+              return "grid-template-areas: " +
+              "'video resizeBar captions' " +
+              "'video resizeBar captions' " +
+              "'video resizeBar controlsExpand' " +
+              ";";
+            }
           },
           calcGridTemplateColumns: function () {
             var leftWidth = this.sideBarX + this.sideBarDragDx;
@@ -402,6 +410,9 @@
           },
           toggleOffsetMode: function () {
             this.isOffsetMode = !this.isOffsetMode;
+          },
+          toggleTooltip: function () {
+            this.shouldShowTooltip = !this.shouldShowTooltip;
           },
           onMouseMove: function (e) {
             if (!this.isDraggingSidebar) {
@@ -530,18 +541,10 @@
           },
 
           captionStyle: function (caption, index) {
-            var classes = [
-              "caption",
-              this.isActive(caption) ? "active" : ""
-            ];
-            return classes
-              .filter(function (c) {
-                return c.length !== 0;
-              })
-              .join(" ");
+            return 'caption' + (this.isActive(caption) ? ' active' : '')
           },
 
-          calcCaptionOffsetDisplay: function (caption) {
+          displayCaptionOffset: function (caption) {
             var offset = this.calcCaptionOffset(caption);
             return (offset > 0 ? '+' : '') + this.calcCaptionOffset(caption).toFixed(2) + "s";
           },
