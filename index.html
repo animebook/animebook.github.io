@@ -655,6 +655,7 @@
           loadCaptions: function (file) {
             this.subtitlesFileName = file.name;
             this.shouldShowSubtitlesError = false;
+            this.subtitlesError = null;
             var reader = new FileReader();
             reader.readAsText(file);
             var self = this;
@@ -791,6 +792,7 @@
             var parsed = this.assToCaptions(text) || this.srtToCaptions(text);
             if (!parsed) {
               this.shouldShowSubtitlesError = true;
+              this.subtitlesError = null;
               return null;
             }
 
