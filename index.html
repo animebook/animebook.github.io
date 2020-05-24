@@ -89,12 +89,15 @@
 
       .current-caption {
         font-size: 25px;
+        color: #808080;
         text-align: center;
         position: absolute;
-        bottom: 10px;
+        bottom: 3.5%;
+        padding: 5px 25px;
         left: 50%;
-        transform: translate(-50%, -50%);
-        color: #808080;
+        transform: translate(-50%, 0%);
+        width: fit-content;
+        max-width: 82%;
         z-index: 2;
         -moz-box-sizing: border-box;
         -webkit-box-sizing: border-box;
@@ -362,7 +365,7 @@
           isDraggingSidebar: false,
           sideBarDragStartX: 0,
           sideBarDragDx: 0,
-          sideBarX: 0.87,
+          sideBarX: 0.89,
           captionTracks: [],
           captions: [],
           isDraggingFile: false,
@@ -371,7 +374,7 @@
           isControlsExpanded: true,
           isOffsetMode: false,
           resizeBarClick: null,
-          previousSideBarX: 0.87,
+          previousSideBarX: 0.89,
           trackKey: 1
         },
         computed: {
