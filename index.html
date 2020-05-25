@@ -835,6 +835,67 @@
             return captions.length ? captions : null;
           },
 
+          vttToCaptions: function (text) {
+            if (text.indexOf("WEBVTT") !== 0)
+              return null;
+
+            text = text.replace(/\r/g, '');
+            var reTime = /(\d\d):(\d\d):(\d\d).(\d\d\d)/;
+            var reTimeNoHours = /()(\d\d):(\d\d).(\d\d\d)/;
+
+            var hasTimeStamp = function (text) {
+              return reTime.test(text) || reTimeNoHours.test(text);
+            }
+
+            if (!hasTimeStamp(text)) {
+              return null;
+            }
+
+            var getSeconds = function (timeStr) {
+              var match = timeStr.match(reTime);
+              if (!match)
+                match = timeStr.match(reTimeNoHours)
+              return (
+                Math.round(
+                    (match[1] ? (parseInt(match[1], 10) * 60 * 60 * 1000) : 0) +
+                    parseInt(match[2], 10) * 60 * 1000 +
+                    parseInt(match[3], 10) * 1000 +
+                    parseInt(match[4], 10)
+                ) / 1000
+              );
+            };
+
+            var entries = text.split(/\n[\n]+/g);
+            var captions = entries
+              .map(function (entry) {
+                if (!hasTimeStamp(entry))
+                  return null;
+
+                var entryId = null;
+                var lines = entry.split(/\n+/g);
+
+                if (lines.length > 0 && !hasTimeStamp(lines[0])) {
+                  entryId = lines[0]
+                  lines = lines.slice(1, lines.length);
+                }
+                if (lines.length < 2)
+                  return null;
+
+                var timestamps = lines[0].split(/\s*-->\s*/);
+                return {
+                  id: entryId,
+                  startTime: getSeconds(timestamps[0]),
+                  endTime: getSeconds(timestamps[1]),
+                  text: lines.slice(1).join("\n"),
+                };
+              })
+              .filter(function (caption) {
+                return caption != null;
+              });
+
+              return captions.length ? captions : null;
+          },
+
           formatVtt: function (captions) {
             var padWithZeros = function (num, digits) {
               return ("0000" + num).slice(-digits);
@@ -866,11 +927,11 @@
           },
 
           toVTT: function (text, offset) {
-            if (text.indexOf("WEBVTT") === 0) {
-              return text;
+            if (text.indexOf("WEBVTT") === 0 && offset === 0) {
+                return text;
             }
 
-            var parsed = this.assToCaptions(text) || this.srtToCaptions(text);
+            var parsed = this.assToCaptions(text) || this.srtToCaptions(text) || this.vttToCaptions(text);
             if (!parsed) {
               this.shouldShowSubtitlesError = true;
               this.subtitlesError = null;
