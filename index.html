@@ -705,8 +705,8 @@
               endTime: cue.endTime,
               text: cue.text.replace(/\n/g, "<br>"),
             };
-            if (!caption.id) {
-              caption.id = JSON.stringify(caption);
+            if (!cue.id) {
+              caption.id = "id_" + JSON.stringify(caption);
             }
             return caption;
           },
