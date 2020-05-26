@@ -614,7 +614,7 @@
 
           playCue: function (cue) {
             if (!cue) return;
-            this.setCurrentTime(cue.startTime);
+            this.setCurrentTime(cue.startTime + 0.0001);
             this.activeCue = cue;
           },
 
@@ -694,7 +694,7 @@
               this.subtitlesOffsetInput = (this.subtitlesOffsetSeconds + this.calcCaptionOffset(caption)).toFixed(2);
               this.isOffsetMode = false;
             } else {
-              this.setCurrentTime(caption.startTime);
+              this.setCurrentTime(caption.startTime + 0.0001);
             }
           },
 
