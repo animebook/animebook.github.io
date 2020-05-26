@@ -700,14 +700,12 @@
             if (!cue) return null;
 
             var caption = {
-              id: "id_" + cue.id,
+              id: ("id_" + cue.id + "_" + cue.startTime + "_" + cue.endTime + "_" + cue.text.length).replace(/\./g, "d"),
               startTime: cue.startTime,
               endTime: cue.endTime,
               text: cue.text.replace(/\n/g, "<br>"),
             };
-            if (!cue.id) {
-              caption.id = "id_" + JSON.stringify(caption);
-            }
+
             return caption;
           },
 
