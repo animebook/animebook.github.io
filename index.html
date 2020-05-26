@@ -375,7 +375,8 @@
           isOffsetMode: false,
           resizeBarClick: null,
           previousSideBarX: 0.89,
-          trackKey: 1
+          trackKey: 1,
+          captionMoveLimitSeconds: 6.0
         },
         computed: {
           dropWrapperClass: function () {
@@ -638,20 +639,32 @@
             if (!this.activeCue)
               this.replayCaption();
 
-            var getNext = function (cue) {
-              var index = Array.prototype.indexOf.call(track.cues, cue);
-              return track.cues[index + numCaptions];
+            var getNext = function (currentCue, currentTime) {
+              var epsilon = 0.1
+              if (numCaptions < 0 && (currentCue.endTime + epsilon) < currentTime)
+                return currentCue;
+
+              var activeIndex = Array.prototype.indexOf.call(track.cues, currentCue);
+              return track.cues[activeIndex + numCaptions];
             }
 
-            var next = getNext(this.activeCue);
-            if (!next || Math.abs(this.currentTime - next.startTime) > 6) {
-              var newTime = this.currentTime + (numCaptions * 6);
+            var next = getNext(this.activeCue, this.currentTime);
+            if (!next || this.tooFarAway(this.currentTime, next, numCaptions)) {
+              var newTime = this.currentTime + (numCaptions * this.captionMoveLimitSeconds);
               if (numCaptions < 0)
                 this.setCurrentTime(Math.max(newTime, 0.0))
               else
                 this.setCurrentTime(Math.min(newTime, this.getTotalDuration() - 0.1))
             } else {
               this.playCue(next);
+            }
+          },
+
+          tooFarAway: function (currentTime, nextCue, numCaptionsMovingBy) {
+            if (numCaptionsMovingBy > 0) {
+              return Math.abs(currentTime - nextCue.startTime) > this.captionMoveLimitSeconds
+            } else {
+              return Math.abs(currentTime - nextCue.endTime) > this.captionMoveLimitSeconds
             }
           },
 
