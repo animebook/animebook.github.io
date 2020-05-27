@@ -957,7 +957,10 @@
               return null;
 
             for (var i = 0; i < parsed.length; i++) {
-              parsed[i].id = "id_" + i;
+              var caption = parsed[i]
+              caption.id = "id_" + i;
+              caption.startTime = caption.startTime + offset;
+              caption.endTime = caption.endTime + offset;
             }
 
             parsed.sort(function (a, b) {
@@ -965,11 +968,6 @@
                 return a.endTime > b.endTime ? 1 : a.endTime < b.endTime ? -1 : 0;
               }
               return a.startTime > b.startTime ? 1 : -1;1
-            });
-
-            parsed.forEach(function (caption) {
-              caption.startTime = caption.startTime + offset;
-              caption.endTime = caption.endTime + offset;
             });
 
             return parsed;
