@@ -15,7 +15,7 @@ This is a modified version of https://github.com/katspaugh/videobook, with some 
 Drag and drop your video file and your subtitle file (vtt, srt, or ass) onto the webpage and you should be good to go. Some videos will show an error message when you drop them onto the screen, and that's usually because the video format isn't supported by web players (H.265 video and AC3 audio have this problem). Also, different browsers use different video codecs, so for best results it's recommended to use Chrome, since as of writing it supports the most video formats I've seen among major browsers.
 
 You can also right click on the video and disable "Show controls" if you find the browser's built-in controls distracting. I typically do this and rely on the sidebar and hotkeys for navigation.
-Left/Up - Move backward
-Right/Down - Move forward
-Space - Pause/Play
-Enter - Replay caption
+- Left/Up - Move backward
+- Right/Down - Move forward
+- Space - Pause/Play
+- Enter - Replay caption
