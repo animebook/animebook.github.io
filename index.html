@@ -381,7 +381,8 @@
           resizeBarClick: null,
           previousSideBarX: 0.89,
           trackKey: 1,
-          captionMoveLimitSeconds: 6.0
+          captionMoveLimitSeconds: 6.0,
+          captionBackwardMoveBufferSeconds: 2.0
         },
         computed: {
           dropWrapperClass: function () {
@@ -664,9 +665,9 @@
               return;
             }
 
+            var self = this;
             var getNext = function (currentCaption, currentTime) {
-              var epsilon = 0.1
-              if (numCaptions < 0 && (currentCaption.endTime + epsilon) < currentTime)
+              if (numCaptions < 0 && (currentCaption.endTime + self.captionBackwardMoveBufferSeconds) < currentTime)
                 return currentCaption;
 
               var activeIndex = Array.prototype.indexOf.call(captions, currentCaption);
@@ -689,7 +690,7 @@
             if (numCaptionsMovingBy > 0) {
               return Math.abs(currentTime - nextCaption.startTime) > this.captionMoveLimitSeconds
             } else {
-              return Math.abs(currentTime - nextCaption.endTime) > this.captionMoveLimitSeconds
+              return Math.abs(currentTime - (nextCaption.endTime + this.captionBackwardMoveBufferSeconds)) > this.captionMoveLimitSeconds
             }
           },
 
