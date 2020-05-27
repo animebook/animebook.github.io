@@ -336,7 +336,7 @@
                   :id="caption.id"
                   :class="captionStyle(caption, index)"
                   @click="selectCaption(caption)"
-                  v-html="'' + caption.text + '\n'">
+                  v-html="displayCaption(caption.text)">
                 </div>
                 <div v-if="isOffsetMode" class='caption-time-offset' v-html="displayCaptionOffset(caption)"></div>
               </div>
@@ -363,7 +363,7 @@
           subtitlesOffsetInput: "0.0",
           videoFileName: null,
           subtitlesFileName: null,
-          activeCue: null,
+          activeCaptionId: null,
           currentTime: 0.0,
           shouldShowVideoError: false,
           shouldShowSubtitlesError: false,
@@ -372,7 +372,6 @@
           sideBarDragStartX: 0,
           sideBarDragDx: 0,
           sideBarX: 0.89,
-          captionTracks: [],
           captions: [],
           isDraggingFile: false,
           lastActiveCaption: null,
@@ -388,11 +387,8 @@
           dropWrapperClass: function () {
             return this.isDraggingFile ? "dragging-file" : "";
           },
-          activeCaption: function () {
-            return this.cueToCaption(this.activeCue);
-          },
           displayedText: function () {
-            return this.activeCaption ? this.activeCaption.text : "";
+            return this.activeCaption ? this.displayCaption(this.activeCaption.text) : "";
           },
           subtitlesOffsetSeconds: function () {
             var num = parseFloat(this.subtitlesOffsetInput);
@@ -403,9 +399,14 @@
               return null;
 
             try {
-              var vtt = this.toVTT(this.subtitlesFileContent, this.subtitlesOffsetSeconds);
-              if (!vtt)
+              var captions = this.fileToCaptions(this.subtitlesFileContent, this.subtitlesOffsetSeconds);
+              var vtt = this.formatVtt(captions);
+              if (!vtt) {
+                this.shouldShowSubtitlesError = true;
+                this.subtitlesError = null;
                 return null;
+              }
+              this.captions = captions;
 
               return "data:text/vtt;charset=utf-8," + encodeURIComponent(vtt);
             } catch (error) {
@@ -413,6 +414,18 @@
               this.shouldShowSubtitlesError = true;
               return null;
             }
+          },
+          captionsMap: function () {
+            var map = {};
+            this.captions.forEach(function (c) { map[c.id] = c;})
+            return map;
+          },
+          activeCaption: function () {
+            if (!this.activeCaptionId || !this.captions)
+              return null;
+
+            var searchId = this.activeCaptionId;
+            return this.captionsMap[searchId]
           },
           offsetButtonClass: function () {
             return 'offset-button' + (this.isOffsetMode ? ' on' : ' off');
@@ -453,8 +466,10 @@
           })
         },
         watch: {
-          activeCaption: function (newCaption, oldCaption) {
-            var el = this.$el.querySelector("#" + newCaption.id);
+          activeCaptionId: function (newCaptionId, oldCaptionId) {
+            if (!newCaptionId)
+              return;
+            var el = this.$el.querySelector("#" + newCaptionId);
             el.scrollIntoViewIfNeeded ? el.scrollIntoViewIfNeeded() : el.scrollIntoView({ behavior: 'smooth' });
           },
           captionsUrl: function (newValue, oldValue) {
@@ -618,16 +633,17 @@
             else video.pause();
           },
 
-          playCue: function (cue) {
-            if (!cue) return;
-            this.setCurrentTime(cue.startTime + 0.0001);
-            this.activeCue = cue;
+          playCaption: function (caption) {
+            if (!caption)
+              return;
+            this.setCurrentTime(caption.startTime + 0.0001);
+            this.activeCaptionId = caption.id;
           },
 
           replayCaption: function (e) {
-            var track = this.getTrack();
-            if (!track) return;
-            this.playCue(this.activeCue || track.cues[0]);
+            if (!this.captions)
+              return;
+            this.playCaption(this.activeCaption || this.captions[0]);
           },
 
           previousCaption: function (e) {
@@ -639,22 +655,25 @@
           },
 
           moveCaptionsBy: function (numCaptions) {
-            var track = this.getTrack();
-            if (!track) return;
+            var captions = this.captions;
+            if (!captions)
+              return;
 
-            if (!this.activeCue)
+            if (!this.activeCaptionId) {
               this.replayCaption();
-
-            var getNext = function (currentCue, currentTime) {
-              var epsilon = 0.1
-              if (numCaptions < 0 && (currentCue.endTime + epsilon) < currentTime)
-                return currentCue;
-
-              var activeIndex = Array.prototype.indexOf.call(track.cues, currentCue);
-              return track.cues[activeIndex + numCaptions];
+              return;
             }
 
-            var next = getNext(this.activeCue, this.currentTime);
+            var getNext = function (currentCaption, currentTime) {
+              var epsilon = 0.1
+              if (numCaptions < 0 && (currentCaption.endTime + epsilon) < currentTime)
+                return currentCaption;
+
+              var activeIndex = Array.prototype.indexOf.call(captions, currentCaption);
+              return captions[activeIndex + numCaptions];
+            }
+
+            var next = getNext(this.activeCaption, this.currentTime);
             if (!next || this.tooFarAway(this.currentTime, next, numCaptions)) {
               var newTime = this.currentTime + (numCaptions * this.captionMoveLimitSeconds);
               if (numCaptions < 0)
@@ -662,15 +681,15 @@
               else
                 this.setCurrentTime(Math.min(newTime, this.getTotalDuration() - 0.1))
             } else {
-              this.playCue(next);
+              this.playCaption(next);
             }
           },
 
-          tooFarAway: function (currentTime, nextCue, numCaptionsMovingBy) {
+          tooFarAway: function (currentTime, nextCaption, numCaptionsMovingBy) {
             if (numCaptionsMovingBy > 0) {
-              return Math.abs(currentTime - nextCue.startTime) > this.captionMoveLimitSeconds
+              return Math.abs(currentTime - nextCaption.startTime) > this.captionMoveLimitSeconds
             } else {
-              return Math.abs(currentTime - nextCue.endTime) > this.captionMoveLimitSeconds
+              return Math.abs(currentTime - nextCaption.endTime) > this.captionMoveLimitSeconds
             }
           },
 
@@ -707,43 +726,29 @@
           getTrack: function () {
             var tracks = this.getVideoElement().textTracks;
             var track = tracks && tracks[0];
-            if (!track) return null;
-
-            // TODO: Do this a better way?
-            track.mode = "hidden";
-
             return track;
           },
 
-          cueToCaption: function (cue) {
-            if (!cue) return null;
-
-            var caption = {
-              id: ("id_" + cue.id + "_" + cue.startTime + "_" + cue.endTime + "_" + cue.text.length).replace(/\./g, "d"),
-              startTime: cue.startTime,
-              endTime: cue.endTime,
-              text: cue.text.replace(/\n/g, "<br>"),
-            };
-
-            return caption;
+          displayCaption: function (text) {
+            return "\n" + text.replace(/\n/g, "<br>") + "\n";
           },
 
           onCaptionsLoad: function (e) {
             var track = this.getTrack();
-            if (!track) return;
-
-            this.captions = Array.prototype.map.call(
-              track.cues,
-              this.cueToCaption
-            );
+            if (!track)
+              return;
+            track.mode = "hidden";
           },
 
           onCaptionsCueChange: function (e) {
             var track = this.getTrack();
-            if (!track) return;
+            if (!track)
+              return;
+            track.mode = "hidden";
 
             var cue = track.activeCues[0];
-            if (cue) this.activeCue = cue;
+            if (cue)
+              this.activeCaptionId = cue.id;
           },
 
           isCaptions: function (file) {
@@ -914,6 +919,9 @@
           },
 
           formatVtt: function (captions) {
+            if (!captions)
+              return null;
+
             var padWithZeros = function (num, digits) {
               return ("0000" + num).slice(-digits);
             };
@@ -943,24 +951,21 @@
             return "WEBVTT\n\n" + lines.join("\n\n");
           },
 
-          toVTT: function (text, offset) {
-            if (text.indexOf("WEBVTT") === 0 && offset === 0) {
-                return text;
-            }
-
-            var parsed = this.assToCaptions(text) || this.srtToCaptions(text) || this.vttToCaptions(text);
-            if (!parsed) {
-              this.shouldShowSubtitlesError = true;
-              this.subtitlesError = null;
+          fileToCaptions: function (text, offset) {
+            var parsed = this.vttToCaptions(text) || this.assToCaptions(text) || this.srtToCaptions(text);
+            if (!parsed)
               return null;
+
+            for (var i = 0; i < parsed.length; i++) {
+              parsed[i].id = "id_" + i;
             }
 
-            parsed.forEach(function (cue) {
-              cue.startTime = Math.max(0, cue.startTime + offset);
-              cue.endTime = Math.max(0, cue.endTime + offset);
+            parsed.forEach(function (caption) {
+              caption.startTime = caption.startTime + offset;
+              caption.endTime = caption.endTime + offset;
             });
 
-            return this.formatVtt(parsed);
+            return parsed;
           },
         },
       });
