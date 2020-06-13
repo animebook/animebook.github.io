@@ -82,8 +82,14 @@
       }
 
       .caption.active {
-        transition: background-color 300ms linear;
+        transition: background-color 250ms linear;
         background-color: #59757d;
+        color: black;
+      }
+
+      .caption.active:hover {
+        transition: background-color 100ms linear;
+        background-color: #899FA5;
         color: black;
       }
 
@@ -142,15 +148,20 @@
       }
 
       .offset-input {
+        padding: 0;
         border: 0;
+        border-left: 0.2vh solid black;
         color: #444;
         background-color: #060606;
         font-size: 1.5vh;
         text-align: center;
         width: 100%;
         box-sizing: border-box;
-        border-left: 1px solid black;
         grid-area: input;
+      }
+
+      .offset-input:focus {
+        outline: 0.2vh solid #333
       }
 
       .offset-button {
@@ -252,6 +263,13 @@
         text-align: center;
       }
 
+      p {
+        margin-top: 0em; 
+        margin-bottom: 0em; 
+        line-height: 1.2em;
+        min-height: 1.2em;
+      }
+
     </style>
 
   </head>
@@ -320,7 +338,7 @@
               />
             </video>
 
-            <span class="current-caption" v-html="'\n' + displayedText + '\n'"></span>
+            <span class="current-caption" v-html="displayedText"></span>
           </div>
           <div class="resize-bar-wrapper">
             <div 
@@ -336,7 +354,7 @@
                   :id="caption.id"
                   :class="captionStyle(caption, index)"
                   @click="selectCaption(caption)"
-                  v-html="displayCaption(caption.text)">
+                  v-html="displaySidebarCaption(caption.text)">
                 </div>
                 <div v-if="isOffsetMode" class='caption-time-offset' v-html="displayCaptionOffset(caption)"></div>
               </div>
@@ -363,7 +381,7 @@
           subtitlesOffsetInput: "0.0",
           videoFileName: null,
           subtitlesFileName: null,
-          activeCaptionId: null,
+          activeCaptionIds: [],
           currentTime: 0.0,
           shouldShowVideoError: false,
           shouldShowSubtitlesError: false,
@@ -374,8 +392,6 @@
           sideBarX: 0.89,
           captions: [],
           isDraggingFile: false,
-          lastActiveCaption: null,
-          currentActiveCaption: null,
           isControlsExpanded: true,
           isOffsetMode: false,
           resizeBarClick: null,
@@ -387,9 +403,6 @@
         computed: {
           dropWrapperClass: function () {
             return this.isDraggingFile ? "dragging-file" : "";
-          },
-          displayedText: function () {
-            return this.activeCaption ? this.displayCaption(this.activeCaption.text) : "";
           },
           subtitlesOffsetSeconds: function () {
             var num = parseFloat(this.subtitlesOffsetInput);
@@ -421,12 +434,48 @@
             this.captions.forEach(function (c) { map[c.id] = c;})
             return map;
           },
-          activeCaption: function () {
-            if (!this.activeCaptionId || !this.captions)
-              return null;
+          activeCaptions: function () {
+            return this.idsToCaptions(this.activeCaptionIds);
+          },
+          isVoicedTime: function () {
+            var time = this.currentTime;
+            for (var i = 0; i < this.activeCaptions.length; i++) {
+              var caption = this.activeCaptions[i];
+              if (caption.startTime < time && time < caption.endTime + this.captionBackwardMoveBufferSeconds) {
+                return true;
+              }
+            }
+            return false;
+          },
+          shownCaptions: function () {
+            if (!this.activeCaptions || !this.captions || !this.captionsMap || !this.isVoicedTime)
+              return [];
 
-            var searchId = this.activeCaptionId;
-            return this.captionsMap[searchId]
+            var active = this.activeCaptions;
+            var activeLanes = active.map(function (c) { return c.lane; });
+            var captionsWithUniqueLanes = active.filter(function (c, i) { return activeLanes.indexOf(c.lane) === i});
+            captionsWithUniqueLanes.sort(this.compareByLane);
+            return captionsWithUniqueLanes;
+          },
+          displayedText: function () {
+            if (!this.shownCaptions)
+              return "";
+
+            var lines = [];
+            this.shownCaptions.forEach(function (caption) {
+              var linesToAdd = caption.neededNewlines - lines.length;
+              for (var i = 0; i < linesToAdd; i++) {
+                lines.push("");
+              }
+              var captionLines = caption.text.split("\n");
+              if (captionLines.length > 0) {
+                captionLines[0] = "\n" + captionLines[0]
+                captionLines[captionLines.length - 1] = captionLines[captionLines.length - 1] + "\n"
+              }
+              lines = captionLines.concat(lines);
+            });
+
+            return lines.map(this.wrapInP).join("");
           },
           offsetButtonClass: function () {
             return 'offset-button' + (this.isOffsetMode ? ' on' : ' off');
@@ -467,10 +516,10 @@
           })
         },
         watch: {
-          activeCaptionId: function (newCaptionId, oldCaptionId) {
-            if (!newCaptionId)
+          activeCaptionIds: function (newVal, oldVal) {
+            if (!newVal || newVal.length === 0)
               return;
-            var el = this.$el.querySelector("#" + newCaptionId);
+            var el = this.$el.querySelector("#" + newVal[0]);
             el.scrollIntoViewIfNeeded ? el.scrollIntoViewIfNeeded() : el.scrollIntoView({ behavior: 'smooth' });
           },
           captionsUrl: function (newValue, oldValue) {
@@ -481,6 +530,7 @@
           calcAppStyle: function () {
             return this.calcGridTemplateAreas() + this.calcGridTemplateColumns() + this.calcGridTemplateRows();
           },
+          
           calcGridTemplateAreas: function () {
             if (!this.videoUrl && !this.captionsUrl && !this.shouldShowSubtitlesError)
               return "grid-template-areas: video";
@@ -499,6 +549,7 @@
               ";";
             }
           },
+
           calcGridTemplateColumns: function () {
             var leftWidth = this.sideBarX + this.sideBarDragDx;
             var middleWidth = 0;
@@ -506,6 +557,7 @@
             var widths = [leftWidth, middleWidth, rightWidth]
             return "grid-template-columns: " + widths.map(function (x) { return x * 100 + "%"; }).join(" ") + ";"
           },
+
           calcGridTemplateRows: function () {
             if (this.isOffsetMode)
               return 'grid-template-rows: 90.7% 5.9% 3.4%;';
@@ -514,15 +566,19 @@
             else
               return 'grid-template-rows: 95.7% 3.4% 0.9%;';
           },
+
           toggleControls: function () {
             this.isControlsExpanded = !this.isControlsExpanded;
           },
+
           toggleOffsetMode: function () {
             this.isOffsetMode = !this.isOffsetMode;
           },
+
           toggleTooltip: function () {
             this.shouldShowTooltip = !this.shouldShowTooltip;
           },
+
           onMouseMove: function (e) {
             if (!this.isDraggingSidebar) {
               this.onMouseUp();
@@ -530,12 +586,14 @@
             }
             this.sideBarDragDx = this.pixelsToFraction(e.clientX) - this.sideBarDragStartX;
           },
+
           onMouseUp: function (e) {
             this.isDraggingSidebar = false;
             this.sideBarDragStartX = 0;
             this.sideBarX = this.sideBarX + this.sideBarDragDx;
             this.sideBarDragDx = 0;
           },
+
           onMouseOut: function (e) {
             mouseX = e.pageX;
             mouseY = e.pageY;
@@ -544,10 +602,12 @@
                 return;
             this.onMouseUp(null);
           },
+
           onResizeBarMouseDown: function (e) {
             this.isDraggingSidebar = true;
             this.sideBarDragStartX = this.pixelsToFraction(e.clientX);
           },
+
           onResizeBarClick: function (e) {
             if (this.resizeBarClick) {
               clearTimeout(this.click)
@@ -562,9 +622,11 @@
               this.resizeBarClick = undefined
             }, 200)
           },
+
           pixelsToFraction(numPixels) {
             return numPixels / this.$el.clientWidth;
           },
+
           onFileDragover: function (e) {
             this.isDraggingFile = true;
           },
@@ -634,17 +696,25 @@
             else video.pause();
           },
 
+          idsToCaptions: function (ids) {
+            if (!ids || !this.captions || !this.captionsMap)
+              return [];
+
+            var self = this;
+            return ids.map(function (id) { return self.captionsMap[id] })
+          },
+
           playCaption: function (caption) {
             if (!caption)
               return;
             this.setCurrentTime(caption.startTime + 0.0001);
-            this.activeCaptionId = caption.id;
+            this.activeCaptionIds = [caption.id];
           },
 
           replayCaption: function (e) {
             if (!this.captions)
               return;
-            this.playCaption(this.activeCaption || this.captions[0]);
+            this.playCaption(this.activeCaptions[0] || this.captions[0]);
           },
 
           previousCaption: function (e) {
@@ -656,34 +726,36 @@
           },
 
           moveCaptionsBy: function (numCaptions) {
-            var captions = this.captions;
-            if (!captions)
+            if (!this.captions)
               return;
-
-            if (!this.activeCaptionId) {
-              this.replayCaption();
-              return;
-            }
 
             var self = this;
-            var getNext = function (currentCaption, currentTime) {
+            var getNext = function (currentCaptions, currentTime) {
+              if (!currentCaptions || currentCaptions.length === 0)
+                return null;
+
+              var currentCaption = numCaptions < 0 ? currentCaptions[0] : currentCaptions[currentCaptions.length - 1]
               if (numCaptions < 0 && (currentCaption.endTime + self.captionBackwardMoveBufferSeconds) < currentTime)
                 return currentCaption;
 
-              var activeIndex = Array.prototype.indexOf.call(captions, currentCaption);
-              return captions[activeIndex + numCaptions];
+              return self.captionsMap["id_" + (parseInt(currentCaption.id.replace("id_", "")) + numCaptions)];
             }
 
-            var next = getNext(this.activeCaption, this.currentTime);
+            var captions = this.activeCaptions;
+            var next = getNext(captions, this.currentTime);
             if (!next || this.tooFarAway(this.currentTime, next, numCaptions)) {
-              var newTime = this.currentTime + (numCaptions * this.captionMoveLimitSeconds);
-              if (numCaptions < 0)
-                this.setCurrentTime(Math.max(newTime, 0.0))
-              else
-                this.setCurrentTime(Math.min(newTime, this.getTotalDuration() - 0.1))
+              this.shiftVideoTime(numCaptions);
             } else {
               this.playCaption(next);
             }
+          },
+
+          shiftVideoTime: function (numShifts) {
+              var newTime = this.currentTime + (numShifts * this.captionMoveLimitSeconds);
+              if (numShifts < 0)
+                this.setCurrentTime(Math.max(newTime, 0.0))
+              else
+                this.setCurrentTime(Math.min(newTime, this.getTotalDuration() - 0.1))
           },
 
           tooFarAway: function (currentTime, nextCaption, numCaptionsMovingBy) {
@@ -695,11 +767,19 @@
           },
 
           isActive: function (caption) {
-            return this.activeCaption && this.activeCaption.id === caption.id;
+            return this.activeCaptionIds.filter(function (id) { return id === caption.id}).length > 0;
           },
 
           captionStyle: function (caption, index) {
             return 'caption' + (this.isActive(caption) ? ' active' : '')
+          },
+
+          displaySidebarCaption: function (text) {
+            return "\n" + text.split("\n").map(this.wrapInP).join("") + "\n";
+          },
+
+          wrapInP: function (text) {
+            return "<p>" + text + "</p>";
           },
 
           displayCaptionOffset: function (caption) {
@@ -730,10 +810,6 @@
             return track;
           },
 
-          displayCaption: function (text) {
-            return "\n" + text.replace(/\n/g, "<br>") + "\n";
-          },
-
           onCaptionsLoad: function (e) {
             var track = this.getTrack();
             if (!track)
@@ -747,10 +823,10 @@
               return;
             track.mode = "hidden";
 
-            var cue = track.activeCues[0];
-            if (cue)
-              this.activeCaptionId = cue.id;
-          },
+            if (track.activeCues.length > 0) {
+              this.activeCaptionIds = Array.prototype.map.call(track.activeCues, function (cue) { return cue.id });
+            }
+         },
 
           isCaptions: function (file) {
             return /\.(vtt|srt|ass|ssa)$/i.test(file.name);
@@ -765,6 +841,7 @@
             var self = this;
             reader.onload = function (e) {
               self.subtitlesFileContent = reader.result;
+              self.activeCaptionIds = [];
             };
           },
 
@@ -964,15 +1041,104 @@
               caption.endTime = caption.endTime + offset;
             }
 
-            parsed.sort(function (a, b) {
-              if (a.startTime === b.startTime) {
-                return a.endTime > b.endTime ? 1 : a.endTime < b.endTime ? -1 : 0;
-              }
-              return a.startTime > b.startTime ? 1 : -1;1
-            });
+            this.sortCaptionsByTime(parsed);
+            this.assignCaptionsToLanes(parsed);
 
             return parsed;
           },
+
+          sortCaptionsByTime: function (captions) {
+            captions.sort(function (a, b) {
+              if (a.startTime === b.startTime) {
+                return a.endTime > b.endTime ? 1 : a.endTime < b.endTime ? -1 : 0;
+              }
+              return a.startTime > b.startTime ? 1 : -1;
+            });
+          },
+
+          // Kinda over-engineered, but this is what makes sure that overlapping captions
+          // can appear simultaneously without the second caption shifting to the bottom
+          // in case the first caption finishes first.
+          assignCaptionsToLanes: function (captions) {
+            for (var i = 0; i < captions.length; i++) {
+              var caption = captions[i];
+              var previousCaptions = this.findPreviousCaptions(captions, caption, i);
+
+              var self = this;
+              var takenLanes = previousCaptions
+                .filter(function (prev) { return self.isOverlapping(prev, caption); })
+                .map(function (c) { return c.lane; });
+
+              for (var lane = 0; lane < takenLanes.length + 1; lane++) {
+                if (takenLanes.indexOf(lane) === -1) {
+                  caption.lane = lane;
+                  break;
+                }
+              }
+
+              if (!caption.lane)
+                caption.lane = 0;
+
+              caption.neededNewlines = this.calculateNeededNewlines(caption, previousCaptions);
+            }
+          },
+
+          calculateNeededNewlines: function (caption, previousCaptions) {
+              if (caption.lane === 0) {
+                return 0;
+              } else {
+                var captionsBelow = previousCaptions.filter(function (prevCap) {
+                  return prevCap.lane < caption.lane;
+                });
+                
+                var self = this;
+                var newlinesByLane = captionsBelow.reduce(function (map, caption) {
+                  var newlines = self.newlineCount(caption.text)
+                  if (!map.hasOwnProperty(caption.lane))
+                    map[caption.lane] = newlines
+                  else
+                    map[caption.lane] = Math.max(newlines, map[caption.lane])
+                  return map;
+                }, {}) || {};
+
+                var newlineCounts = Object.values(newlinesByLane)
+                return newlineCounts.reduce(function (a, b) { return a + b; }, 0) + newlineCounts.length;
+              }
+          },
+
+          newlineCount: function (text) {
+            return (text.match(/\n/g) || []).length
+          },
+
+          // If 2 subtitles only overlap for like a few milliseconds, I don't
+          // want the second subtitle to float in mid-air; I'd rather just show the 
+          // second one when the first one is finished.
+          isOverlapping: function (leftCaption, rightCaption) {
+            var rightContainedDuration = leftCaption.endTime - rightCaption.startTime;
+            var rightDuration = rightCaption.endTime - rightCaption.startTime;
+            return rightContainedDuration > 0.2 || (rightContainedDuration / rightDuration) > 0.3;
+          },
+
+          findPreviousCaptions: function (captions, currentCaption, index) {
+              var previousCaptions = [];
+              var previousCaptionLanes = {};
+              for (var j = index - 1; j >= 0; j--) {
+                var prevCaption = captions[j];
+                if (prevCaption.lane in previousCaptionLanes && !(prevCaption.startTime < currentCaption.startTime && currentCaption.startTime < prevCaption.endTime))
+                  break;
+
+                previousCaptions.push(prevCaption);
+                previousCaptionLanes[prevCaption.lane] = true;
+              }
+
+              previousCaptions.sort(this.compareByLane);
+
+              return previousCaptions
+          },
+
+          compareByLane: function (a, b) {
+            return a.lane == b.lane ? 0 : (a.lane > b.lane ? 1 : -1);
+          }
         },
       });
     }
