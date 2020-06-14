@@ -1062,6 +1062,7 @@
             if (!parsed)
               return null;
 
+            this.sortCaptionsByTime(parsed);
             for (var i = 0; i < parsed.length; i++) {
               var caption = parsed[i]
               caption.id = "id_" + i;
@@ -1069,7 +1070,6 @@
               caption.endTime = caption.endTime + offset;
             }
 
-            this.sortCaptionsByTime(parsed);
             this.assignCaptionsToLanes(parsed);
 
             return parsed;
