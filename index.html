@@ -758,6 +758,9 @@
               if (numCaptions < 0 && (currentCaption.endTime + self.captionBackwardMoveBufferSeconds) < currentTime)
                 return currentCaption;
 
+              if (numCaptions > 0 && (currentTime < currentCaption.startTime - 0.01))
+                return currentCaption;
+
               return self.captionsMap["id_" + (parseInt(currentCaption.id.replace("id_", "")) + numCaptions)];
             }
 
