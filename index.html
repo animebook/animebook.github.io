@@ -69,6 +69,7 @@
       }
 
       .caption {
+        display: block;
         font-size: 18px;
         cursor: pointer;
         margin: 0;
@@ -77,6 +78,7 @@
       }
 
       .caption-text {
+        display: inline-block;
         padding: 0.4em;
       }
 
@@ -359,14 +361,14 @@
           </div>
           <div class="sidebar-captions" v-if="captionsUrl">
             <div class="captions-container">
-              <div v-for="(caption, index) in captions" style="position: relative;">
-                <div
+              <span v-for="(caption, index) in captions" style="display: block; position: relative;">
+                <span
                   :class="captionStyle(caption, index)"
                   @click="selectCaption(caption)">
-                  <div class="caption-text" :id="caption.id" v-html="displaySidebarCaption(caption.text)"></div>
-                </div>
+                  <span class="caption-text" :id="caption.id" v-html="displaySidebarCaption(caption.text)"></span>
+                </span>
                 <div v-if="isOffsetMode" class='caption-time-offset' v-html="displayCaptionOffset(caption)"></div>
-              </div>
+              </span>
             </div>
           </div>
           <div v-if="captionsUrl && isOffsetMode" class="offset-hint">Select the subtitle that ends where the video currently is: {{displayAsVideoTime(currentTime)}}</div>
