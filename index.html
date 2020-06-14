@@ -288,6 +288,7 @@
   <body>
     <div
       id="app"
+      @mousedown="onMouseDown"
       @mouseup="onMouseUp"
       @mousemove="onMouseMove"
       @mouseout="onMouseOut"
@@ -409,7 +410,8 @@
           previousSideBarX: 0.89,
           trackKey: 1,
           captionMoveLimitSeconds: 6.0,
-          captionBackwardMoveBufferSeconds: 2.0
+          captionBackwardMoveBufferSeconds: 2.0,
+          textSelection: ""
         },
         computed: {
           dropWrapperClass: function () {
@@ -591,6 +593,10 @@
 
           toggleTooltip: function () {
             this.shouldShowTooltip = !this.shouldShowTooltip;
+          },
+
+          onMouseDown: function (e) {
+            this.textSelection = window.getSelection().toString();
           },
 
           onMouseMove: function (e) {
@@ -810,14 +816,15 @@
           },
 
           selectCaption: function (caption) {
+            var previousTextSelection = this.textSelection;
+            this.textSelection = window.getSelection().toString();
+            if (this.textSelection.length > 0 && this.textSelection !== previousTextSelection)
+              return;
+
             if (this.isOffsetMode) {
               this.subtitlesOffsetInput = (this.subtitlesOffsetSeconds + this.calcCaptionOffset(caption)).toFixed(2);
               this.isOffsetMode = false;
             } else {
-              var selectedText = window.getSelection().toString();
-              if (selectedText.length > 0 && caption.text.indexOf(selectedText) !== -1)
-                return;
-
               this.setCurrentTime(caption.startTime + 0.0001);
             }
           },
