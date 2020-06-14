@@ -814,6 +814,10 @@
               this.subtitlesOffsetInput = (this.subtitlesOffsetSeconds + this.calcCaptionOffset(caption)).toFixed(2);
               this.isOffsetMode = false;
             } else {
+              var selectedText = window.getSelection().toString();
+              if (selectedText.length > 0 && caption.text.indexOf(selectedText) !== -1)
+                return;
+
               this.setCurrentTime(caption.startTime + 0.0001);
             }
           },
