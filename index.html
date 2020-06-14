@@ -72,8 +72,12 @@
         font-size: 18px;
         cursor: pointer;
         margin: 0;
-        padding: 1em;
+        padding: 0.4em;
         transition: background-color 100ms linear;
+      }
+
+      .caption-text {
+        padding: 0.4em;
       }
 
       .caption:hover {
@@ -263,11 +267,17 @@
         text-align: center;
       }
 
-      p {
+      .current-caption p {
         margin-top: 0em; 
         margin-bottom: 0em; 
         line-height: 1.2em;
         min-height: 1.2em;
+      }
+
+      .caption p {
+        margin-top: 0em; 
+        margin-bottom: 0em; 
+        line-height: 1.3em;
       }
 
     </style>
@@ -351,10 +361,9 @@
             <div class="captions-container">
               <div v-for="(caption, index) in captions" style="position: relative;">
                 <div
-                  :id="caption.id"
                   :class="captionStyle(caption, index)"
-                  @click="selectCaption(caption)"
-                  v-html="displaySidebarCaption(caption.text)">
+                  @click="selectCaption(caption)">
+                  <div class="caption-text" :id="caption.id" v-html="displaySidebarCaption(caption.text)"></div>
                 </div>
                 <div v-if="isOffsetMode" class='caption-time-offset' v-html="displayCaptionOffset(caption)"></div>
               </div>
@@ -520,7 +529,10 @@
             if (!newVal || newVal.length === 0)
               return;
             var el = this.$el.querySelector("#" + newVal[0]);
-            el.scrollIntoViewIfNeeded ? el.scrollIntoViewIfNeeded() : el.scrollIntoView({ behavior: 'smooth' });
+            if (el.scrollIntoViewIfNeeded) 
+              el.scrollIntoViewIfNeeded(true);
+            else
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
           },
           captionsUrl: function (newValue, oldValue) {
             this.trackKey = this.trackKey + 1;
