@@ -30,7 +30,9 @@
         background-color: black;
       }
 
-      .caption:hover, .offset-button.off:hover {
+      .caption:hover, 
+      .offset-button.off:hover, 
+      .controls-expand:hover {
         background-color: #91aab1;
         color: black;
       }
@@ -45,7 +47,9 @@
         color: black;
       }
 
-      .caption.auto-pause:hover {
+      .caption.auto-pause:hover, 
+      .offset-button.auto-pause:hover, 
+      .controls-expand.auto-pause:hover {
         background-color: #90939C;
       }
 
@@ -93,10 +97,6 @@
 
       .controls-expand.closed {
         background-color: black;
-      }
-
-      .controls-expand:hover {
-        background-color: #91aab1;
       }
 
       .auto-pause-paused {
@@ -558,10 +558,14 @@
             return lines.map(this.wrapInP).join("");
           },
           offsetButtonClass: function () {
-            return 'offset-button' + (this.isOffsetMode ? ' on' : ' off');
+            return 'offset-button' + 
+              (this.isOffsetMode ? ' on' : ' off') +
+              (this.isAutoPauseMode ? ' auto-pause' : '');
           },
           controlsExpandClass: function () {
-            return 'controls-expand' + (this.isControlsExpanded ? ' open' : ' closed')
+            return 'controls-expand' + 
+              (this.isControlsExpanded ? ' open' : ' closed') +
+              (this.isAutoPauseMode ? ' auto-pause' : '');
           },
           autoPauseText: function () {
             return "Auto Pause <span style=\"display: inline-block;\">:</span> " + 
