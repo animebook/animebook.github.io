@@ -20,5 +20,8 @@ You can also right click on the video and disable "Show controls" if you find th
 - Right/Down - Move forward
 - Space - Pause/Play
 - Enter - Replay caption
+- , - Find last screenshot. Moves video to the middle of the last caption.
+- . - Find next screenshot. Moves video to the middle of the next caption.
+- / - Find current screenshot. Moves video to the middle of the current caption.
 - A - Toggle auto pause mode
 - Double click sidebar edge - collapse/expand sidebar

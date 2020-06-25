@@ -606,6 +606,24 @@
                 stopEvent(e);
                 self.isAutoPauseMode = !self.isAutoPauseMode;
                 break;
+              case 'Period':
+                if (e.ctrlKey || e.altKey || e.metaKey)
+                  return;
+                stopEvent(e);
+                self.seekScreenshot(1);
+                break;
+              case 'Comma':
+                if (e.ctrlKey || e.altKey || e.metaKey)
+                  return;
+                self.seekScreenshot(-1);
+                stopEvent(e);
+                break;
+              case 'Slash':
+                if (e.ctrlKey || e.altKey || e.metaKey)
+                  return;
+                self.seekScreenshot(0);
+                stopEvent(e);
+                break;
             }
           })
         },
@@ -793,12 +811,15 @@
             return videoElement ? videoElement.duration : 0;
           },
 
-          setCurrentTime: function(time) {
+          setCurrentTime: function(time, shouldPlay) {
             var videoElement = this.getVideoElement();
             if (videoElement) {
               this.currentTime = time;
               videoElement.currentTime = time;
-              videoElement.play();
+              if (shouldPlay)
+                videoElement.play();
+              else
+                this.pause();
               this.lastPauseTime = time;
             }
           },
@@ -833,7 +854,7 @@
           playCaption: function (caption) {
             if (!caption)
               return;
-            this.setCurrentTime(caption.startTime + 0.0001);
+            this.setCurrentTime(caption.startTime + 0.0001, true);
             this.activeCaptionIds = [caption.id];
           },
 
@@ -886,9 +907,9 @@
           shiftVideoTime: function (numShifts) {
               var newTime = this.currentTime + (numShifts * this.captionMoveLimitSeconds);
               if (numShifts < 0)
-                this.setCurrentTime(Math.max(newTime, 0.0))
+                this.setCurrentTime(Math.max(newTime, 0.0), true)
               else
-                this.setCurrentTime(Math.min(newTime, this.getTotalDuration() - 0.1))
+                this.setCurrentTime(Math.min(newTime, this.getTotalDuration() - 0.1), true)
           },
 
           tooFarAway: function (currentTime, nextCaption, numCaptionsMovingBy) {
@@ -897,6 +918,24 @@
             } else {
               return Math.abs(currentTime - (nextCaption.endTime + this.captionBackwardMoveBufferSeconds)) > this.captionMoveLimitSeconds
             }
+          },
+
+          seekScreenshot: function (numCaptions) {
+            if (!this.activeCaptions || this.activeCaptions.length === 0)
+              return;
+
+            var currentCaption = numCaptions > 0 ? 
+              this.activeCaptions[this.activeCaptions.length - 1] : 
+              this.activeCaptions[0];
+
+            var nextCaption = this.findNeighboringCaptionByOffset(currentCaption, numCaptions);
+            if (!nextCaption)
+              nextCaption = currentCaption;
+
+            var middle = (nextCaption.startTime + nextCaption.endTime) / 2;
+            this.setCurrentTime(middle, false);
+            this.activeCaptionIds = [nextCaption.id];
+            this.clearAutoPauseCaptions();
           },
 
           isActive: function (caption) {
@@ -943,7 +982,7 @@
               this.subtitlesOffsetInput = (this.subtitlesOffsetSeconds + this.calcCaptionOffset(caption)).toFixed(2);
               this.isOffsetMode = false;
             } else {
-              this.setCurrentTime(caption.startTime + 0.0001);
+              this.setCurrentTime(caption.startTime + 0.0001, true);
             }
           },
 
