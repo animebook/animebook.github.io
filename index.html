@@ -7,14 +7,113 @@
       body,
       #app,
       .drop-wrapper,
+      .app-container,
+      .offset-input {
+        color: #444;
+        background-color: #060606;
+      }
+
+      .hint {
+        color: #FFF;
+      }
+
+      .video-container {
+        background-color: black;
+      }
+
+      .current-caption {
+        color: #BCBCBC;
+      }
+
+      .captions-container {
+        color: #333;
+        background-color: black;
+      }
+
+      .caption:hover, .offset-button.off:hover {
+        background-color: #91aab1;
+        color: black;
+      }
+
+      .caption.active {
+        background-color: #59757d;
+        color: black;
+      }
+
+      .caption.active:hover {
+        background-color: #899FA5;
+        color: black;
+      }
+
+      .caption.auto-pause:hover {
+        background-color: #90939C;
+      }
+
+      .caption.auto-pause.active {
+        background-color: #707582;
+      }
+
+      .caption.auto-pause.active:hover {
+        background-color: #8B8EA0;
+      }
+
+      .offset-input {
+        border: 0;
+        border-left: 0.2vh solid black;
+      }
+
+      .offset-input:focus {
+        outline: 0.2vh solid #333
+      }
+
+      .offset-button.on {
+        background-color: #300;
+      }
+
+      .offset-button.on:hover {
+        background-color: #6d0a0a;
+        color: black;
+      }
+
+      .caption-time-offset {
+        color: #644;
+      }
+
+      .caption-time-offset:hover {
+        color: #200;
+      }
+
+      .auto-pause-text {
+        border-bottom: 0.2vh solid black;
+      }
+
+      .controls-expand.open {
+        background-color: #0A0A0A;
+      }
+
+      .controls-expand.closed {
+        background-color: black;
+      }
+
+      .controls-expand:hover {
+        background-color: #91aab1;
+      }
+
+      .auto-pause-paused {
+        color: #666;
+        background-color: #121235;
+      }
+
+      html,
+      body,
+      #app,
+      .drop-wrapper,
       .app-container {
         height: 100%;
         width: 100%;
         padding: 0;
         margin: 0;
         overflow: hidden;
-        background-color: #000;
-        color: #fff;
         font-family: Helvetica, sans-serif;
       }
 
@@ -63,8 +162,6 @@
         height: 100%;
         overflow-y: auto;
         overflow-x: hidden;
-        background-color: black;
-        color: #333;
         position: relative
       }
 
@@ -82,26 +179,16 @@
         padding: 0.4em;
       }
 
-      .caption:hover {
-        background-color: #91aab1;
-        color: black;
-      }
-
       .caption.active {
         transition: background-color 250ms linear;
-        background-color: #59757d;
-        color: black;
       }
 
       .caption.active:hover {
         transition: background-color 100ms linear;
-        background-color: #899FA5;
-        color: black;
       }
 
       .current-caption {
         font-size: 25px;
-        color: #BCBCBC;
         text-align: center;
         position: absolute;
         bottom: 3.5%;
@@ -150,24 +237,15 @@
         grid-template-columns: 50% 50%;
         width: 100%;
         height: 100%;
-        color: #444;
       }
 
       .offset-input {
         padding: 0;
-        border: 0;
-        border-left: 0.2vh solid black;
-        color: #444;
-        background-color: #060606;
         font-size: 1.5vh;
         text-align: center;
         width: 100%;
         box-sizing: border-box;
         grid-area: input;
-      }
-
-      .offset-input:focus {
-        outline: 0.2vh solid #333
       }
 
       .offset-button {
@@ -189,47 +267,33 @@
         grid-area: button;
       }
 
-      .offset-button.off {
-        background-color: #060606;
-      }
-
-      .offset-button.off:hover {
-        background-color: #91aab1;
-        color: black;
-      }
-
-      .offset-button.on {
-        background-color: #300;
-      }
-
-      .offset-button.on:hover {
-        background-color: #6d0a0a;
-        color: black;
-      }
-
       .caption-time-offset {
         position: absolute;
         top: 0;
         right: 2px;
         font-size: 10px;
-        color: #644
-      }
-
-      .caption-time-offset:hover {
-        color: #200;
       }
 
       .offset-hint {
-        color: #444;
-        background-color: #060606;
         grid-area: controlsExpand;
+      }
+
+      .auto-pause-text {
+        grid-area: autoPause;
+      }
+
+      .offset-hint, .auto-pause-text {
         display: flex;
         justify-content: center;
-        padding: 4px;
+        padding: 1vh;
         align-items: center;
         text-align: center;
         font-size: 1.5vh;
         overflow: hidden;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
       }
 
       .controls-expand {
@@ -240,18 +304,6 @@
         position: relative;
         transition: background-color 100ms linear;
         width: 100%;
-      }
-
-      .controls-expand.open {
-        background-color: #0A0A0A;
-      }
-
-      .controls-expand.closed {
-        background-color: black;
-      }
-
-      .controls-expand:hover {
-        background-color: #91aab1;
       }
 
       .hint {
@@ -280,6 +332,13 @@
         margin-top: 0em; 
         margin-bottom: 0em; 
         line-height: 1.3em;
+      }
+
+      .auto-pause-playing, .auto-pause-paused {
+        display: inline-block;
+        margin-left: 0.6vh;
+        padding: 0.6vh;
+        border-radius: 0.2vh;
       }
 
     </style>
@@ -373,11 +432,11 @@
             </div>
           </div>
           <div v-if="captionsUrl && isOffsetMode" class="offset-hint">Select the subtitle that ends where the video currently is: {{displayAsVideoTime(currentTime)}}</div>
-          <div v-if="captionsUrl && !isOffsetMode" :class="controlsExpandClass" @click="toggleControls()">
-          </div>
+          <div v-if="captionsUrl && !isOffsetMode" :class="controlsExpandClass" @click="toggleControls()"></div>
+          <div class="auto-pause-text" v-if="isAutoPauseMode" v-html="autoPauseText"></div>
           <div v-if="captionsUrl" class="controls">
             <a :class="offsetButtonClass" @click="toggleOffsetMode()"><span>{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span></a>
-            <input @keydown.space.stop="" @keydown.right.stop="" @keydown.left.stop="" class="offset-input" v-model="subtitlesOffsetInput"></input>
+            <input @keydown.stop="" class="offset-input" v-model="subtitlesOffsetInput"></input>
           </div>
         </div>
       </div>
@@ -407,11 +466,18 @@
           isControlsExpanded: true,
           isOffsetMode: false,
           resizeBarClick: null,
-          previousSideBarX: 0.89,
+          previousSideBarX: 0.88,
           trackKey: 1,
           captionMoveLimitSeconds: 6.0,
           captionBackwardMoveBufferSeconds: 2.0,
-          textSelection: ""
+          textSelection: "",
+          isAutoPauseMode: false,
+          autoPauseCaptions: [],
+          autoPauseMaxBufferSeconds: 0.30,
+          preCaptionAutoPauseNet: 0.25,
+          minimumPercentNeededToPlayBeforeAutoPause: 0.15,
+          lastPauseTime: 0.0,
+          isPlaying: false
         },
         computed: {
           dropWrapperClass: function () {
@@ -448,17 +514,18 @@
             return map;
           },
           activeCaptions: function () {
+            if (this.autoPauseCaptions.length > 0)
+              return this.autoPauseCaptions;
+
             return this.idsToCaptions(this.activeCaptionIds);
           },
           isVoicedTime: function () {
             var time = this.currentTime;
-            for (var i = 0; i < this.activeCaptions.length; i++) {
-              var caption = this.activeCaptions[i];
-              if (caption.startTime < time && time < caption.endTime + this.captionBackwardMoveBufferSeconds) {
-                return true;
-              }
-            }
-            return false;
+            var buffer = this.captionBackwardMoveBufferSeconds;
+            var isVoiced = function (caption) { 
+              return caption.startTime < time && time < caption.endTime + buffer;
+            };
+            return this.activeCaptions.some(isVoiced);
           },
           shownCaptions: function () {
             if (!this.activeCaptions || !this.captions || !this.captionsMap || !this.isVoicedTime)
@@ -495,6 +562,10 @@
           },
           controlsExpandClass: function () {
             return 'controls-expand' + (this.isControlsExpanded ? ' open' : ' closed')
+          },
+          autoPauseText: function () {
+            return "Auto Pause <span style=\"display: inline-block;\">:</span> " + 
+            (this.isPlaying ? "<span class=\"auto-pause-playing\">Playing</span>" : "<span class=\"auto-pause-paused\">Paused</span>");
           }
         },
         created: function () {
@@ -525,14 +596,20 @@
                 stopEvent(e);
                 self.nextCaption();
                 break;
+              case 'KeyA':
+                if (e.ctrlKey || e.altKey || e.metaKey)
+                  return;
+                stopEvent(e);
+                self.isAutoPauseMode = !self.isAutoPauseMode;
+                break;
             }
           })
         },
         watch: {
-          activeCaptionIds: function (newVal, oldVal) {
-            if (!newVal || newVal.length === 0)
+          activeCaptions: function (newValue, oldValue) {
+            if (!newValue || newValue.length === 0)
               return;
-            var el = this.$el.querySelector("#" + newVal[0]);
+            var el = this.$el.querySelector("#" + newValue[0].id);
             if (el.scrollIntoViewIfNeeded) 
               el.scrollIntoViewIfNeeded(true);
             else
@@ -540,6 +617,11 @@
           },
           captionsUrl: function (newValue, oldValue) {
             this.trackKey = this.trackKey + 1;
+          },
+          currentTime: function (newTime, oldTime) {
+            var video = this.getVideoElement();
+            this.isPlaying = video ? !this.getVideoElement().paused : false;
+            this.handleAutoPauseTimeUpdate(newTime);
           }
         },
         methods: {
@@ -555,12 +637,14 @@
               return "grid-template-areas: " +
               "'video resizeBar captions' " +
               "'video resizeBar controlsExpand' " +
+              "'video resizeBar " + (this.isAutoPauseMode ? "autoPause" : "controls") + "' " +
               "'video resizeBar controls' " +
               ";";
             } else {
               return "grid-template-areas: " +
               "'video resizeBar captions' " +
               "'video resizeBar captions' " +
+              "'video resizeBar controlsExpand' " +
               "'video resizeBar controlsExpand' " +
               ";";
             }
@@ -576,11 +660,15 @@
 
           calcGridTemplateRows: function () {
             if (this.isOffsetMode)
-              return 'grid-template-rows: 90.7% 5.9% 3.4%;';
-            else if (this.isControlsExpanded)
-              return 'grid-template-rows: 95.7% 0.9% 3.4%;';
+              return 'grid-template-rows: 90.7% 5.9% 0.0% 3.4%;';
+            else if (this.isControlsExpanded) {
+              if (this.isAutoPauseMode)
+                return 'grid-template-rows: 92.3% 0.9% 3.4% 3.4%;';
+              else
+                return 'grid-template-rows: 95.7% 0.9% 3.4% 0.0%;';
+            }
             else
-              return 'grid-template-rows: 95.7% 3.4% 0.9%;';
+              return 'grid-template-rows: 95.7% 3.4% 0.9% 0.0%;';
           },
 
           toggleControls: function () {
@@ -707,13 +795,27 @@
               this.currentTime = time;
               videoElement.currentTime = time;
               videoElement.play();
+              this.lastPauseTime = time;
             }
           },
 
           playPause: function (e) {
             var video = this.getVideoElement();
-            if (video.paused) video.play();
-            else video.pause();
+            if (video.paused) {
+              video.play();
+            }
+            else {
+              this.pause();
+            }
+          },
+
+          pause: function (e) {
+            var video = this.getVideoElement();
+            if (video.paused) 
+              return;
+            video.pause();
+            this.lastPauseTime = this.getCurrentTime();
+            this.isPlaying = false;
           },
 
           idsToCaptions: function (ids) {
@@ -761,7 +863,7 @@
               if (numCaptions > 0 && (currentTime < currentCaption.startTime - 0.01))
                 return currentCaption;
 
-              return self.captionsMap["id_" + (parseInt(currentCaption.id.replace("id_", "")) + numCaptions)];
+              return self.findNeighboringCaptionByOffset(currentCaption, numCaptions);
             }
 
             var captions = this.activeCaptions;
@@ -771,6 +873,10 @@
             } else {
               this.playCaption(next);
             }
+          },
+
+          findNeighboringCaptionByOffset: function (caption, offset) {
+              return this.captionsMap["id_" + (parseInt(caption.id.replace("id_", "")) + offset)];
           },
 
           shiftVideoTime: function (numShifts) {
@@ -790,11 +896,16 @@
           },
 
           isActive: function (caption) {
-            return this.activeCaptionIds.filter(function (id) { return id === caption.id}).length > 0;
+            return this.activeCaptions.filter(function (c) { return c.id === caption.id}).length > 0;
           },
 
           captionStyle: function (caption, index) {
-            return 'caption' + (this.isActive(caption) ? ' active' : '')
+            var classes = [
+              'caption', 
+              (this.isActive(caption) ? 'active' : ''),
+              (this.isAutoPauseMode ? 'auto-pause' : '')
+            ]
+            return classes.filter(function (c) { return c.length !== 0} ).join(" ");
           },
 
           displaySidebarCaption: function (text) {
@@ -851,10 +962,68 @@
               return;
             track.mode = "hidden";
 
-            if (track.activeCues.length > 0) {
-              this.activeCaptionIds = Array.prototype.map.call(track.activeCues, function (cue) { return cue.id });
+            var newCaptionIds = Array.prototype.map.call(track.activeCues, function (cue) { return cue.id });
+            if (this.isAutoPauseMode)
+              this.handleAutoPauseCaptionUpdate(newCaptionIds);
+
+            if (newCaptionIds.length > 0)
+              this.activeCaptionIds = newCaptionIds;
+          },
+
+          handleAutoPauseCaptionUpdate: function (newCaptionIds) {
+            if (newCaptionIds.length === 0)
+              return;
+            var removedCaptionIds = this.activeCaptionIds.filter(function (id) { return newCaptionIds.indexOf(id) === -1;});
+            var removedCaptions = this.idsToCaptions(removedCaptionIds);
+            this.handleAutoPause(this.getCurrentTime(), removedCaptionIds);
+          },
+
+          handleAutoPauseTimeUpdate: function (newTime) {
+            if (this.isPlaying)
+              this.clearAutoPauseCaptions();
+
+            if (newTime < this.lastPauseTime)
+              this.lastPauseTime = newTime;
+
+            this.handleAutoPause(newTime, []);
+          },
+
+          handleAutoPause: function (time, removedCaptionIds) {
+            if (!this.isAutoPauseMode || !this.activeCaptions || this.activeCaptions.length === 0)
+              return;
+
+            var self = this;
+            var nextCaption = this.findNeighboringCaptionByOffset(this.activeCaptions[this.activeCaptions.length - 1], 1);
+            var shouldBeAutoPaused = function (caption) { 
+              var buffer = self.autoPauseMaxBufferSeconds;
+              if (removedCaptionIds.indexOf(caption.id) !== -1)
+                buffer = 0;
+              else if (nextCaption && caption.endTime < nextCaption.startTime) {
+                var nonVoicedSpace = (nextCaption.startTime - caption.endTime);
+                buffer = nonVoicedSpace - self.preCaptionAutoPauseNet;
+                buffer = Math.max(0, Math.min(buffer, self.autoPauseMaxBufferSeconds))
+              }
+
+              return caption.endTime + buffer < time && self.captionHasPlayed(caption);
+            };
+
+            if (this.activeCaptions.some(shouldBeAutoPaused)) {
+              this.autoPauseCaptions = this.activeCaptions;
+              this.pause();
             }
-         },
+          },
+
+          captionHasPlayed: function (caption) {
+            var captionLength = Math.abs(caption.endTime - caption.startTime);
+            var minSecondsNeeded = Math.min(0.3, captionLength - 0.01);
+            var secondsNeededToHavePlayed = Math.max(minSecondsNeeded, captionLength * this.minimumPercentNeededToPlayBeforeAutoPause);
+            return this.lastPauseTime < (caption.endTime - secondsNeededToHavePlayed)
+          },
+
+          clearAutoPauseCaptions: function () {
+            if (this.autoPauseCaptions.length > 0)
+              this.autoPauseCaptions = [];
+          },
 
           isCaptions: function (file) {
             return /\.(vtt|srt|ass|ssa)$/i.test(file.name);
