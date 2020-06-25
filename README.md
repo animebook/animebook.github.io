@@ -20,4 +20,5 @@ You can also right click on the video and disable "Show controls" if you find th
 - Right/Down - Move forward
 - Space - Pause/Play
 - Enter - Replay caption
+- A - Toggle auto pause mode
 - Double click sidebar edge - collapse/expand sidebar
