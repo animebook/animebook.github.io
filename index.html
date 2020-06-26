@@ -764,6 +764,8 @@
           activeCaptions: function (newValue, oldValue) {
             if (!newValue || newValue.length === 0)
               return;
+            if ((this.sideBarX + this.sideBarDragDx) > 1.0 - 0.0001)
+              return;
             var el = this.$el.querySelector("#" + newValue[0].id);
             if (el.scrollIntoViewIfNeeded) 
               el.scrollIntoViewIfNeeded(true);
