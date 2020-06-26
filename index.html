@@ -21,8 +21,19 @@
         background-color: black;
       }
 
-      .current-caption {
+      .current-caption, .notify-text {
         color: #BCBCBC;
+        paint-order: stroke;
+        -webkit-text-stroke: unset;
+        text-shadow: 
+        0.04em 0 0.03em black,
+        0 0.04em 0.03em black,
+        -0.04em 0 0.03em black,
+        0 -0.04em 0.03em black,
+        -0.04em -0.04em 0.03em black,
+        -0.04em 0.04em 0.03em black,
+        0.04em -0.04em 0.03em black,
+        0.04em 0.04em 0.03em black;
       }
 
       .captions-container {
@@ -201,17 +212,6 @@
         -moz-box-sizing: border-box;
         -webkit-box-sizing: border-box;
         box-sizing: border-box;
-        paint-order: stroke;
-        -webkit-text-stroke: unset;
-        text-shadow: 
-        0.04em 0 0.03em black,
-        0 0.04em 0.03em black,
-        -0.04em 0 0.03em black,
-        0 -0.04em 0.03em black,
-        -0.04em -0.04em 0.03em black,
-        -0.04em 0.04em 0.03em black,
-        0.04em -0.04em 0.03em black,
-        0.04em 0.04em 0.03em black;
       }
 
       .resize-bar-wrapper {
@@ -341,6 +341,21 @@
         border-radius: 0.2vh;
       }
 
+      .notify-text {
+        font-size: 25px;
+        position: fixed;
+        top: 3.5%;
+        left: 3.5%;
+        z-index: 1;
+        opacity: 100%;
+        transition: opacity 0.0s ease-in-out;
+      }
+
+      .notify-text.off {
+        opacity: 0;
+        transition: opacity 0.2s ease-in-out;
+      }
+
     </style>
 
   </head>
@@ -385,6 +400,7 @@
               <span v-if="subtitlesError">{{subtitlesError}}</span>
             </div>
           </div>
+          <div :class="notifyTextClass" v-if="notifyText" v-html="notifyText"></div>
           <div class="video-container" v-show="videoUrl && !shouldShowVideoError">
             <video
               id="video-element"
@@ -477,7 +493,9 @@
           preCaptionAutoPauseNet: 0.25,
           minimumPercentNeededToPlayBeforeAutoPause: 0.15,
           lastPauseTime: 0.0,
-          isPlaying: false
+          isPlaying: false,
+          notifyText: null,
+          notifyCount: 0
         },
         computed: {
           dropWrapperClass: function () {
@@ -567,6 +585,9 @@
               (this.isControlsExpanded ? ' open' : ' closed') +
               (this.isAutoPauseMode ? ' auto-pause' : '');
           },
+          notifyTextClass: function () {
+            return 'notify-text' + (this.notifyCount > 0 ? ' on' : ' off');
+          },
           autoPauseText: function () {
             return "Auto Pause <span style=\"display: inline-block;\">:</span> " + 
             (this.isPlaying ? "<span class=\"auto-pause-playing\">Playing</span>" : "<span class=\"auto-pause-paused\">Paused</span>");
@@ -610,19 +631,25 @@
                 if (e.ctrlKey || e.altKey || e.metaKey)
                   return;
                 stopEvent(e);
-                self.seekScreenshot(1);
+                self.seekScreenshot(1, !e.shiftKey);
                 break;
               case 'Comma':
                 if (e.ctrlKey || e.altKey || e.metaKey)
                   return;
-                self.seekScreenshot(-1);
                 stopEvent(e);
+                self.seekScreenshot(-1, !e.shiftKey);
                 break;
               case 'Slash':
                 if (e.ctrlKey || e.altKey || e.metaKey)
                   return;
-                self.seekScreenshot(0);
                 stopEvent(e);
+                self.seekScreenshot(0, !e.shiftKey);
+                break;
+              case 'KeyS':
+                if (e.ctrlKey || e.altKey || e.metaKey)
+                  return;
+                stopEvent(e);
+                self.copyImage();
                 break;
             }
           })
@@ -920,7 +947,7 @@
             }
           },
 
-          seekScreenshot: function (numCaptions) {
+          seekScreenshot: function (numCaptions, shouldAutoCopy) {
             if (!this.activeCaptions || this.activeCaptions.length === 0)
               return;
 
@@ -936,6 +963,44 @@
             this.setCurrentTime(middle, false);
             this.activeCaptionIds = [nextCaption.id];
             this.clearAutoPauseCaptions();
+            if (!shouldAutoCopy)
+              return;
+            var self = this;
+            setTimeout(function () {
+              self.copyImage();
+            }, 300)
+          },
+
+          copyImage: function () {
+            var video = this.getVideoElement();
+            if (!video)
+              return;
+            var canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            var self = this;
+            canvas.toBlob(function (blob) {
+              navigator.clipboard.write([
+                new ClipboardItem({
+                  [blob.type]: blob
+                })
+              ]).then(function () {
+                self.notify("Copied image to clipboard");
+              }, function () {
+                self.notify("Failed to copy image to clipboard");
+              });
+            });
+          },
+
+          notify: function (text) {
+            var self = this;
+            self.notifyText = text;
+            self.notifyCount = Math.min(5, self.notifyCount + 1);
+            setTimeout(function () {
+              self.notifyCount = Math.max(0, self.notifyCount - 1);
+            }, 1000);
           },
 
           isActive: function (caption) {
