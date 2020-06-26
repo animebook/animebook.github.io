@@ -41,9 +41,18 @@
         background-color: black;
       }
 
+      .controls-expand.open {
+        background-color: #0A0A0A;
+      }
+
+      .controls-expand.closed {
+        background-color: black;
+      }
+
       .caption:hover, 
       .offset-button.off:hover, 
-      .controls-expand:hover {
+      .controls-expand:hover,
+      .help:hover {
         background-color: #91aab1;
         color: black;
       }
@@ -60,7 +69,8 @@
 
       .caption.auto-pause:hover, 
       .offset-button.auto-pause:hover, 
-      .controls-expand.auto-pause:hover {
+      .controls-expand.auto-pause:hover,
+      .help.auto-pause:hover {
         background-color: #90939C;
       }
 
@@ -75,9 +85,10 @@
       .offset-input {
         border: 0;
         border-left: 0.2vh solid black;
+        border-left: 0.2vh solid black;
       }
 
-      .offset-input:focus {
+      .offset-input:focus, .help:focus {
         outline: 0.2vh solid #333
       }
 
@@ -102,17 +113,22 @@
         border-bottom: 0.2vh solid black;
       }
 
-      .controls-expand.open {
-        background-color: #0A0A0A;
-      }
-
-      .controls-expand.closed {
-        background-color: black;
-      }
-
       .auto-pause-paused {
         color: #666;
         background-color: #121235;
+      }
+
+      .table-cell, .table-head {
+        border:#bcbcbc 1px solid;
+      }
+
+      .help-popup {
+        color: #BFBFBF;
+        background-color: #060606;
+      }
+
+      .exit-popup {
+        background-color: #252525;
       }
 
       html,
@@ -138,6 +154,7 @@
 
       .app-container {
         display: grid;
+        position: relative;
       }
 
       .video-subtitles-missing {
@@ -233,8 +250,8 @@
       .controls {
         grid-area: controls;
         display: grid;
-        grid-template-areas: "button input";
-        grid-template-columns: 50% 50%;
+        grid-template-areas: "button input help";
+        grid-template-columns: 50% 43% 7%;
         width: 100%;
         height: 100%;
       }
@@ -248,23 +265,27 @@
         grid-area: input;
       }
 
-      .offset-button {
+      .offset-button, .help {
         padding: .2rem;
         font-size: 1.5vh;
         display: flex;
         justify-content: center;
         align-items: center;
         text-align: center;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
         cursor: pointer;
         transition: background-color 100ms linear;
         box-sizing: border-box;
         overflow: hidden;
         cursor: pointer;
+        outline: 0;
+      }
+
+      .offset-button {
         grid-area: button;
+      }
+
+      .help {
+        grid-area: help;
       }
 
       .caption-time-offset {
@@ -290,6 +311,9 @@
         text-align: center;
         font-size: 1.5vh;
         overflow: hidden;
+      }
+
+      .unselectable {
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
@@ -354,6 +378,51 @@
       .notify-text.off {
         opacity: 0;
         transition: opacity 0.2s ease-in-out;
+      }
+
+      .help-popup {
+        position: absolute;
+        top: 3%;
+        left: 50%;
+        transform: translate(-50%, 0%);
+        max-width: 60%;
+        width: max-content;
+        max-height: 90%;
+        padding: 30px;
+        box-sizing: border-box;
+        z-index: 3;
+      }
+
+      .help-inner {
+        overflow-y: auto;
+        max-height: 75vh;
+      }
+
+      .exit-popup {
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 4px 9px;
+        cursor: pointer;
+        border-radius: 0px;
+      }
+
+      .table {
+        display: table;
+        width:100%;
+      }
+
+      .table-row {
+        display: table-row;
+      }
+
+      .table-cell, .table-head {
+        display: table-cell;
+        padding: 0.8em;
+      }
+
+      .table-head {
+        font-weight: bold;
       }
 
     </style>
@@ -447,12 +516,34 @@
               </span>
             </div>
           </div>
-          <div v-if="captionsUrl && isOffsetMode" class="offset-hint">Select the subtitle that ends where the video currently is: {{displayAsVideoTime(currentTime)}}</div>
+          <div v-if="captionsUrl && isOffsetMode" class="offset-hint unselectable">Select the subtitle that ends where the video currently is: {{displayAsVideoTime(currentTime)}}</div>
           <div v-if="captionsUrl && !isOffsetMode" :class="controlsExpandClass" @click="toggleControls()"></div>
-          <div class="auto-pause-text" v-if="isAutoPauseMode" v-html="autoPauseText"></div>
+          <div class="auto-pause-text unselectable" v-if="isAutoPauseMode" v-html="autoPauseText"></div>
           <div v-if="captionsUrl" class="controls">
-            <a :class="offsetButtonClass" @click="toggleOffsetMode()"><span>{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span></a>
-            <input @keydown.stop="" class="offset-input" v-model="subtitlesOffsetInput"></input>
+            <a tabindex="1" :class="offsetButtonClass" @click="toggleOffsetMode()"><span>{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span></a>
+            <input tabindex="2" @keydown.stop="" class="offset-input" v-model="subtitlesOffsetInput"></input>
+            <a tabindex="3" :class="helpClass" @click="toggleHelp()"><span>?</span></a>
+          </div>
+          <div v-if="shouldShowHelpPopup" class="help-popup">
+            <div class="exit-popup unselectable" @click="toggleHelp()">X</div>
+            <div class="help-inner">
+              <div class="table">
+                <div class="table-row"><div class="table-head">Command</div><div class="table-head">Description</div></div>
+                <div class="table-row"><div class="table-cell">Left/Up</div><div class="table-cell">Move backward</div></div>
+                <div class="table-row"><div class="table-cell">Right/Down</div><div class="table-cell">Move forward</div></div>
+                <div class="table-row"><div class="table-cell">Space</div><div class="table-cell">Pause/Play</div></div>
+                <div class="table-row"><div class="table-cell">Enter</div><div class="table-cell">Replay caption</div></div>
+                <div class="table-row"><div class="table-cell">A</div><div class="table-cell">Toggle auto pause mode</div></div>
+                <div class="table-row"><div class="table-cell">S</div><div class="table-cell">Copy screenshot of video to clipboard</div></div>
+                <div class="table-row"><div class="table-cell">/</div><div class="table-cell">Copy current screenshot. Moves video to the middle of the current caption and takes a screenshot.</div></div>
+                <div class="table-row"><div class="table-cell">Shift /</div><div class="table-cell">Seek current screenshot. Moves video to the middle of the current caption.</div></div>
+                <div class="table-row"><div class="table-cell">,</div><div class="table-cell">Copy last screenshot. Moves video to the middle of the last caption and takes a screenshot.</div></div>
+                <div class="table-row"><div class="table-cell">Shift ,</div><div class="table-cell">Seek last screenshot. Moves video to middle of the last caption.</div></div>
+                <div class="table-row"><div class="table-cell">.</div><div class="table-cell">Copy next screenshot. Moves video to the middle of the next caption and takes a screenshot.</div></div>
+                <div class="table-row"><div class="table-cell">Shift .</div><div class="table-cell">Seek next screenshot. Moves video to the middle of the next caption.</div></div>
+                <div class="table-row"><div class="table-cell">Double click sidebar edge</div><div class="table-cell">Collapse/expand sidebar</div></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -476,13 +567,13 @@
           isDraggingSidebar: false,
           sideBarDragStartX: 0,
           sideBarDragDx: 0,
-          sideBarX: 0.89,
+          sideBarX: 0.87,
+          previousSideBarX: 0.87,
           captions: [],
           isDraggingFile: false,
           isControlsExpanded: true,
           isOffsetMode: false,
           resizeBarClick: null,
-          previousSideBarX: 0.88,
           trackKey: 1,
           captionMoveLimitSeconds: 6.0,
           captionBackwardMoveBufferSeconds: 2.0,
@@ -495,7 +586,8 @@
           lastPauseTime: 0.0,
           isPlaying: false,
           notifyText: null,
-          notifyCount: 0
+          notifyCount: 0,
+          shouldShowHelpPopup: false
         },
         computed: {
           dropWrapperClass: function () {
@@ -578,15 +670,23 @@
           offsetButtonClass: function () {
             return 'offset-button' + 
               (this.isOffsetMode ? ' on' : ' off') +
-              (this.isAutoPauseMode ? ' auto-pause' : '');
+              (this.isAutoPauseMode ? ' auto-pause' : '') +
+              ' unselectable';
           },
           controlsExpandClass: function () {
             return 'controls-expand' + 
               (this.isControlsExpanded ? ' open' : ' closed') +
-              (this.isAutoPauseMode ? ' auto-pause' : '');
+              (this.isAutoPauseMode ? ' auto-pause' : '') +
+              ' unselectable';
           },
           notifyTextClass: function () {
             return 'notify-text' + (this.notifyCount > 0 ? ' on' : ' off');
+          },
+          helpClass: function () {
+            return 'help' + 
+              (this.isControlsExpanded ? ' on' : ' off') +
+              (this.isAutoPauseMode ? ' auto-pause' : '') +
+              ' unselectable';
           },
           autoPauseText: function () {
             return "Auto Pause <span style=\"display: inline-block;\">:</span> " + 
@@ -651,6 +751,12 @@
                 stopEvent(e);
                 self.copyImage();
                 break;
+              case 'Escape':
+                if (self.shouldShowHelpPopup) {
+                  stopEvent(e);
+                  self.shouldShowHelpPopup = false;
+                }
+                break;
             }
           })
         },
@@ -680,7 +786,7 @@
           
           calcGridTemplateAreas: function () {
             if (!this.videoUrl && !this.captionsUrl && !this.shouldShowSubtitlesError)
-              return "grid-template-areas: video";
+              return "grid-template-areas: 'video';";
 
             if (this.isControlsExpanded) {
               return "grid-template-areas: " +
@@ -730,6 +836,10 @@
 
           toggleTooltip: function () {
             this.shouldShowTooltip = !this.shouldShowTooltip;
+          },
+
+          toggleHelp: function () {
+            this.shouldShowHelpPopup = !this.shouldShowHelpPopup;
           },
 
           onMouseDown: function (e) {
@@ -987,9 +1097,9 @@
                   [blob.type]: blob
                 })
               ]).then(function () {
-                self.notify("Copied image to clipboard");
+                self.notify("Copied screenshot to clipboard");
               }, function () {
-                self.notify("Failed to copy image to clipboard");
+                self.notify("Failed to copy screenshot to clipboard");
               });
             });
           },
