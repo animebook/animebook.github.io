@@ -1129,18 +1129,32 @@
             canvas.height = video.videoHeight;
             var ctx = canvas.getContext('2d');
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            var self = this;
-            canvas.toBlob(function (blob) {
-              navigator.clipboard.write([
-                new ClipboardItem({
-                  [blob.type]: blob
-                })
-              ]).then(function () {
-                self.notify("Copied screenshot to clipboard");
-              }, function () {
-                self.notify("Failed to copy screenshot to clipboard");
+
+            if (typeof ClipboardItem === 'undefined') {
+              this.notify("Failed to copy screenshot to clipboard. Browser doesn't support ClipboardItem.");
+              return;
+            }
+
+            this.copyImageChrome(canvas);
+          },
+
+          copyImageChrome: function (canvas) {
+              var self = this;
+              canvas.toBlob(function (blob) {
+                try {
+                  navigator.clipboard.write([
+                    new ClipboardItem({
+                      [blob.type]: blob
+                    })
+                  ]).then(function () {
+                    self.notify("Copied screenshot to clipboard");
+                  }, function (e) {
+                    self.notify("Failed to copy screenshot to clipboard: " + e);
+                  });
+                } catch (e) {
+                  self.notify("Failed to copy screenshot to clipboard: " + e)
+                }
               });
-            });
           },
 
           notify: function (text) {
