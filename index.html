@@ -1060,12 +1060,16 @@
           },
 
           seekScreenshot: function (numCaptions, shouldAutoCopy) {
-            if (!this.activeCaptions || this.activeCaptions.length === 0)
+            if (!this.captions || !this.captions.length === 0)
               return;
 
-            var currentCaption = numCaptions > 0 ? 
-              this.activeCaptions[this.activeCaptions.length - 1] : 
-              this.activeCaptions[0];
+            var currentCaption;
+            if (!this.activeCaptions || this.activeCaptions.length === 0)
+              currentCaption = this.captions[0];
+            else
+              currentCaption = numCaptions > 0 ? 
+                this.activeCaptions[this.activeCaptions.length - 1] : 
+                this.activeCaptions[0];
 
             var nextCaption = this.findNeighboringCaptionByOffset(currentCaption, numCaptions);
             if (!nextCaption)
@@ -1075,6 +1079,7 @@
             this.setCurrentTime(middle, false);
             this.activeCaptionIds = [nextCaption.id];
             this.clearAutoPauseCaptions();
+
             if (!shouldAutoCopy)
               return;
             var self = this;
