@@ -118,6 +118,11 @@
         background-color: #121235;
       }
 
+      .auto-pause-skipping {
+        color: #666;
+        background-color: #46192f;
+      }
+
       .table-cell, .table-head {
         border:#bcbcbc 1px solid;
       }
@@ -358,7 +363,7 @@
         line-height: 1.3em;
       }
 
-      .auto-pause-playing, .auto-pause-paused {
+      .auto-pause-playing, .auto-pause-paused, .auto-pause-skipping {
         display: inline-block;
         margin-left: 0.6vh;
         padding: 0.6vh;
@@ -483,6 +488,7 @@
               disabled
               tabIndex="-1"
               @focus="onVideoFocus"
+              @seeked="onVideoSeek"
             >
               <track
                 v-if="captionsUrl"
@@ -518,7 +524,7 @@
           </div>
           <div v-if="captionsUrl && isOffsetMode" class="offset-hint unselectable">Select the subtitle that ends where the video currently is: {{displayAsVideoTime(currentTime)}}</div>
           <div v-if="captionsUrl && !isOffsetMode" :class="controlsExpandClass" @click="toggleControls()"></div>
-          <div class="auto-pause-text unselectable" v-if="isAutoPauseMode" v-html="autoPauseText"></div>
+          <div class="auto-pause-text unselectable" v-if="isAutoPauseMode">Auto Pause <span style="display: inline-block;">:</span><span v-html="autoPauseIcon"></span></div>
           <div v-if="captionsUrl" class="controls">
             <a tabindex="1" :class="offsetButtonClass" @click="toggleOffsetMode()"><span>{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span></a>
             <input tabindex="2" @keydown.stop="" class="offset-input" v-model="subtitlesOffsetInput"></input>
@@ -583,11 +589,13 @@
           autoPauseMaxBufferSeconds: 0.30,
           preCaptionAutoPauseNet: 0.25,
           minimumPercentNeededToPlayBeforeAutoPause: 0.15,
+          skipNextAutoPause: false,
           lastPauseTime: 0.0,
           isPlaying: false,
           notifyText: null,
           notifyCount: 0,
-          shouldShowHelpPopup: false
+          shouldShowHelpPopup: false,
+          scheduledImageCopies: 0
         },
         computed: {
           dropWrapperClass: function () {
@@ -688,9 +696,13 @@
               (this.isAutoPauseMode ? ' auto-pause' : '') +
               ' unselectable';
           },
-          autoPauseText: function () {
-            return "Auto Pause <span style=\"display: inline-block;\">:</span> " + 
-            (this.isPlaying ? "<span class=\"auto-pause-playing\">Playing</span>" : "<span class=\"auto-pause-paused\">Paused</span>");
+          autoPauseIcon: function () {
+            if (!this.isPlaying)
+              return "<span class=\"auto-pause-paused\">Paused</span>";
+            else if (this.skipNextAutoPause)
+              return "<span class=\"auto-pause-skipping\">Skipping</span>"
+            else
+              return "<span class=\"auto-pause-playing\">Playing</span>"
           }
         },
         created: function () {
@@ -757,6 +769,15 @@
                   self.shouldShowHelpPopup = false;
                 }
                 break;
+              case 'Backslash':
+                if (self.isAutoPauseMode && self.isPlaying) {
+                  stopEvent(e);
+                  self.skipNextAutoPause = true;
+                } else if (self.isAutoPauseMode && !self.isPlaying) {
+                  stopEvent(e);
+                  self.playPause();
+                }
+                break;
             }
           })
         },
@@ -779,6 +800,10 @@
             var video = this.getVideoElement();
             this.isPlaying = video ? !this.getVideoElement().paused : false;
             this.handleAutoPauseTimeUpdate(newTime);
+          },
+          isPlaying: function (newValue, oldValue) {
+            if (!newValue)
+              this.skipNextAutoPause = false;
           }
         },
         methods: {
@@ -932,6 +957,13 @@
             this.getVideoElement().blur();
           },
 
+          onVideoSeek: function (event) {
+            if (this.scheduledImageCopies > 0) {
+              this.copyImage();
+              this.scheduledImageCopies = Math.max(0, this.scheduledImageCopies - 1);
+            }
+          },
+
           getVideoElement: function() {
             return this.$el.querySelector("#video-element");
           },
@@ -1080,12 +1112,11 @@
             this.activeCaptionIds = [nextCaption.id];
             this.clearAutoPauseCaptions();
 
-            if (!shouldAutoCopy)
-              return;
-            var self = this;
-            setTimeout(function () {
-              self.copyImage();
-            }, 300)
+            if (shouldAutoCopy)
+            {
+              this.scheduledImageCopies = Math.min(10, this.scheduledImageCopies + 1);
+              setTimeout(this.onVideoSeek, 1000);
+            }
           },
 
           copyImage: function () {
@@ -1233,6 +1264,11 @@
             };
 
             if (this.activeCaptions.some(shouldBeAutoPaused)) {
+              if (this.skipNextAutoPause) {
+                this.skipNextAutoPause = false;
+                this.lastPauseTime = time;
+                return;
+              }
               this.autoPauseCaptions = this.activeCaptions;
               this.pause();
             }
