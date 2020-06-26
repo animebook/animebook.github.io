@@ -31,4 +31,5 @@ You can also right click on the video and disable "Show controls" if you find th
 | Shift , | Seek last screenshot. Moves video to middle of the last caption. |
 | . | Copy next screenshot. Moves video to the middle of the next caption and takes a screenshot. |
 | Shift . | Seek next screenshot. Moves video to the middle of the next caption. |
+| \ | Skip next auto pause. Only applies in auto pause mode. |
 | Double click sidebar edge | Collapse/expand sidebar |
