@@ -514,7 +514,7 @@
             <div class="captions-container">
               <span v-for="(caption, index) in captions" style="display: block; position: relative;">
                 <span
-                  :class="captionStyle(caption, index)"
+                  :class="captionStyle(caption)"
                   @click="selectCaption(caption)">
                   <span class="caption-text" :id="caption.id" v-html="displaySidebarCaption(caption.text)"></span>
                 </span>
@@ -784,8 +784,12 @@
         },
         watch: {
           activeCaptions: function (newValue, oldValue) {
+            if (oldValue)
+              oldValue.forEach(function (caption) { caption.isActive = false; });
             if (!newValue || newValue.length === 0)
               return;
+            newValue.forEach(function (caption) { caption.isActive = true; });
+
             if ((this.sideBarX + this.sideBarDragDx) > 1.0 - 0.0001)
               return;
             var el = this.$el.querySelector("#" + newValue[0].id);
@@ -1171,13 +1175,10 @@
             return this.activeCaptions.filter(function (c) { return c.id === caption.id}).length > 0;
           },
 
-          captionStyle: function (caption, index) {
-            var classes = [
-              'caption', 
-              (this.isActive(caption) ? 'active' : ''),
-              (this.isAutoPauseMode ? 'auto-pause' : '')
-            ]
-            return classes.filter(function (c) { return c.length !== 0} ).join(" ");
+          captionStyle: function (caption) {
+            return 'caption' +
+              (caption.isActive ? ' active' : '') +
+              (this.isAutoPauseMode ? ' auto-pause' : '');
           },
 
           displaySidebarCaption: function (text) {
@@ -1514,6 +1515,7 @@
               caption.id = "id_" + i;
               caption.startTime = caption.startTime + offset;
               caption.endTime = caption.endTime + offset;
+              caption.isActive = false;
             }
 
             this.assignCaptionsToLanes(parsed);
