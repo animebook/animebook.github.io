@@ -1171,10 +1171,6 @@
             }, 1000);
           },
 
-          isActive: function (caption) {
-            return this.activeCaptions.filter(function (c) { return c.id === caption.id}).length > 0;
-          },
-
           captionStyle: function (caption) {
             return 'caption' +
               (caption.isActive ? ' active' : '') +
