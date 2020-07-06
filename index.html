@@ -430,6 +430,10 @@
         font-weight: bold;
       }
 
+      [v-cloak] {
+        display: none;
+      }
+
     </style>
 
   </head>
@@ -448,7 +452,7 @@
         @dragleave.stop.prevent="onFileDragleave"
         @drop.stop.prevent="onFileDrop"
       >
-        <div class="app-container" :style="calcAppStyle()">
+        <div class="app-container" :style="calcAppStyle()" v-cloak>
           <div class="video-subtitles-missing hint" v-show="!videoUrl && !captionsUrl">
             Drag-and-drop a video file and the corresponding subtitles file to
             this page
