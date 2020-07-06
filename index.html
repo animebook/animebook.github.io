@@ -850,8 +850,14 @@
           },
           
           calcGridTemplateAreas: function () {
-            if (!this.videoUrl && !this.captionsUrl && !this.shouldShowSubtitlesError)
-              return "grid-template-areas: 'video';";
+            if (!this.videoUrl && !this.captionsUrl && !this.shouldShowSubtitlesError) {
+              return "grid-template-areas: " +
+              "'video video video' " +
+              "'video video video' " +
+              "'video video video' " +
+              "'video video video' " +
+              ";";
+            }
 
             if (this.isControlsExpanded) {
               return "grid-template-areas: " +
