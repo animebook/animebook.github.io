@@ -714,7 +714,7 @@
             if (matches && !matches.every(function (numText) { return self.videoFileName.startsWith(numText); })) {
               episodeNumber = matches.map(function (numText) { return parseInt(numText) + ""}).join(".");
             }
-            return (episodeNumber ? "[" + episodeNumber + "] " : "") + self.videoFileName;
+            return (episodeNumber ? episodeNumber + " | " : "") + self.videoFileName;
           }
         },
         created: function () {
