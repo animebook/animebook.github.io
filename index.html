@@ -709,7 +709,13 @@
             var self = this;
             if (!self.videoFileName)
               return "Animebook";
-            var matches = self.videoFileName.match(/(?<![a-uw-zA-UW-Z0-9])(\d+)(?![a-uw-zA-UW-Z0-9])/g);
+
+            var matches = self.videoFileName
+              .replace(/[a-uw-zA-UW-Z]/g, "a")
+              .replace(/[^a^\d]/g, " ")
+              .split(" ")
+              .filter(function (numText) { return numText && numText.indexOf("a") === -1});
+
             var episodeNumber = null;
             if (matches && !matches.every(function (numText) { return self.videoFileName.startsWith(numText); })) {
               episodeNumber = matches.map(function (numText) { return parseInt(numText) + ""}).join(".");
