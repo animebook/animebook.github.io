@@ -23,13 +23,14 @@ You can also right click on the video and disable "Show controls" if you find th
 | Right/Down | Move forward |
 | Space | Pause/Play |
 | Enter | Replay caption |
-| A | Toggle auto pause mode |
-| S | Copy screenshot of video to clipboard |
-| / | Copy current screenshot. Moves video to the middle of the current caption and takes a screenshot. |
-| Shift / | Seek current screenshot. Moves video to the middle of the current caption. |
-| , | Copy last screenshot. Moves video to the middle of the last caption and takes a screenshot. |
-| Shift , | Seek last screenshot. Moves video to middle of the last caption. |
-| . | Copy next screenshot. Moves video to the middle of the next caption and takes a screenshot. |
-| Shift . | Seek next screenshot. Moves video to the middle of the next caption. |
+| a | Toggle auto pause mode |
 | \ | Skip next auto pause. Only applies in auto pause mode. |
+| v | Toggle subtitle visibility on/off |
+| s | Copy screenshot of video to clipboard |
+| / | Move video to the middle of the current caption and take a screenshot. |
+| , | Move video to the middle of the last caption and take a screenshot. |
+| . | Move video to the middle of the next caption and take a screenshot. |
+| Shift / | Move video to the middle of the current caption. |
+| Shift , | Move video to the middle of the last caption. |
+| Shift . | Move video to the middle of the next caption. |
 | Double click sidebar edge | Collapse/expand sidebar |
