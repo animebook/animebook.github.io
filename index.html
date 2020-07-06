@@ -704,6 +704,17 @@
               return "<span class=\"auto-pause-skipping\">Skipping</span>"
             else
               return "<span class=\"auto-pause-playing\">Playing</span>"
+          },
+          videoTitle: function () {
+            var self = this;
+            if (!self.videoFileName)
+              return "Animebook";
+            var matches = self.videoFileName.match(/(?<![a-uw-zA-UW-Z0-9])(\d+)(?![a-uw-zA-UW-Z0-9])/g);
+            var episodeNumber = null;
+            if (matches && !matches.every(function (numText) { return self.videoFileName.startsWith(numText); })) {
+              episodeNumber = matches.map(function (numText) { return parseInt(numText) + ""}).join(".");
+            }
+            return (episodeNumber ? "[" + episodeNumber + "] " : "") + self.videoFileName;
           }
         },
         created: function () {
@@ -809,6 +820,9 @@
           isPlaying: function (newValue, oldValue) {
             if (!newValue)
               this.skipNextAutoPause = false;
+          },
+          videoTitle: function (newValue, oldValue) {
+            document.title = newValue;
           }
         },
         methods: {
