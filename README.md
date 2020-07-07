@@ -34,4 +34,4 @@ You can also right click on the video and disable "Show controls" if you find th
 | Shift , | Move video to the middle of the previous caption. |
 | Shift . | Move video to the middle of the next caption. |
 | b (or double click sidebar edge) | Collapse/expand sidebar |
-| d | Cycle through available audio tracks. Currently (as of July 2020), this only works in Chrome and other chromium-based browsers if ``enable-experimental-web-platform-features`` is enabled in chrome://flags. On Firefox, ``media.track.enabled`` must be set to true in about:config. |
+| t | Cycle through available audio tracks. Currently (as of July 2020), this only works in Chrome and other chromium-based browsers if ``enable-experimental-web-platform-features`` is enabled in chrome://flags. On Firefox, ``media.track.enabled`` must be set to true in about:config. |

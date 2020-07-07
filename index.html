@@ -574,7 +574,7 @@
                 <div class="table-row"><div class="table-cell">Shift ,</div><div class="table-cell">Move video to the middle of the previous caption.</div></div>
                 <div class="table-row"><div class="table-cell">Shift .</div><div class="table-cell">Move video to the middle of the next caption.</div></div>
                 <div class="table-row"><div class="table-cell">b (or double click sidebar edge)</div><div class="table-cell">Collapse/expand sidebar</div></div>
-                <div class="table-row"><div class="table-cell">d</div><div class="table-cell">Cycle through available audio tracks. Currently (as of July 2020), this only works in Chrome and other chromium-based browsers if <span class="monospace">enable-experimental-web-platform-features</span> is enabled in chrome://flags. On Firefox, <span class="monospace">media.track.enabled</span> must be set to true in about:config.</div></div>
+                <div class="table-row"><div class="table-cell">t</div><div class="table-cell">Cycle through available audio tracks. Currently (as of July 2020), this only works in Chrome and other chromium-based browsers if <span class="monospace">enable-experimental-web-platform-features</span> is enabled in chrome://flags. On Firefox, <span class="monospace">media.track.enabled</span> must be set to true in about:config.</div></div>
               </div>
             </div>
           </div>
@@ -837,7 +837,7 @@
                 stopEvent(e);
                 self.toggleSidebar();
                 break;
-              case 'KeyD':
+              case 'KeyT':
                 if (e.ctrlKey || e.altKey || e.metaKey)
                   return;
                 stopEvent(e);
