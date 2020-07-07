@@ -798,7 +798,7 @@
                 if (e.ctrlKey || e.altKey || e.metaKey)
                   return;
                 stopEvent(e);
-                self.toggleResizeBar();
+                self.toggleSidebar();
                 break;
               case 'Escape':
                 if (self.shouldShowHelpPopup) {
@@ -828,11 +828,7 @@
 
             if ((this.sideBarX + this.sideBarDragDx) > 1.0 - 0.0001)
               return;
-            var el = this.$el.querySelector("#" + newValue[0].id);
-            if (el.scrollIntoViewIfNeeded) 
-              el.scrollIntoViewIfNeeded(true);
-            else
-              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            this.scrollToCaption(newValue[0].id);
           },
           captionsUrl: function (newValue, oldValue) {
             this.trackKey = this.trackKey + 1;
@@ -955,19 +951,24 @@
           onResizeBarClick: function (e) {
             if (this.resizeBarClick) {
               clearTimeout(this.click)
-              this.toggleResizeBar();
+              this.toggleSidebar();
             }
             this.resizeBarClick = setTimeout(() => {
               this.resizeBarClick = undefined
             }, 400)
           },
 
-          toggleResizeBar: function () {
+          toggleSidebar: function () {
             if (this.sideBarX <= 0.99) {
               this.previousSideBarX = this.sideBarX;
               this.sideBarX = 1.00;
             } else {
               this.sideBarX = Math.min(this.previousSideBarX, 0.90);
+              var self = this;
+              setTimeout(function () {
+                if (self.activeCaptions && self.activeCaptions.length > 0)
+                  self.scrollToCaption(self.activeCaptions[0].id);
+              }, 0);
             }
           },
 
@@ -1356,6 +1357,14 @@
           clearAutoPauseCaptions: function () {
             if (this.autoPauseCaptions.length > 0)
               this.autoPauseCaptions = [];
+          },
+
+          scrollToCaption: function (captionId) {
+            var el = this.$el.querySelector("#" + captionId);
+            if (el.scrollIntoViewIfNeeded)
+              el.scrollIntoViewIfNeeded(true);
+            else
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
           },
 
           isCaptions: function (file) {
