@@ -548,10 +548,10 @@
                 <div class="table-row"><div class="table-cell">v</div><div class="table-cell">Toggle subtitle visibility on/off</div></div>
                 <div class="table-row"><div class="table-cell">s</div><div class="table-cell">Copy screenshot of video to clipboard</div></div>
                 <div class="table-row"><div class="table-cell">/</div><div class="table-cell">Move video to the middle of the current caption and take a screenshot.</div></div>
-                <div class="table-row"><div class="table-cell">,</div><div class="table-cell">Move video to the middle of the last caption and take a screenshot. </div></div>
+                <div class="table-row"><div class="table-cell">,</div><div class="table-cell">Move video to the middle of the previous caption and take a screenshot. </div></div>
                 <div class="table-row"><div class="table-cell">.</div><div class="table-cell">Move video to the middle of the next caption and take a screenshot.</div></div>
                 <div class="table-row"><div class="table-cell">Shift /</div><div class="table-cell">Move video to the middle of the current caption.</div></div>
-                <div class="table-row"><div class="table-cell">Shift ,</div><div class="table-cell">Move video to the middle of the last caption.</div></div>
+                <div class="table-row"><div class="table-cell">Shift ,</div><div class="table-cell">Move video to the middle of the previous caption.</div></div>
                 <div class="table-row"><div class="table-cell">Shift .</div><div class="table-cell">Move video to the middle of the next caption.</div></div>
                 <div class="table-row"><div class="table-cell">Double click sidebar edge</div><div class="table-cell">Collapse/expand sidebar</div></div>
               </div>
@@ -1148,12 +1148,18 @@
                 this.activeCaptions[this.activeCaptions.length - 1] : 
                 this.activeCaptions[0];
 
-            var nextCaption = this.findNeighboringCaptionByOffset(currentCaption, numCaptions);
-            if (!nextCaption)
-              nextCaption = currentCaption;
+            var nextCaption = currentCaption;
 
-            var middle = (nextCaption.startTime + nextCaption.endTime) / 2;
-            this.setCurrentTime(middle, false);
+            // Only move to a neighboring caption if we're already past or around the center of the current caption
+            var currentCenter = this.calculateCaptionCenter(currentCaption);
+            var centerRadius = Math.max(0.25, (currentCaption.startTime - currentCaption.endTime) / 8);
+            if ((numCaptions < 0 && this.currentTime < currentCenter + centerRadius) ||
+                (numCaptions > 0 && currentCenter - centerRadius < this.currentTime)) {
+              nextCaption = this.findNeighboringCaptionByOffset(nextCaption, numCaptions)
+            }
+
+            var nextCenter = this.calculateCaptionCenter(nextCaption);
+            this.setCurrentTime(nextCenter, false);
             this.activeCaptionIds = [nextCaption.id];
             this.clearAutoPauseCaptions();
 
@@ -1162,6 +1168,10 @@
               this.scheduledImageCopies = Math.min(10, this.scheduledImageCopies + 1);
               setTimeout(this.onVideoSeek, 1000);
             }
+          },
+
+          calculateCaptionCenter: function (caption) {
+            return (caption.startTime + caption.endTime) / 2;
           },
 
           copyImage: function () {

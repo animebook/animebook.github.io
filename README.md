@@ -28,9 +28,9 @@ You can also right click on the video and disable "Show controls" if you find th
 | v | Toggle subtitle visibility on/off |
 | s | Copy screenshot of video to clipboard |
 | / | Move video to the middle of the current caption and take a screenshot. |
-| , | Move video to the middle of the last caption and take a screenshot. |
+| , | Move video to the middle of the previous caption and take a screenshot. |
 | . | Move video to the middle of the next caption and take a screenshot. |
 | Shift / | Move video to the middle of the current caption. |
-| Shift , | Move video to the middle of the last caption. |
+| Shift , | Move video to the middle of the previous caption. |
 | Shift . | Move video to the middle of the next caption. |
 | Double click sidebar edge | Collapse/expand sidebar |
