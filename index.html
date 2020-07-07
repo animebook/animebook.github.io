@@ -52,7 +52,8 @@
       .caption:hover, 
       .offset-button.off:hover, 
       .controls-expand:hover,
-      .help:hover {
+      .help:hover,
+      .audio-track:hover {
         background-color: #91aab1;
         color: black;
       }
@@ -70,7 +71,8 @@
       .caption.auto-pause:hover, 
       .offset-button.auto-pause:hover, 
       .controls-expand.auto-pause:hover,
-      .help.auto-pause:hover {
+      .help.auto-pause:hover,
+      .audio-track:hover {
         background-color: #90939C;
       }
 
@@ -88,7 +90,11 @@
         border-right: 0.2vh solid black;
       }
 
-      .offset-input:focus, .help:focus {
+      .audio-track {
+        border-right: 0.2vh solid black;
+      }
+
+      .offset-input:focus, .help:focus, .audio-track:focus {
         outline: 0.2vh solid #333
       }
 
@@ -134,6 +140,11 @@
 
       .exit-popup {
         background-color: #252525;
+      }
+
+      .monospace {
+        background-color: #222;
+        color: #FFF;
       }
 
       html,
@@ -255,8 +266,6 @@
       .controls {
         grid-area: controls;
         display: grid;
-        grid-template-areas: "button input help";
-        grid-template-columns: 50% 43% 7%;
         width: 100%;
         height: 100%;
       }
@@ -270,7 +279,7 @@
         grid-area: input;
       }
 
-      .offset-button, .help {
+      .offset-button, .help, .audio-track {
         padding: .2rem;
         font-size: 1.5vh;
         display: flex;
@@ -291,6 +300,10 @@
 
       .help {
         grid-area: help;
+      }
+
+      .audio-track {
+        grid-area: audioTrack;
       }
 
       .caption-time-offset {
@@ -430,6 +443,11 @@
         font-weight: bold;
       }
 
+      .monospace {
+        font-family: consolas, "Liberation Mono", courier, monospace;
+        padding: 2px;
+      }
+
       [v-cloak] {
         display: none;
       }
@@ -493,6 +511,7 @@
               tabIndex="-1"
               @focus="onVideoFocus"
               @seeked="onVideoSeek"
+              @loadeddata="onVideoLoad"
             >
               <track
                 v-if="captionsUrl"
@@ -529,10 +548,11 @@
           <div v-if="captionsUrl && isOffsetMode" class="offset-hint unselectable">Select the subtitle that ends where the video currently is: {{displayAsVideoTime(currentTime)}}</div>
           <div v-if="captionsUrl && !isOffsetMode" :class="controlsExpandClass" @click="toggleControls()"></div>
           <div class="auto-pause-text unselectable" v-if="isAutoPauseMode">Auto Pause <span style="display: inline-block;">:</span><span v-html="autoPauseIcon"></span></div>
-          <div v-if="captionsUrl" class="controls">
+          <div v-if="captionsUrl" class="controls" :style="controlsStyle">
             <a tabindex="1" :class="offsetButtonClass" @click="toggleOffsetMode()"><span>{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span></a>
             <input tabindex="2" @keydown.stop="" class="offset-input" v-model="subtitlesOffsetInput"></input>
-            <a tabindex="3" :class="helpClass" @click="toggleHelp()"><span>?</span></a>
+            <a v-if="audioTracks && audioTracks.length > 1" tabindex="3" :class="audioTrackClass" @click="cycleAudioTrack()"><span>{{selectedAudioTrack + 1}}/{{audioTracks.length}}</span></a>
+            <a tabindex="4" :class="helpClass" @click="toggleHelp()"><span>?</span></a>
           </div>
           <div v-if="shouldShowHelpPopup" class="help-popup">
             <div class="exit-popup unselectable" @click="toggleHelp()">X</div>
@@ -554,6 +574,7 @@
                 <div class="table-row"><div class="table-cell">Shift ,</div><div class="table-cell">Move video to the middle of the previous caption.</div></div>
                 <div class="table-row"><div class="table-cell">Shift .</div><div class="table-cell">Move video to the middle of the next caption.</div></div>
                 <div class="table-row"><div class="table-cell">b (or double click sidebar edge)</div><div class="table-cell">Collapse/expand sidebar</div></div>
+                <div class="table-row"><div class="table-cell">d</div><div class="table-cell">Cycle through available audio tracks. Currently (as of July 2020), this only works in Chrome and other chromium-based browsers if <span class="monospace">enable-experimental-web-platform-features</span> is enabled in chrome://flags. On Firefox, <span class="monospace">media.track.enabled</span> must be set to true in about:config.</div></div>
               </div>
             </div>
           </div>
@@ -602,7 +623,9 @@
           notifyCount: 0,
           shouldShowHelpPopup: false,
           scheduledImageCopies: 0,
-          shouldShowMainCaption: true
+          shouldShowMainCaption: true,
+          audioTracks: null,
+          selectedAudioTrack: null
         },
         computed: {
           dropWrapperClass: function () {
@@ -688,6 +711,14 @@
               (this.isAutoPauseMode ? ' auto-pause' : '') +
               ' unselectable';
           },
+          controlsStyle: function () {
+            if (this.selectedAudioTrack !== null && this.audioTracks && this.audioTracks.length > 1)
+              return "grid-template-areas: \"button input audioTrack help\";" +
+                     "grid-template-columns: 50% 33% 10% 7%;";
+            else
+              return "grid-template-areas: \"button input help\";" +
+                     "grid-template-columns: 50% 43% 7%;";
+          },
           controlsExpandClass: function () {
             return 'controls-expand' + 
               (this.isControlsExpanded ? ' open' : ' closed') +
@@ -696,6 +727,12 @@
           },
           notifyTextClass: function () {
             return 'notify-text' + (this.notifyCount > 0 ? ' on' : ' off');
+          },
+          audioTrackClass: function () {
+            return 'audio-track' +
+              (this.isControlsExpanded ? ' on' : ' off') +
+              (this.isAutoPauseMode ? ' auto-pause' : '') +
+              ' unselectable';
           },
           helpClass: function () {
             return 'help' + 
@@ -800,6 +837,12 @@
                 stopEvent(e);
                 self.toggleSidebar();
                 break;
+              case 'KeyD':
+                if (e.ctrlKey || e.altKey || e.metaKey)
+                  return;
+                stopEvent(e);
+                self.cycleAudioTrack();
+                break;
               case 'Escape':
                 if (self.shouldShowHelpPopup) {
                   stopEvent(e);
@@ -844,6 +887,16 @@
           },
           videoTitle: function (newValue, oldValue) {
             document.title = newValue;
+          },
+          selectedAudioTrack: function (newValue, oldValue) {
+            if (!this.audioTracks || this.audioTracks.length <= newValue)
+              return;
+
+            for (var i = 0; i < this.audioTracks.length; i++)
+              this.audioTracks[i].enabled = false;
+            this.audioTracks[newValue].enabled = true;
+            // Video gets frozen after an audio track change, so update the time
+            this.getVideoElement().currentTime = this.currentTime;
           }
         },
         methods: {
@@ -1276,6 +1329,37 @@
             var tracks = this.getVideoElement().textTracks;
             var track = tracks && tracks[0];
             return track;
+          },
+
+          onVideoLoad: function (e) {
+            var video = this.getVideoElement();
+            if (video.audioTracks && video.audioTracks.length > 0) {
+              this.audioTracks = video.audioTracks;
+              this.selectedAudioTrack = -1; // force update of controlsStyle; it won't update if selectedAudioTrack doesn't change
+              this.selectedAudioTrack = 0;
+              for (var i = 0; i < this.audioTracks.length; i++) {
+                if (this.audioTracks[i].enabled)
+                  this.selectedAudioTrack = i;
+              }
+            } else {
+              this.audioTracks = null;
+              this.selectedAudioTrack = null;
+            }
+          },
+
+          cycleAudioTrack: function () {
+            if (this.audioTracks === null || this.selectedAudioTrack === null) {
+              if (this.getVideoElement().audioTracks === undefined)
+                this.notify("No audio tracks exist. See ? for enabling audio tracks in your browser.");
+              else
+                this.notify("Could not find audio tracks in video")
+              return;
+            }
+            this.selectedAudioTrack = (this.selectedAudioTrack + 1) % this.audioTracks.length;
+            var newTrack = this.audioTracks[this.selectedAudioTrack];
+            this.notify("Audio Track: " + (this.selectedAudioTrack + 1) + "/" + this.audioTracks.length +
+              (newTrack.language ? " [" + newTrack.language + "]" : "") +
+              (newTrack.label ? " " + newTrack.label : ""))
           },
 
           onCaptionsLoad: function (e) {
