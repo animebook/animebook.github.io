@@ -33,4 +33,4 @@ You can also right click on the video and disable "Show controls" if you find th
 | Shift / | Move video to the middle of the current caption. |
 | Shift , | Move video to the middle of the previous caption. |
 | Shift . | Move video to the middle of the next caption. |
-| Double click sidebar edge | Collapse/expand sidebar |
+| b (or double click sidebar edge) | Collapse/expand sidebar |

@@ -553,7 +553,7 @@
                 <div class="table-row"><div class="table-cell">Shift /</div><div class="table-cell">Move video to the middle of the current caption.</div></div>
                 <div class="table-row"><div class="table-cell">Shift ,</div><div class="table-cell">Move video to the middle of the previous caption.</div></div>
                 <div class="table-row"><div class="table-cell">Shift .</div><div class="table-cell">Move video to the middle of the next caption.</div></div>
-                <div class="table-row"><div class="table-cell">Double click sidebar edge</div><div class="table-cell">Collapse/expand sidebar</div></div>
+                <div class="table-row"><div class="table-cell">b (or double click sidebar edge)</div><div class="table-cell">Collapse/expand sidebar</div></div>
               </div>
             </div>
           </div>
@@ -794,6 +794,12 @@
                 self.shouldShowMainCaption = !self.shouldShowMainCaption;
                 self.notify(self.shouldShowMainCaption ? "Subtitles shown" : "Subtitles hidden");
                 break;
+              case 'KeyB':
+                if (e.ctrlKey || e.altKey || e.metaKey)
+                  return;
+                stopEvent(e);
+                self.toggleResizeBar();
+                break;
               case 'Escape':
                 if (self.shouldShowHelpPopup) {
                   stopEvent(e);
@@ -949,16 +955,20 @@
           onResizeBarClick: function (e) {
             if (this.resizeBarClick) {
               clearTimeout(this.click)
-              if (this.sideBarX <= 0.99) {
-                this.previousSideBarX = this.sideBarX;
-                this.sideBarX = 1.00;
-              } else {
-                this.sideBarX = Math.min(this.previousSideBarX, 0.90);
-              }
+              this.toggleResizeBar();
             }
             this.resizeBarClick = setTimeout(() => {
               this.resizeBarClick = undefined
             }, 400)
+          },
+
+          toggleResizeBar: function () {
+            if (this.sideBarX <= 0.99) {
+              this.previousSideBarX = this.sideBarX;
+              this.sideBarX = 1.00;
+            } else {
+              this.sideBarX = Math.min(this.previousSideBarX, 0.90);
+            }
           },
 
           pixelsToFraction(numPixels) {
