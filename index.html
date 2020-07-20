@@ -799,6 +799,7 @@
                   return;
                 stopEvent(e);
                 self.isAutoPauseMode = !self.isAutoPauseMode;
+                self.lastPauseTime = self.getCurrentTime();
                 break;
               case 'Period':
                 if (e.ctrlKey || e.altKey || e.metaKey)
