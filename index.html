@@ -1466,6 +1466,8 @@
             reader.onload = function (e) {
               self.subtitlesFileContent = reader.result;
               self.activeCaptionIds = [];
+              if (self.sideBarX > 0.99)
+                self.toggleSidebar();
             };
           },
 
