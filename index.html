@@ -1658,6 +1658,7 @@
               return null;
 
             this.sortCaptionsByTime(parsed);
+            this.mergeDuplicates(parsed);
             for (var i = 0; i < parsed.length; i++) {
               var caption = parsed[i]
               caption.id = "id_" + i;
@@ -1674,10 +1675,29 @@
           sortCaptionsByTime: function (captions) {
             captions.sort(function (a, b) {
               if (a.startTime === b.startTime) {
-                return a.endTime > b.endTime ? 1 : a.endTime < b.endTime ? -1 : 0;
+                if (a.endTime === b.endTime) {
+                  return a.text > b.text ? 1 : a.text < b.text ? -1 : 0;
+                }
+                return a.endTime > b.endTime ? 1 : -1;
               }
               return a.startTime > b.startTime ? 1 : -1;
             });
+          },
+
+          mergeDuplicates: function (captions) {
+            var duplicateIndexes = [];
+            for (var i = 0; i < captions.length - 1; i++) {
+              var caption = captions[i];
+              var nextCaption = captions[i + 1];
+              if (caption.text !== nextCaption.text || !this.isOverlapping(caption, nextCaption))
+                continue;
+              nextCaption.startTime = Math.min(caption.startTime, nextCaption.startTime)
+              nextCaption.endTime = Math.max(caption.endTime, nextCaption.endTime)
+              duplicateIndexes.push(i);
+            }
+
+            for (var i = duplicateIndexes.length -1; i >= 0; i--)
+              captions.splice(duplicateIndexes[i], 1);
           },
 
           // Kinda over-engineered, but this is what makes sure that overlapping captions
