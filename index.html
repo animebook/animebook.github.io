@@ -501,6 +501,7 @@
             <video
               id="video-element"
               class="video-element"
+              :style="videoStyle"
               :src="videoUrl"
               @error="onVideoError"
               @timeupdate="onTimeUpdate"
@@ -625,7 +626,9 @@
           scheduledImageCopies: 0,
           shouldShowMainCaption: true,
           audioTracks: null,
-          selectedAudioTrack: null
+          selectedAudioTrack: null,
+          mouseTimeout: null,
+          cursorVisible: true
         },
         computed: {
           dropWrapperClass: function () {
@@ -764,6 +767,11 @@
               episodeNumber = matches.map(function (numText) { return parseInt(numText) + ""}).join(".");
             }
             return (episodeNumber ? episodeNumber + " | " : "") + self.videoFileName;
+          },
+          videoStyle: function () {
+            if (!this.cursorVisible && this.isPlaying)
+              return "cursor: none;";
+            return "";
           }
         },
         created: function () {
@@ -885,6 +893,9 @@
           isPlaying: function (newValue, oldValue) {
             if (!newValue)
               this.skipNextAutoPause = false;
+
+            if (newValue !== oldValue)
+              this.showCursor();
           },
           videoTitle: function (newValue, oldValue) {
             document.title = newValue;
@@ -969,11 +980,24 @@
             this.shouldShowHelpPopup = !this.shouldShowHelpPopup;
           },
 
+          hideCursor: function () {
+            this.mouseTimer = null;
+            this.cursorVisible = false;
+          },
+
+          showCursor: function () {
+            if (this.mouseTimer)
+              window.clearTimeout(this.mouseTimer);
+            this.cursorVisible = true;
+            this.mouseTimer = window.setTimeout(this.hideCursor, 5000);
+          },
+
           onMouseDown: function (e) {
             this.textSelection = window.getSelection().toString();
           },
 
           onMouseMove: function (e) {
+            this.showCursor();
             if (!this.isDraggingSidebar) {
               this.onMouseUp();
               return;
