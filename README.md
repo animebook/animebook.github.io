@@ -43,8 +43,8 @@ If you find your video can't play, or that your video will play but there's no a
 |---|---|
 |Microsoft Edge with Windows 10 HEVC Video Extensions|Will play almost any video file. Requires Windows 10.|
 | Chrome and other Chromium based browsers (except Vivaldi/Opera)|Will play almost any file that doesn't use HEVC video or AC3 audio|
-|Vivaldi and Opera|Will play very few video formats (these browsers deviate from Chrome by rolling their own implementation of HTML video)|
-|Firefox|Will play very few video formats|
+|Vivaldi and Opera|Will play few video formats (these browsers deviate from Chrome by rolling their own implementation of HTML video)|
+|Firefox|Will play few video formats|
 |Everything else|Probably not a good option|
 
 So, if you want animebook to play almost all files, and you happen to be on Windows 10, the new Microsoft Edge is your best option, and you can install Yomichan on it since it's based on Chromium. Otherwise your best bet is Chrome, and you'll need to avoid using HEVC video or AC3 audio with it.
