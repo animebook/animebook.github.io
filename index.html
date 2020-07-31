@@ -135,7 +135,7 @@
 
       .help-popup {
         color: #BFBFBF;
-        background-color: #060606;
+        background-color: #111;
       }
 
       .exit-popup {
@@ -145,6 +145,27 @@
       .monospace {
         background-color: #222;
         color: #FFF;
+      }
+
+      .help-mode-button {
+        color: #AAA;
+        background-color: #222;
+        border: 1px solid #222;
+        border-radius: 2px;
+      }
+
+      .help-mode-button.selected {
+        background-color: #aaaaaa;
+        color: black;
+      }
+
+      .help-mode-button:hover {
+        background-color: #cccccc;
+        color: black;
+      }
+
+      .help-inner a {
+        color: #a5d2f6
       }
 
       #app *::-webkit-scrollbar {
@@ -293,7 +314,9 @@
         grid-area: input;
       }
 
-      .offset-button, .help, .audio-track {
+      .offset-button,
+      .help,
+      .audio-track {
         padding: .2rem;
         font-size: 1.5vh;
         display: flex;
@@ -420,7 +443,7 @@
         max-width: 60%;
         width: max-content;
         max-height: 90%;
-        padding: 30px;
+        padding: 5px;
         box-sizing: border-box;
         z-index: 3;
       }
@@ -428,12 +451,13 @@
       .help-inner {
         overflow-y: auto;
         max-height: 75vh;
+        padding: 8px;
       }
 
       .exit-popup {
         position: absolute;
-        top: 0;
-        right: 0;
+        top: 5px;
+        right: 5px;
         padding: 4px 9px;
         cursor: pointer;
         border-radius: 0px;
@@ -464,6 +488,31 @@
 
       [v-cloak] {
         display: none;
+      }
+
+      .help-inner li {
+        padding: 0.2em;
+      }
+
+      .help-mode-button-container {
+        display: flex;
+        margin-bottom: 0.4em;
+      }
+
+      .help-mode-button {
+        padding: .3rem;
+        margin-right: .2em;
+        font-size: 1.5em;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        cursor: pointer;
+        transition: background-color 100ms linear;
+        box-sizing: border-box;
+        overflow: hidden;
+        cursor: pointer;
+        outline: 0;
       }
 
     </style>
@@ -501,7 +550,8 @@
           </div>
           <div class="video-error" v-show="shouldShowVideoError">
             <div class="hint">
-              There was an error loading the video file {{videoFileName}}. Try a different file. Note that web players do not support certain file formats like H.265 video or AC3 audio.
+              There was an error loading the video file {{videoFileName}}. Try a different file. Note that your browser may not support certain file formats like HEVC/H.265 video or AC3 audio.
+              See <a href="#" @click="toggleHelp(); enableHelpMode('tips')" class="monospace unselectable">Tips</a>.
             </div>
           </div>
           <div class="subtitles-error" v-show="shouldShowSubtitlesError">
@@ -567,11 +617,15 @@
             <a tabindex="1" :class="offsetButtonClass" @click="toggleOffsetMode()"><span>{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span></a>
             <input tabindex="2" @keydown.stop="" class="offset-input" v-model="subtitlesOffsetInput"></input>
             <a v-if="audioTracks && audioTracks.length > 1" tabindex="3" :class="audioTrackClass" @click="cycleAudioTrack()"><span>{{selectedAudioTrack + 1}}/{{audioTracks.length}}</span></a>
-            <a tabindex="4" :class="helpClass" @click="toggleHelp()"><span>?</span></a>
+            <a tabindex="4" :class="helpClass" @click="toggleHelp(); enableHelpMode('hotkeys')"><span>?</span></a>
           </div>
           <div v-if="shouldShowHelpPopup" class="help-popup">
             <div class="exit-popup unselectable" @click="toggleHelp()">X</div>
-            <div class="help-inner">
+            <div class="help-mode-button-container">
+              <div :class="helpButtonClass('hotkeys')" @click="enableHelpMode('hotkeys')">Hotkeys</div>
+              <div :class="helpButtonClass('tips')" @click="enableHelpMode('tips')">Tips</div>
+            </div>
+            <div v-if="helpMode === 'hotkeys'" class="help-inner">
               <div class="table">
                 <div class="table-row"><div class="table-head">Command</div><div class="table-head">Description</div></div>
                 <div class="table-row"><div class="table-cell">Left/Up</div><div class="table-cell">Move backward</div></div>
@@ -591,6 +645,40 @@
                 <div class="table-row"><div class="table-cell">b (or double click sidebar edge)</div><div class="table-cell">Collapse/expand sidebar</div></div>
                 <div class="table-row"><div class="table-cell">t</div><div class="table-cell">Cycle through available audio tracks. Currently (as of July 2020), this only works in Chrome and other chromium-based browsers if <span class="monospace">enable-experimental-web-platform-features</span> is enabled in chrome://flags. On Firefox, <span class="monospace">media.track.enabled</span> must be set to true in about:config.</div></div>
               </div>
+            </div>
+            <div v-if="helpMode === 'tips'" class="help-inner">
+              <h3>Video format support (last update July 2020)</h3>
+              <p>
+                If you find your video can't play, or that your video will play but there's no audio, 
+                it's almost always because your browser can't play the video or audio format associated
+                with your file. This is the case with HEVC/H.265 video and AC3 audio, which almost
+                all browsers can't support due to licensing issues. Refer to the following for the 
+                current state of browser support:
+              </p>
+              <div class="table">
+                <div class="table-row"><div class="table-cell">Microsoft Edge with Windows 10 HEVC Video Extensions</div><div class="table-cell">Will play almost any video file. Requires Windows 10.</div></div>
+                <div class="table-row"><div class="table-cell">Chrome and other Chromium based browsers (except Vivaldi/Opera)</div><div class="table-cell">Will play almost any file that doesn't use HEVC video or AC3 audio</div></div>
+                <div class="table-row"><div class="table-cell">Vivaldi and Opera</div><div class="table-cell">Will play very few video formats (these browsers deviate from Chrome by rolling their own implementation of HTML video)</div></div>
+                <div class="table-row"><div class="table-cell">Firefox</div><div class="table-cell">Will play very few video formats</div></div>
+                <div class="table-row"><div class="table-cell">Everything else</div><div class="table-cell">Probably not a good option</div></div>
+              </div>
+              <p>
+                So, if you want animebook to play almost all files, and you happen to be on Windows 10, 
+                the new Microsoft Edge is your best option, and you can install Yomichan on it since it's 
+                based on Chromium. Otherwise your best bet is Chrome, and you'll need to avoid
+                using HEVC video or AC3 audio with it.
+              </p>
+              <p>
+                If you want to use Edge, note it won't support HEVC video out of the box. You need to follow these instructions to enable it.
+                <ol>
+                  <li>Install Microsoft Edge based on Chromium. <a href="https://www.microsoft.com/en-us/edge">https://www.microsoft.com/en-us/edge</a></li>
+                  <li>Install the HEVC Video Extensions from Microsoft: <a href="https://www.microsoft.com/en-us/p/hevc-video-extensions-from-device-manufacturer/9n4wgh0z6vhq">https://www.microsoft.com/en-us/p/hevc-video-extensions-from-device-manufacturer/9n4wgh0z6vhq</a></li>
+                  <li>Open Microsoft Edge. Navigate to <span class="monospace">edge://flags</span> in the browser</li>
+                  <li>Enable <span class="monospace">PlayReady DRM for Windows 10</span></li>
+                  <li>Ensure <span class="monospace">Hardware-accelerated video encode</span> and <span class="monospace">Hardware-accelerated video decode</span> are enabled</li>
+                  <li>Restart Edge</li>
+                </ol>
+              </p>
             </div>
           </div>
         </div>
@@ -642,7 +730,8 @@
           audioTracks: null,
           selectedAudioTrack: null,
           mouseTimeout: null,
-          cursorVisible: true
+          cursorVisible: true,
+          helpMode: 'hotkeys'
         },
         computed: {
           dropWrapperClass: function () {
@@ -992,6 +1081,15 @@
 
           toggleHelp: function () {
             this.shouldShowHelpPopup = !this.shouldShowHelpPopup;
+          },
+
+          enableHelpMode: function (mode) {
+            this.helpMode = mode;
+          },
+
+          helpButtonClass: function (mode) {
+            return 'help-mode-button' +
+             (this.helpMode === mode ? ' selected' : '');
           },
 
           hideCursor: function () {
