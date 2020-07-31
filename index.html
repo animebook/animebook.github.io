@@ -799,7 +799,7 @@
             this.shownCaptions.forEach(function (caption) {
               var linesToAdd = caption.neededNewlines - lines.length;
               for (var i = 0; i < linesToAdd; i++) {
-                lines.push("");
+                lines.unshift("");
               }
               var captionLines = caption.text.split("\n");
               if (captionLines.length > 0) {
@@ -1905,10 +1905,17 @@
           findPreviousCaptions: function (captions, currentCaption, index) {
               var previousCaptions = [];
               var previousCaptionLanes = {};
+              var maxLookBehind = 5;
+              var misses = 0;
               for (var j = index - 1; j >= 0; j--) {
                 var prevCaption = captions[j];
-                if (prevCaption.lane in previousCaptionLanes && !(prevCaption.startTime < currentCaption.startTime && currentCaption.startTime < prevCaption.endTime))
-                  break;
+                if (prevCaption.lane in previousCaptionLanes && !(prevCaption.startTime < currentCaption.startTime && currentCaption.startTime < prevCaption.endTime)) {
+                  misses++;
+                  if (misses > maxLookBehind)
+                    break;
+                  else
+                    continue;
+                }
 
                 previousCaptions.push(prevCaption);
                 previousCaptionLanes[prevCaption.lane] = true;
