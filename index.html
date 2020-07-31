@@ -886,8 +886,8 @@
                 e.preventDefault();
                 e.stopPropagation();
             }
-            switch (e.code) {
-              case 'Space':
+            switch (e.key) {
+              case ' ':
                 stopEvent(e);
                 self.playPause();
                 break;
@@ -905,51 +905,59 @@
                 stopEvent(e);
                 self.nextCaption();
                 break;
-              case 'KeyA':
+              case 'a':
+              case 'A':
                 if (e.ctrlKey || e.altKey || e.metaKey)
                   return;
                 stopEvent(e);
                 self.isAutoPauseMode = !self.isAutoPauseMode;
                 self.lastPauseTime = self.getCurrentTime();
                 break;
-              case 'Period':
+              case '.':
+              case '>':
                 if (e.ctrlKey || e.altKey || e.metaKey)
                   return;
                 stopEvent(e);
                 self.seekScreenshot(1, !e.shiftKey);
                 break;
-              case 'Comma':
+              case ',':
+              case '<':
                 if (e.ctrlKey || e.altKey || e.metaKey)
                   return;
                 stopEvent(e);
                 self.seekScreenshot(-1, !e.shiftKey);
                 break;
-              case 'Slash':
+              case '/':
+              case '?':
                 if (e.ctrlKey || e.altKey || e.metaKey)
                   return;
                 stopEvent(e);
                 self.seekScreenshot(0, !e.shiftKey);
                 break;
-              case 'KeyS':
+              case 's':
+              case 'S':
                 if (e.ctrlKey || e.altKey || e.metaKey)
                   return;
                 stopEvent(e);
                 self.copyImage();
                 break;
-              case 'KeyV':
+              case 'v':
+              case 'V':
                 if (e.ctrlKey || e.altKey || e.metaKey)
                   return;
                 stopEvent(e);
                 self.shouldShowMainCaption = !self.shouldShowMainCaption;
                 self.notify(self.shouldShowMainCaption ? "Subtitles shown" : "Subtitles hidden");
                 break;
-              case 'KeyB':
+              case 'b':
+              case 'B':
                 if (e.ctrlKey || e.altKey || e.metaKey)
                   return;
                 stopEvent(e);
                 self.toggleSidebar();
                 break;
-              case 'KeyT':
+              case 't':
+              case 'T':
                 if (e.ctrlKey || e.altKey || e.metaKey)
                   return;
                 stopEvent(e);
@@ -961,7 +969,8 @@
                   self.shouldShowHelpPopup = false;
                 }
                 break;
-              case 'Backslash':
+              case '\\':
+              case '|':
                 if (self.isAutoPauseMode && self.isPlaying) {
                   stopEvent(e);
                   self.skipNextAutoPause = true;
