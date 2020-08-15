@@ -813,7 +813,7 @@
           },
           shownCaptionsKey: function () {
             if (!this.shownCaptions || this.shownCaptions.length === 0)
-              return;
+              return "";
             return this.shownCaptions.map(function (c) { return c.id; }).join("_");
           },
           offsetButtonClass: function () {
