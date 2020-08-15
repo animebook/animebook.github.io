@@ -589,7 +589,7 @@
               />
             </video>
 
-            <span class="current-caption" v-html="displayedText"></span>
+            <span class="current-caption" :key="shownCaptionsKey" v-html="displayedText"></span>
           </div>
           <div class="resize-bar-wrapper">
             <div 
@@ -810,6 +810,11 @@
             });
 
             return lines.map(this.wrapInP).join("");
+          },
+          shownCaptionsKey: function () {
+            if (!this.shownCaptions || this.shownCaptions.length === 0)
+              return;
+            return this.shownCaptions.map(function (c) { return c.id; }).join("_");
           },
           offsetButtonClass: function () {
             return 'offset-button' + 
