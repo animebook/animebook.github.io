@@ -728,6 +728,7 @@
           scheduledImageCopies: 0,
           shouldShowMainCaption: true,
           audioTracks: null,
+          audioTrackCount: null,
           selectedAudioTrack: null,
           mouseTimeout: null,
           cursorVisible: true,
@@ -1021,9 +1022,7 @@
             if (!this.audioTracks || this.audioTracks.length <= newValue)
               return;
 
-            for (var i = 0; i < this.audioTracks.length; i++)
-              this.audioTracks[i].enabled = false;
-            this.audioTracks[newValue].enabled = true;
+            this.enableAudioTrack(newValue);
             // Video gets frozen after an audio track change, so update the time
             this.getVideoElement().currentTime = this.currentTime;
           }
@@ -1484,18 +1483,29 @@
 
           onVideoLoad: function (e) {
             var video = this.getVideoElement();
-            if (video.audioTracks && video.audioTracks.length > 0) {
-              this.audioTracks = video.audioTracks;
-              this.selectedAudioTrack = -1; // force update of controlsStyle; it won't update if selectedAudioTrack doesn't change
-              this.selectedAudioTrack = 0;
-              for (var i = 0; i < this.audioTracks.length; i++) {
-                if (this.audioTracks[i].enabled)
-                  this.selectedAudioTrack = i;
-              }
-            } else {
+            if (!video.audioTracks || video.audioTracks.length === 0) {
               this.audioTracks = null;
               this.selectedAudioTrack = null;
+              return;
             }
+
+            var areNewTracksSameCount = this.audioTrackCount && this.audioTrackCount === video.audioTracks.length;
+            var previousSelectedAudioTrack = this.selectedAudioTrack;
+
+            this.audioTracks = video.audioTracks;
+            this.audioTrackCount = video.audioTracks.length;
+            this.selectedAudioTrack = -1; // force update of controlsStyle; it won't update if selectedAudioTrack doesn't change
+            if (previousSelectedAudioTrack && previousSelectedAudioTrack < this.audioTracks.length && areNewTracksSameCount)
+              this.selectedAudioTrack = previousSelectedAudioTrack;
+            else
+              this.selectedAudioTrack = 0;
+            this.enableAudioTrack(this.selectedAudioTrack);
+          },
+
+          enableAudioTrack: function (audioTrackIndex) {
+            for (var i = 0; i < this.audioTracks.length; i++)
+              this.audioTracks[i].enabled = false;
+            this.audioTracks[audioTrackIndex].enabled = true;
           },
 
           cycleAudioTrack: function () {
