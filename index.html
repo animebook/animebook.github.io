@@ -1404,6 +1404,10 @@
             }
 
             this.copyImageChrome(canvas);
+            // Whatever frame the video pauses on becomes weirdly pixelated after drawing to the canvas context, 
+            // so shake it back and forth to make the video smooth again
+            video.currentTime = video.currentTime + 0.00001;
+            video.currentTime = video.currentTime - 0.00001;
           },
 
           copyImageChrome: function (canvas) {
