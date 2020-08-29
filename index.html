@@ -826,7 +826,7 @@
           controlsStyle: function () {
             if (this.selectedAudioTrack !== null && this.audioTracks && this.audioTracks.length > 1)
               return "grid-template-areas: \"button input audioTrack help\";" +
-                     "grid-template-columns: 50% 33% 10% 7%;";
+                     "grid-template-columns: 48% 32% 13% 7%;";
             else
               return "grid-template-areas: \"button input help\";" +
                      "grid-template-columns: 50% 43% 7%;";
@@ -1069,15 +1069,15 @@
 
           calcGridTemplateRows: function () {
             if (this.isOffsetMode)
-              return 'grid-template-rows: 90.7% 5.9% 0.0% 3.4%;';
+              return 'grid-template-rows: 89.4% 7.0% 0.0% 3.6%;';
             else if (this.isControlsExpanded) {
               if (this.isAutoPauseMode)
-                return 'grid-template-rows: 92.3% 0.9% 3.4% 3.4%;';
+                return 'grid-template-rows: 91.8% 1.0% 3.6% 3.6%;';
               else
-                return 'grid-template-rows: 95.7% 0.9% 3.4% 0.0%;';
+                return 'grid-template-rows: 95.4% 1.0% 3.6% 0.0%;';
             }
             else
-              return 'grid-template-rows: 95.7% 3.4% 0.9% 0.0%;';
+              return 'grid-template-rows: 95.4% 3.6% 1.0% 0.0%;';
           },
 
           toggleControls: function () {
