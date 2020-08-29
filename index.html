@@ -475,6 +475,7 @@
       .table-cell, .table-head {
         display: table-cell;
         padding: 0.8em;
+        min-width: 150px;
       }
 
       .table-head {
@@ -628,8 +629,8 @@
             <div v-if="helpMode === 'hotkeys'" class="help-inner">
               <div class="table">
                 <div class="table-row"><div class="table-head">Command</div><div class="table-head">Description</div></div>
-                <div class="table-row"><div class="table-cell">Left/Up</div><div class="table-cell">Move backward</div></div>
-                <div class="table-row"><div class="table-cell">Right/Down</div><div class="table-cell">Move forward</div></div>
+                <div class="table-row"><div class="table-cell">Left/Right</div><div class="table-cell">Move backward/forward</div></div>
+                <div class="table-row"><div class="table-cell">Up/Down</div><div class="table-cell">Move backward/forward</div></div>
                 <div class="table-row"><div class="table-cell">Space</div><div class="table-cell">Pause/Play</div></div>
                 <div class="table-row"><div class="table-cell">Enter</div><div class="table-cell">Replay caption</div></div>
                 <div class="table-row"><div class="table-cell">a</div><div class="table-cell">Toggle auto pause mode</div></div>
@@ -644,6 +645,7 @@
                 <div class="table-row"><div class="table-cell">Shift .</div><div class="table-cell">Move video to the middle of the next caption.</div></div>
                 <div class="table-row"><div class="table-cell">b (or double click sidebar edge)</div><div class="table-cell">Collapse/expand sidebar</div></div>
                 <div class="table-row"><div class="table-cell">t</div><div class="table-cell">Cycle through available audio tracks. Currently (as of July 2020), this only works in Chrome and other chromium-based browsers if <span class="monospace">enable-experimental-web-platform-features</span> is enabled in chrome://flags. On Firefox, <span class="monospace">media.track.enabled</span> must be set to true in about:config.</div></div>
+                <div class="table-row"><div class="table-cell">Page Up/Page Down</div><div class="table-cell">Move backward/forward 87 seconds.</div></div>
               </div>
             </div>
             <div v-if="helpMode === 'tips'" class="help-inner">
@@ -732,7 +734,8 @@
           selectedAudioTrack: null,
           mouseTimeout: null,
           cursorVisible: true,
-          helpMode: 'hotkeys'
+          helpMode: 'hotkeys',
+          bigJumpSeconds: 87
         },
         computed: {
           dropWrapperClass: function () {
@@ -892,6 +895,7 @@
                 e.preventDefault();
                 e.stopPropagation();
             }
+            console.log(e.key);
             switch (e.key) {
               case ' ':
                 stopEvent(e);
@@ -984,6 +988,14 @@
                   stopEvent(e);
                   self.playPause();
                 }
+                break;
+              case 'PageDown':
+                stopEvent(e);
+                self.seekXSeconds(self.bigJumpSeconds);
+                break;
+              case 'PageUp':
+                stopEvent(e);
+                self.seekXSeconds(-self.bigJumpSeconds);
                 break;
             }
           })
@@ -1335,11 +1347,12 @@
           },
 
           shiftVideoTime: function (numShifts) {
-              var newTime = this.currentTime + (numShifts * this.captionMoveLimitSeconds);
-              if (numShifts < 0)
-                this.setCurrentTime(Math.max(newTime, 0.0), true)
-              else
-                this.setCurrentTime(Math.min(newTime, this.getTotalDuration() - 0.1), true)
+            var newTime = this.currentTime + (numShifts * this.captionMoveLimitSeconds);
+            this.setTimeWithinBounds(newTime);
+          },
+
+          setTimeWithinBounds: function (time) {
+            this.setCurrentTime(Math.min(Math.max(time, 0.0), this.getTotalDuration() - 0.1), true)
           },
 
           tooFarAway: function (currentTime, nextCaption, numCaptionsMovingBy) {
@@ -1348,6 +1361,44 @@
             } else {
               return Math.abs(currentTime - (nextCaption.endTime + this.captionBackwardMoveBufferSeconds)) > this.captionMoveLimitSeconds
             }
+          },
+
+          seekXSeconds: function (seconds) {
+            var isPositive = seconds >= 0;
+            var startCaption = isPositive ? this.activeCaptions[this.activeCaptions.length - 1] : this.activeCaptions[0];
+            if (!startCaption)
+              startCaption = this.captions[0]
+            var currentTime = this.getVideoElement().currentTime;
+            var nextTime = currentTime + seconds;
+
+            if (startCaption)
+              this.selectCaptionClosestToNextTime(startCaption, nextTime, isPositive)
+
+            this.setTimeWithinBounds(nextTime);
+          },
+
+          selectCaptionClosestToNextTime: function (startCaption, nextTime, isPositive) {
+            var self = this;
+            var current = startCaption;
+            var getNext = function () {
+              return self.findNeighboringCaptionByOffset(current, isPositive ? 1 : -1);
+            };
+            var containsNextTime = function (caption) {
+              return caption.startTime < nextTime && nextTime < caption.endTime;
+            };
+            var next = getNext();
+            var maxToScan = 100;
+            for (var i = 0; i < maxToScan && next; i++) {
+              if (containsNextTime(current) && !containsNextTime(next))
+                break;
+              if ((isPositive && nextTime < next.startTime) ||
+                  (!isPositive && next.endTime < nextTime))
+                break;
+              current = next;
+              var next = getNext();
+            }
+
+            this.activeCaptionIds = [current.id];
           },
 
           seekScreenshot: function (numCaptions, shouldAutoCopy) {

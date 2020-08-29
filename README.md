@@ -18,8 +18,8 @@ Drag and drop your video file and your subtitle file (vtt, srt, or ass) onto the
 
 | Command | Description |
 |---|---|
-| Left/Up | Move backward |
-| Right/Down | Move forward |
+| Left/Right | Move backward/forward |
+| Up/Down | Move backward/forward |
 | Space | Pause/Play |
 | Enter | Replay caption |
 | a | Toggle auto pause mode |
@@ -34,6 +34,7 @@ Drag and drop your video file and your subtitle file (vtt, srt, or ass) onto the
 | Shift . | Move video to the middle of the next caption. |
 | b (or double click sidebar edge) | Collapse/expand sidebar |
 | t | Cycle through available audio tracks. Currently (as of July 2020), this only works in Chrome and other chromium-based browsers if ``enable-experimental-web-platform-features`` is enabled in chrome://flags. On Firefox, ``media.track.enabled`` must be set to true in about:config. |
+| Page Up/Page Down | OP Skip. Move backward/forward 87 seconds. |
 
 
 ## Video format support
