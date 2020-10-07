@@ -950,6 +950,9 @@
                 stopEvent(e);
                 self.copyImage();
                 break;
+	      case 'c':
+		self.copySubtitle();
+		break;
               case 'v':
               case 'V':
                 if (e.ctrlKey || e.altKey || e.metaKey)
@@ -1264,6 +1267,15 @@
               this.skipNextAutoPause = false;
             }
           },
+
+	  copySubtitle: function () {
+	    var helpertextarea = document.createElement("textarea");
+	    document.body.appendChild(helpertextarea);
+	    helpertextarea.value = document.getElementsByClassName('current-caption')[0].textContent;
+	    helpertextarea.select();
+	    document.execCommand("copy");
+	    document.body.removeChild(helpertextarea);
+	  },
 
           playPause: function (e) {
             var video = this.getVideoElement();
