@@ -951,6 +951,9 @@
                 self.copyImage();
                 break;
 	      case 'c':
+	        if (e.ctrlKey || e.altKey || e.metaKey)
+	          return;
+	        stopEvent(e);
 		self.copySubtitle();
 		break;
               case 'v':
