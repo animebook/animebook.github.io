@@ -1278,6 +1278,7 @@
 	    helpertextarea.select();
 	    document.execCommand("copy");
 	    document.body.removeChild(helpertextarea);
+	    this.notify("Copied current subtitle to clipboard");
 	  },
 
           playPause: function (e) {
