@@ -590,7 +590,7 @@
               />
             </video>
 
-            <span class="current-caption" :key="shownCaptionsKey" v-html="displayedText"></span>
+            <span class="current-caption" :key="shownCaptionsKey" v-html="displayedHtml"></span>
           </div>
           <div class="resize-bar-wrapper">
             <div 
@@ -795,7 +795,7 @@
             captionsWithUniqueLanes.sort(this.compareByLane);
             return captionsWithUniqueLanes;
           },
-          displayedText: function () {
+          displayedLines: function () {
             if (!this.shownCaptions || !this.shouldShowMainCaption)
               return "";
 
@@ -813,7 +813,12 @@
               lines = captionLines.concat(lines);
             });
 
-            return lines.map(this.wrapInP).join("");
+            return lines;
+          },
+          displayedHtml: function () {
+            if (!this.displayedLines)
+              return "";
+            return this.displayedLines.map(this.wrapInP).join("");
           },
           shownCaptionsKey: function () {
             if (!this.shownCaptions || this.shownCaptions.length === 0)
@@ -1274,7 +1279,7 @@
           copySubtitle: function () {
             var helpertextarea = document.createElement("textarea");
             document.body.appendChild(helpertextarea);
-            helpertextarea.value = document.getElementsByClassName('current-caption')[0].textContent;
+            helpertextarea.value = this.displayedLines.join("\n").trim();
             helpertextarea.select();
             document.execCommand("copy");
             this.clearSelection();
