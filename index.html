@@ -1277,7 +1277,7 @@
           copySubtitle: function () {
             var helpertextarea = document.createElement("textarea");
             document.body.appendChild(helpertextarea);
-            helpertextarea.value = this.displayedLines.join("\n").trim();
+            helpertextarea.value = this.displayedLines.map(function (l) { return l.trim(); }).join("\n");
             helpertextarea.select();
             document.execCommand("copy");
             this.clearSelection();
