@@ -1277,8 +1277,16 @@
             helpertextarea.value = document.getElementsByClassName('current-caption')[0].textContent;
             helpertextarea.select();
             document.execCommand("copy");
+            this.clearSelection();
             document.body.removeChild(helpertextarea);
             this.notify("Copied current subtitle to clipboard");
+          },
+
+          clearSelection: function () {
+            if (window.getSelection)
+              window.getSelection().removeAllRanges();
+            else if (document.selection)
+              document.selection.empty();
           },
 
           playPause: function (e) {
