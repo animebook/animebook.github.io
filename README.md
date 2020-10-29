@@ -33,6 +33,7 @@ Drag and drop your video file and your subtitle file (vtt, srt, or ass) onto the
 | b (or double click sidebar edge) | Collapse/expand sidebar |
 | t | Cycle through available audio tracks. Currently (as of July 2020), this only works in Chrome and other chromium-based browsers if ``enable-experimental-web-platform-features`` is enabled in chrome://flags. On Firefox, ``media.track.enabled`` must be set to true in about:config. |
 | Page Up/Page Down | OP Skip. Move backward/forward 87 seconds. |
+| Shift D | Download retimed subs as an srt file |
 
 
 ## Video format support

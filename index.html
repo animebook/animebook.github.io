@@ -8,7 +8,8 @@
       #app,
       .drop-wrapper,
       .app-container,
-      .offset-input {
+      .offset-input,
+      .custom-offset-input {
         color: #444;
         background-color: #060606;
       }
@@ -18,7 +19,7 @@
       }
 
       .video-container {
-        background-color: black;
+        background-color: #000;
       }
 
       .current-caption, .notify-text {
@@ -26,19 +27,19 @@
         paint-order: stroke;
         -webkit-text-stroke: unset;
         text-shadow: 
-        0.04em 0 0.03em black,
-        0 0.04em 0.03em black,
-        -0.04em 0 0.03em black,
-        0 -0.04em 0.03em black,
-        -0.04em -0.04em 0.03em black,
-        -0.04em 0.04em 0.03em black,
-        0.04em -0.04em 0.03em black,
-        0.04em 0.04em 0.03em black;
+        0.04em 0 0.03em #000,
+        0 0.04em 0.03em #000,
+        -0.04em 0 0.03em #000,
+        0 -0.04em 0.03em #000,
+        -0.04em -0.04em 0.03em #000,
+        -0.04em 0.04em 0.03em #000,
+        0.04em -0.04em 0.03em #000,
+        0.04em 0.04em 0.03em #000;
       }
 
-      .captions-container {
-        color: #363636;
-        background-color: black;
+      .captions-list {
+        color: #3A3A3A;
+        background-color: #000;
       }
 
       .controls-expand.open {
@@ -46,7 +47,7 @@
       }
 
       .controls-expand.closed {
-        background-color: black;
+        background-color: #000;
       }
 
       .caption:hover, 
@@ -55,17 +56,17 @@
       .help:hover,
       .audio-track:hover {
         background-color: #91aab1;
-        color: black;
+        color: #000;
       }
 
       .caption.active {
         background-color: #59757d;
-        color: black;
+        color: #000;
       }
 
       .caption.active:hover {
         background-color: #899FA5;
-        color: black;
+        color: #000;
       }
 
       .caption.auto-pause:hover, 
@@ -76,6 +77,16 @@
         background-color: #90939C;
       }
 
+      .set-custom-offset-button {
+        color: #555;
+        background-color: #040D30;
+      }
+
+      .set-custom-offset-button:hover {
+        background-color: #566e99;
+        color: #000;
+      }
+
       .caption.auto-pause.active {
         background-color: #707582;
       }
@@ -84,17 +95,17 @@
         background-color: #8B8EA0;
       }
 
-      .offset-input {
+      .offset-input, .custom-offset-input {
         border: 0;
-        border-left: 0.2vh solid black;
-        border-right: 0.2vh solid black;
+        border-left: 0.2vh solid #000;
+        border-right: 0.2vh solid #000;
       }
 
       .audio-track {
-        border-right: 0.2vh solid black;
+        border-right: 0.2vh solid #000;
       }
 
-      .offset-input:focus, .help:focus, .audio-track:focus {
+      .offset-input:focus, .help:focus, .audio-track:focus, .custom-offset-input:focus {
         outline: 0.2vh solid #333
       }
 
@@ -104,7 +115,7 @@
 
       .offset-button.on:hover {
         background-color: #6d0a0a;
-        color: black;
+        color: #000;
       }
 
       .caption-time-offset {
@@ -115,8 +126,18 @@
         color: #200;
       }
 
+      .custom-time-offset {
+        opacity: 0;
+      }
+
+      .set-custom-offset-button:hover .custom-time-offset,
+      .custom-time-offset:hover {
+        color: #522;
+        opacity: 1;
+      }
+
       .auto-pause-text {
-        border-bottom: 0.2vh solid black;
+        border-bottom: 0.2vh solid #000;
       }
 
       .auto-pause-paused {
@@ -142,6 +163,21 @@
         background-color: #252525;
       }
 
+      .delete-custom-offset {
+        color: #555;
+        background-color: #141414;
+      }
+
+      .delete-custom-offset:hover {
+        color: #000;
+        background-color: #6d0a0a;
+      }
+
+      .error > .custom-offset-input,
+      .error > .custom-offset-too-negative {
+        color: #933;
+      }
+
       .monospace {
         background-color: #222;
         color: #FFF;
@@ -156,12 +192,12 @@
 
       .help-mode-button.selected {
         background-color: #aaaaaa;
-        color: black;
+        color: #000;
       }
 
       .help-mode-button:hover {
         background-color: #cccccc;
-        color: black;
+        color: #000;
       }
 
       .help-inner a {
@@ -206,25 +242,30 @@
       .app-container {
         display: grid;
         position: relative;
+        z-index: 1;
       }
 
       .video-subtitles-missing {
         grid-area: video;
+        z-index: 1;
       }
 
       .video-missing, .video-error {
         grid-area: video;
         position: relative;
+        z-index: 1;
       }
 
       .subtitles-missing, .subtitles-error {
         grid-area: captions;
         position: relative;
+        z-index: 1;
       }
 
       .video-container {
         grid-area: video;
         position: relative;
+        z-index: 1;
       }
 
       .video-element {
@@ -239,13 +280,25 @@
 
       .captions-container {
         height: 100%;
+        width: calc(100% + 135px);
         overflow-y: auto;
         overflow-x: hidden;
-        position: relative
+        position: absolute;
+        right: 0;
+      }
+
+      .captions-list {
+        margin-left: 135px;
+      }
+
+      .caption-wrapper {
+        display: block; 
+        position: relative;
       }
 
       .caption {
         display: block;
+        position: relative;
         font-size: 18px;
         cursor: pointer;
         margin: 0;
@@ -286,6 +339,7 @@
         grid-area: resizeBar;
         height: 100%;
         position: relative;
+        z-index: 1;
       }
 
       .resize-bar {
@@ -306,12 +360,13 @@
       }
 
       .offset-input {
-        padding: 0;
+        padding: 0 0 0 8%;
         font-size: 1.5vh;
-        text-align: center;
+        text-align: left;
         width: 100%;
         box-sizing: border-box;
         grid-area: input;
+        position: relative;
       }
 
       .offset-button,
@@ -343,11 +398,74 @@
         grid-area: audioTrack;
       }
 
-      .caption-time-offset {
+      .caption-time-offset, .custom-time-offset {
         position: absolute;
         top: 0;
         right: 2px;
         font-size: 10px;
+      }
+
+      .set-custom-offset-button {
+        position: absolute;
+        left: -135px;
+        width: 135px;
+        top: 0;
+        height: 100%;
+        box-sizing: border-box;
+        opacity: 0;
+        z-index: 2;
+        padding: 3px;
+        font-size: 14px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        cursor: pointer;
+        overflow: hidden;
+        transition: background-color 100ms linear;
+      }
+
+      .set-custom-offset-button:hover,
+      .caption-wrapper:hover .set-custom-offset-button {
+        opacity: 1;
+      }
+
+      .caption-custom-offset {
+        position: relative;
+        display: grid;
+        grid-template-areas: "customInput delete";
+        grid-template-columns: 80% 20%;
+        width: 100%;
+      }
+
+      .custom-offset-input {
+        grid-area: customInput;
+        padding: 0;
+        font-size: 16px;
+        text-align: center;
+        width: 100%;
+        min-height: 40px;
+        box-sizing: border-box;
+        position: relative;
+      }
+
+      .custom-offset-too-negative {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+      }
+
+      .delete-custom-offset {
+        grid-area: delete;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        cursor: pointer;
+        overflow: hidden;
+        padding: 2px;
+        transition: background-color 100ms ease-out;
       }
 
       .offset-hint {
@@ -425,7 +543,7 @@
         position: fixed;
         top: 3.5%;
         left: 3.5%;
-        z-index: 1;
+        z-index: 2;
         opacity: 100%;
         transition: opacity 0.0s ease-in-out;
       }
@@ -516,6 +634,31 @@
         outline: 0;
       }
 
+      input[type=number]
+      {
+        -moz-appearance: textfield;
+      }
+
+      input[type=number]::-webkit-inner-spin-button,
+      input[type=number]::-webkit-outer-spin-button
+      {
+        position: absolute;
+        margin: auto;
+        filter: invert(90%) brightness(60%);
+        height: 90%;
+        top: 0;
+        bottom: 0;
+        right: 0;
+      }
+
+      .offset-input::-webkit-inner-spin-button,
+      .offset-input::-webkit-outer-spin-button 
+      {
+        left: 72%;
+      }
+
+      /* next be sure to make auto scroll not work when you're focused on an input */
+
     </style>
 
   </head>
@@ -601,14 +744,34 @@
           </div>
           <div class="sidebar-captions" v-if="captionsUrl">
             <div class="captions-container">
-              <span v-for="(caption, index) in captions" style="display: block; position: relative;">
-                <span
-                  :class="captionStyle(caption)"
-                  @click="selectCaption(caption)">
-                  <span class="caption-text" :id="caption.id" v-html="displaySidebarCaption(caption.text)"></span>
-                </span>
-                <div v-if="isOffsetMode" class='caption-time-offset' v-html="displayCaptionOffset(caption)"></div>
-              </span>
+              <div class="captions-list">
+                <div v-for="(caption, index) in captions" class="caption-wrapper">
+                  <div v-if="caption.customOffset !== null" :class="'caption-custom-offset' + (offsetTooNegative(caption) ? ' error' : '')">
+                    <input 
+                      form="novalidatedform" 
+                      type="number" 
+                      step="0.1" 
+                      @keydown.stop="" 
+                      @focus="onCustomOffsetFocus"
+                      class="custom-offset-input" 
+                      v-model="customOffsets[caption.id]"></input>
+                    <div class="delete-custom-offset" @click="deleteCustomOffset(caption)">X</div>
+                    <div class="custom-offset-too-negative" v-if="offsetTooNegative(caption)">
+                      Offset too small. Using minimum offset {{caption.minCustomOffset.toFixed(2)}}s instead.
+                    </div>
+                  </div>
+                  <span
+                    :class="captionStyle(caption)"
+                    @click="selectCaption(caption)">
+                    <span class="caption-text" :id="caption.id" v-html="displaySidebarCaption(caption.text)"></span>
+                    <div v-if="isOffsetMode" class='caption-time-offset' v-html="displayCaptionOffset(caption)"></div>
+                  </span>
+                  <div v-if="isOffsetMode" class='set-custom-offset-button' @click="setCustomOffset(caption)">
+                    <div v-if="isOffsetMode" class='custom-time-offset' v-html="displayCaptionOffset(caption)"></div>
+                    Only offset this line and lines after
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <div v-if="captionsUrl && isOffsetMode" class="offset-hint unselectable">Select the subtitle that ends where the video currently is: {{displayAsVideoTime(currentTime)}}</div>
@@ -616,7 +779,7 @@
           <div class="auto-pause-text unselectable" v-if="isAutoPauseMode">Auto Pause <span style="display: inline-block;">:</span><span v-html="autoPauseIcon"></span></div>
           <div v-if="captionsUrl" class="controls" :style="controlsStyle">
             <a tabindex="1" :class="offsetButtonClass" @click="toggleOffsetMode()"><span>{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span></a>
-            <input tabindex="2" @keydown.stop="" class="offset-input" v-model="subtitlesOffsetInput"></input>
+            <input form="novalidatedform" type="number" step="0.1" tabindex="2" @keydown.stop="" class="offset-input" v-model="subtitlesOffsetInput"></input>
             <a v-if="audioTracks && audioTracks.length > 1" tabindex="3" :class="audioTrackClass" @click="cycleAudioTrack()"><span>{{selectedAudioTrack + 1}}/{{audioTracks.length}}</span></a>
             <a tabindex="4" :class="helpClass" @click="toggleHelp(); enableHelpMode('hotkeys')"><span>?</span></a>
           </div>
@@ -644,6 +807,7 @@
                 <div class="table-row"><div class="table-cell">b (or double click sidebar edge)</div><div class="table-cell">Collapse/expand sidebar</div></div>
                 <div class="table-row"><div class="table-cell">t</div><div class="table-cell">Cycle through available audio tracks. Currently (as of July 2020), this only works in Chrome and other chromium-based browsers if <span class="monospace">enable-experimental-web-platform-features</span> is enabled in chrome://flags. On Firefox, <span class="monospace">media.track.enabled</span> must be set to true in about:config.</div></div>
                 <div class="table-row"><div class="table-cell">Page Up/Page Down</div><div class="table-cell">OP Skip. Move backward/forward 87 seconds.</div></div>
+                <div class="table-row"><div class="table-cell">Shift D</div><div class="table-cell">Download retimed subs as an srt file</div></div>
               </div>
             </div>
             <div v-if="helpMode === 'tips'" class="help-inner">
@@ -683,6 +847,7 @@
           </div>
         </div>
       </div>
+      <form id="novalidatedform" novalidate />
     </div>
 
     <script>
@@ -693,6 +858,8 @@
           videoUrl: null,
           subtitlesFileContent: null,
           subtitlesOffsetInput: "0.0",
+          customOffsets: {},
+          customOffsetInputFocusTracker: {},
           videoFileName: null,
           subtitlesFileName: null,
           activeCaptionIds: [],
@@ -740,15 +907,14 @@
             return this.isDraggingFile ? "dragging-file" : "";
           },
           subtitlesOffsetSeconds: function () {
-            var num = parseFloat(this.subtitlesOffsetInput);
-            return num ? num : 0.0;
+            return this.parseInputNum(this.subtitlesOffsetInput);
           },
           captionsUrl: function () {
             if (!this.subtitlesFileContent)
               return null;
 
             try {
-              var captions = this.fileToCaptions(this.subtitlesFileContent, this.subtitlesOffsetSeconds);
+              var captions = this.fileToCaptions(this.subtitlesFileContent, this.subtitlesOffsetSeconds, this.customOffsets);
               var vtt = this.formatVtt(captions);
               if (!vtt) {
                 this.shouldShowSubtitlesError = true;
@@ -959,6 +1125,13 @@
                 stopEvent(e);
                 self.copySubtitle();
                 break;
+              case 'D':
+                if (e.ctrlKey || e.altKey || e.metaKey)
+                  return;
+                stopEvent(e);
+                var newFileName = self.subtitlesFileName.substring(0, self.subtitlesFileName.length - 4)+ ".srt";
+                self.downloadString(self.formatSrt(self.captions), "srt", newFileName);
+                break;
               case 'v':
               case 'V':
                 if (e.ctrlKey || e.altKey || e.metaKey)
@@ -1017,6 +1190,8 @@
             newValue.forEach(function (caption) { caption.isActive = true; });
 
             if ((this.sideBarX + this.sideBarDragDx) > 1.0 - 0.0001)
+              return;
+            if (this.customOffsetInputFocusTracker.size > 0)
               return;
             this.scrollToCaption(newValue[0].id);
           },
@@ -1542,6 +1717,37 @@
             return this.currentTime - caption.endTime;
           },
 
+          setCustomOffset: function (caption) {
+            var currentOffset = caption.customOffset || 0.0;
+            var newOffset = (currentOffset + this.calcCaptionOffset(caption)).toFixed(2);
+            this.$set(this.customOffsets, caption.id, newOffset);
+            this.isOffsetMode = false;
+          },
+
+          deleteCustomOffset: function (caption) {
+            this.customOffsets[caption.id] = null;
+            delete this.customOffsets[caption.id];
+          },
+
+          offsetTooNegative: function (caption) {
+            var inputOffset = this.parseInputNum(this.customOffsets[caption.id]);
+            return caption.minCustomOffset && inputOffset < caption.minCustomOffset;
+          },
+
+          parseInputNum: function (num) {
+            var value = parseFloat(num);
+            return value ? value : 0.0;
+          },
+          
+          onCustomOffsetFocus: function (id) {
+            this.customOffsetInputFocusTracker[id] = true;
+          },
+
+          onCustomOffsetBlur: function (id) {
+            this.customOffsetInputFocusTracker[id] = null;
+            delete this.customOffsetInputFocusTracker[id];
+          },
+
           selectCaption: function (caption) {
             var previousTextSelection = this.textSelection;
             this.textSelection = window.getSelection().toString();
@@ -1707,6 +1913,7 @@
             reader.onload = function (e) {
               self.subtitlesFileContent = reader.result;
               self.activeCaptionIds = [];
+              self.customOffsets = {};
               if (self.sideBarX > 0.99)
                 self.toggleSidebar();
             };
@@ -1896,18 +2103,65 @@
             return "WEBVTT\n\n" + lines.join("\n\n");
           },
 
-          fileToCaptions: function (text, offset) {
+          formatSrt: function (captions) {
+            if (!captions)
+              return null;
+
+            var padWithZeros = function (num, digits) {
+              return ("0000" + num).slice(-digits);
+            };
+
+            var formatTime = function (seconds) {
+              var date = new Date(2000, 0, 1, 0, 0, 0, seconds * 1000);
+              return [
+                padWithZeros(date.getHours(), 2),
+                padWithZeros(date.getMinutes(), 2),
+                padWithZeros(date.getSeconds(), 2) +
+                  "," +
+                  padWithZeros(date.getMilliseconds(), 3),
+              ].join(":");
+            };
+
+            var lines = captions.map(function (caption) {
+              return [
+                caption.id.replace("id_", ""),
+                formatTime(caption.startTime) +
+                  " --> " +
+                  formatTime(caption.endTime),
+                (caption.voice ? "(" + caption.voice + ") " : "") +
+                  caption.text,
+              ].join("\n");
+            });
+
+            return lines.join("\n\n");
+          },
+
+          fileToCaptions: function (text, offset, customOffsets) {
             var parsed = this.vttToCaptions(text) || this.assToCaptions(text) || this.srtToCaptions(text);
             if (!parsed)
               return null;
 
             this.sortCaptionsByTime(parsed);
             this.mergeDuplicates(parsed);
+            var currentOffset = offset;
             for (var i = 0; i < parsed.length; i++) {
               var caption = parsed[i]
               caption.id = "id_" + i;
-              caption.startTime = caption.startTime + offset;
-              caption.endTime = caption.endTime + offset;
+              if (customOffsets.hasOwnProperty(caption.id)) {
+                caption.customOffset = this.parseInputNum(customOffsets[caption.id]);
+                if (i > 0) {
+                  var minCustomOffset = parsed[i - 1].startTime - caption.startTime - currentOffset + 0.002;
+                  caption.customOffset = Math.max(caption.customOffset, minCustomOffset);
+                  caption.minCustomOffset = minCustomOffset;
+                } else {
+                  caption.minCustomOffset = null;
+                }
+                currentOffset += caption.customOffset;
+              } else {
+                caption.customOffset = null;
+              }
+              caption.startTime = caption.startTime + currentOffset;
+              caption.endTime = caption.endTime + currentOffset;
               caption.isActive = false;
             }
 
@@ -2033,6 +2287,20 @@
 
           compareByLane: function (a, b) {
             return a.lane == b.lane ? 0 : (a.lane > b.lane ? 1 : -1);
+          },
+
+          downloadString: function (text, fileType, fileName) {
+            var blob = new Blob([text], { type: fileType });
+            var a = document.createElement('a');
+            a.download = fileName;
+            a.target="_blank";
+            a.href = URL.createObjectURL(blob);
+            a.dataset.downloadurl = [fileType, a.download, a.href].join(':');
+            a.style.display = "none";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(function() { URL.revokeObjectURL(a.href); }, 1500);
           }
         },
       });
