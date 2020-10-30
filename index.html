@@ -757,7 +757,7 @@
                       :id="'custom_offset_' + caption.id"
                       class="custom-offset-input" 
                       v-model="customOffsets[caption.id]"></input>
-                    <div class="delete-custom-offset" @click="deleteCustomOffset(caption)">X</div>
+                    <div class="delete-custom-offset unselectable" @click="deleteCustomOffset(caption)">X</div>
                     <div class="custom-offset-too-negative" v-if="offsetTooNegative(caption)">
                       Offset too small. Using minimum offset {{caption.minCustomOffset.toFixed(2)}}s instead.
                     </div>
@@ -766,9 +766,9 @@
                     :class="captionStyle(caption)"
                     @click="selectCaption(caption)">
                     <span class="caption-text" :id="caption.id" v-html="displaySidebarCaption(caption.text)"></span>
-                    <div v-if="isOffsetMode" class='caption-time-offset' v-html="displayCaptionOffset(caption)"></div>
+                    <div v-if="isOffsetMode" class='caption-time-offset unselectable' v-html="displayCaptionOffset(caption)"></div>
                   </span>
-                  <div v-if="isOffsetMode" class='set-custom-offset-button' @click="setCustomOffset(caption)">
+                  <div v-if="isOffsetMode" class='set-custom-offset-button unselectable' @click="setCustomOffset(caption)">
                     <div v-if="isOffsetMode" class='custom-time-offset' v-html="displayCaptionOffset(caption)"></div>
                     Only offset this line and lines after
                   </div>
