@@ -751,7 +751,7 @@
                       form="novalidatedform" 
                       type="number" 
                       step="0.1" 
-                      @keydown.stop="" 
+                      @keydown="onInputKeyDown"
                       :id="'custom_offset_' + caption.id"
                       class="custom-offset-input" 
                       v-model="customOffsets[caption.id]"></input>
@@ -779,7 +779,7 @@
           <div class="auto-pause-text unselectable" v-if="isAutoPauseMode">Auto Pause <span style="display: inline-block;">:</span><span v-html="autoPauseIcon"></span></div>
           <div v-if="captionsUrl" class="controls" :style="controlsStyle">
             <a tabindex="1" :class="offsetButtonClass" @click="toggleOffsetMode()"><span>{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span></a>
-            <input form="novalidatedform" type="number" step="0.1" tabindex="2" @keydown.stop="" class="offset-input" v-model="subtitlesOffsetInput"></input>
+            <input form="novalidatedform" type="number" step="0.1" tabindex="2" @keydown="onInputKeyDown" class="offset-input" v-model="subtitlesOffsetInput"></input>
             <a v-if="audioTracks && audioTracks.length > 1" tabindex="3" :class="audioTrackClass" @click="cycleAudioTrack()"><span>{{selectedAudioTrack + 1}}/{{audioTracks.length}}</span></a>
             <a tabindex="4" :class="helpClass" @click="toggleHelp(); enableHelpMode('hotkeys')"><span>?</span></a>
           </div>
@@ -1388,6 +1388,17 @@
               this.isCaptions(file)
                 ? this.loadCaptions(file)
                 : this.loadVideo(file);
+            }
+          },
+
+          onInputKeyDown: function (event) {
+            switch (event.key) {
+              case 'ArrowLeft':
+              case 'ArrowUp':
+              case 'ArrowDown':
+              case 'ArrowRight':
+              case '.':
+                event.stopPropagation();
             }
           },
 
