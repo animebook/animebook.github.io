@@ -752,6 +752,7 @@
                       type="number" 
                       step="0.1" 
                       @keydown.stop="" 
+                      :id="'custom_offset_' + caption.id"
                       class="custom-offset-input" 
                       v-model="customOffsets[caption.id]"></input>
                     <div class="delete-custom-offset" @click="deleteCustomOffset(caption)">X</div>
@@ -1720,6 +1721,11 @@
             var newOffset = (currentOffset + this.calcCaptionOffset(caption)).toFixed(2);
             this.$set(this.customOffsets, caption.id, newOffset);
             this.isOffsetMode = false;
+            setTimeout(function () {
+              var el = document.getElementById("custom_offset_" + caption.id);
+              if (el)
+                el.focus();
+            }, 0);
           },
 
           deleteCustomOffset: function (caption) {
