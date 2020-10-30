@@ -2112,7 +2112,7 @@
             };
 
             var formatTime = function (seconds) {
-              var date = new Date(2000, 0, 1, 0, 0, 0, seconds * 1000);
+              var date = new Date(2000, 0, 1, 0, 0, 0, Math.max(0, seconds) * 1000);
               return [
                 padWithZeros(date.getHours(), 2),
                 padWithZeros(date.getMinutes(), 2),
@@ -2122,9 +2122,9 @@
               ].join(":");
             };
 
-            var lines = captions.map(function (caption) {
+            var lines = captions.map(function (caption, index) {
               return [
-                caption.id.replace("id_", ""),
+                index + 1,
                 formatTime(caption.startTime) +
                   " --> " +
                   formatTime(caption.endTime),
