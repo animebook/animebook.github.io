@@ -1126,8 +1126,11 @@
                 if (e.ctrlKey || e.altKey || e.metaKey)
                   return;
                 stopEvent(e);
-                var newFileName = self.subtitlesFileName.substring(0, self.subtitlesFileName.length - 4)+ ".srt";
-                self.downloadString(self.formatSrt(self.captions), "srt", newFileName);
+                var newFileName = self.subtitlesFileName;
+                var dotIndex = newFileName.lastIndexOf('.');
+                if (dotIndex !== -1 && newFileName.length - dotIndex < 5)
+                  newFileName = self.subtitlesFileName.substring(0, dotIndex);
+                self.downloadString(self.formatSrt(self.captions), "srt", newFileName + ".srt");
                 break;
               case 'v':
               case 'V':
