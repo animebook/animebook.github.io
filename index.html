@@ -2157,7 +2157,8 @@
               if (customOffsets.hasOwnProperty(caption.id)) {
                 caption.customOffset = this.parseInputNum(customOffsets[caption.id]);
                 if (i > 0) {
-                  var minCustomOffset = parsed[i - 1].startTime - caption.startTime - currentOffset + 0.002;
+                  var guaranteedGapBetweenLines = 0.002
+                  var minCustomOffset = parsed[i - 1].startTime - caption.startTime - currentOffset + guaranteedGapBetweenLines;
                   caption.customOffset = Math.max(caption.customOffset, minCustomOffset);
                   caption.minCustomOffset = minCustomOffset;
                 } else {
