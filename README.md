@@ -8,7 +8,7 @@ An HTML5 video player with navigable subtitles. Since subtitles are in the brows
 This is a modified version of https://github.com/katspaugh/videobook, with some quality-of-life improvements to match the workflow described in https://www.animecards.site.
 - Dark color scheme by default
 - Resizable sidebar
-- Ability to offset subtitles by a static time directly in the web player. Useful for the majority of subtitles on https://kitsunekko.net/ and https://itazuraneko.neocities.org/library/sub.html, which almost always need to be retimed to the video you're watching. Animebook can only offset when the subs start though, so for any retiming more complicated than that, you'll need to either regularly offset the subs while watching, or use the [alass scripts from animecards](https://www.animecards.site/#h.p_JJ4k20WaHvx2).
+- Ability to retime subtitles directly in the web player. Useful for the majority of subtitles on https://kitsunekko.net/ and https://itazuraneko.neocities.org/library/sub.html, which almost always need to be retimed to the video you're watching.
 - Built-in browser zoom works more reliably, in case you need to change the font size
 - App is a single html page, making it easier to download and save locally. If you want this, download at https://raw.githubusercontent.com/animebook/animebook.github.io/master/index.html by right clicking and hitting 'Save As...'.
 
