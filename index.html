@@ -752,7 +752,6 @@
                       type="number" 
                       step="0.1" 
                       @keydown.stop="" 
-                      @focus="onCustomOffsetFocus"
                       class="custom-offset-input" 
                       v-model="customOffsets[caption.id]"></input>
                     <div class="delete-custom-offset" @click="deleteCustomOffset(caption)">X</div>
@@ -859,7 +858,6 @@
           subtitlesFileContent: null,
           subtitlesOffsetInput: "0.0",
           customOffsets: {},
-          customOffsetInputFocusTracker: {},
           videoFileName: null,
           subtitlesFileName: null,
           activeCaptionIds: [],
@@ -1191,7 +1189,7 @@
 
             if ((this.sideBarX + this.sideBarDragDx) > 1.0 - 0.0001)
               return;
-            if (this.customOffsetInputFocusTracker.size > 0)
+            if (document.activeElement && document.activeElement.classList.contains("custom-offset-input"))
               return;
             this.scrollToCaption(newValue[0].id);
           },
@@ -1739,15 +1737,6 @@
             return value ? value : 0.0;
           },
           
-          onCustomOffsetFocus: function (id) {
-            this.customOffsetInputFocusTracker[id] = true;
-          },
-
-          onCustomOffsetBlur: function (id) {
-            this.customOffsetInputFocusTracker[id] = null;
-            delete this.customOffsetInputFocusTracker[id];
-          },
-
           selectCaption: function (caption) {
             var previousTextSelection = this.textSelection;
             this.textSelection = window.getSelection().toString();
