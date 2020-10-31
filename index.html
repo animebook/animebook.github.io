@@ -723,6 +723,7 @@
               @focus="onVideoFocus"
               @seeked="onVideoSeek"
               @loadeddata="onVideoLoad"
+              :key="videoKey"
             >
               <track
                 v-if="captionsUrl"
@@ -878,6 +879,7 @@
           isControlsExpanded: true,
           isOffsetMode: false,
           resizeBarClick: null,
+          videoKey: 1,
           trackKey: 1,
           captionMoveLimitSeconds: 6.0,
           captionBackwardMoveBufferSeconds: 2.0,
@@ -1201,6 +1203,9 @@
           },
           captionsUrl: function (newValue, oldValue) {
             this.trackKey = this.trackKey + 1;
+            var isFirefox = typeof InstallTrigger !== 'undefined';
+            if (isFirefox)
+              this.videoKey = this.videoKey + 1;
           },
           currentTime: function (newTime, oldTime) {
             var video = this.getVideoElement();
