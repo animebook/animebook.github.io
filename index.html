@@ -766,9 +766,15 @@
                   <span
                     :class="captionStyle(caption)"
                     @click="selectCaption(caption)">
-                    <span class="caption-text" :id="caption.id" v-html="displaySidebarCaption(caption.text)"></span>
+                    <span class="caption-text"
+                      :id="caption.id"
+                      :data-start="caption.startTime"
+                      :data-end="caption.endTime"
+                      v-html="displaySidebarCaption(caption.text)">
+                    </span>
                     <div v-if="isOffsetMode" class='caption-time-offset unselectable' v-html="displayCaptionOffset(caption)"></div>
                   </span>
+                  <span v-html="'\n'"></span>
                   <div v-if="isOffsetMode" class='set-custom-offset-button unselectable' @click="setCustomOffset(caption)">
                     <div v-if="isOffsetMode" class='custom-time-offset' v-html="displayCaptionOffset(caption)"></div>
                     Only offset this line and lines after
@@ -1717,7 +1723,7 @@
           },
 
           displaySidebarCaption: function (text) {
-            return "\n" + text.split("\n").map(this.wrapInP).join("") + "\n";
+            return "\n" + text.split("\n").map(this.wrapInP).join("");
           },
 
           wrapInP: function (text) {
