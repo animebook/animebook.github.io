@@ -38,22 +38,21 @@ Drag and drop your video file and your subtitle file (vtt, srt, or ass) onto the
 
 ## Video format support
 
-If you find your video can't play, or that your video will play but there's no audio, it's almost always because your browser can't play the video or audio format associated with your file. This is the case with HEVC/H.265 video and AC3 audio, which almost all browsers can't support due to licensing issues. Refer to the following for the current state of browser support:
+If you find your video can't play, or that your video will play but there's no audio, it's almost always because your browser can't play the file's video or audio codec. This is the case with HEVC/H.265 video and AC3 audio, which almost all browsers can't support due to licensing issues. Current state of browser support:
 
 | Browser | Support |
 |---|---|
-|Microsoft Edge with Windows 10 HEVC Video Extensions|Will play almost any video file. Requires Windows 10.|
+|[Woolyss **all-codecs+** builds of Chromium](https://chromium.woolyss.com/)|Will play almost any video file.|
 | Chrome and other Chromium based browsers (except Vivaldi/Opera)|Will play almost any file that doesn't use HEVC video or AC3 audio|
-|Vivaldi and Opera|Will play few video formats (these browsers deviate from Chrome by rolling their own implementation of HTML video)|
-|Firefox|Will play few video formats|
+|Vivaldi and Opera|Will play few video codecs (these browsers deviate from Chrome by rolling their own implementation of HTML video)|
+|Firefox|Will play few video codecs|
 |Everything else|Probably not a good option|
 
-So, if you want animebook to play almost all files, and you happen to be on Windows 10, the new Microsoft Edge is your best option, and you can install Yomichan on it since it's based on Chromium. Otherwise your best bet is Chrome, and you'll need to avoid using HEVC video or AC3 audio with it.
+So, if you want animebook to play almost all files, the Woolyss all-codecs+ builds of chromium are your best bet, and you can install Yomichan on it (instructions below). Otherwise your best bet is Chrome, and you'll need to avoid using HEVC video or AC3 audio with it.
 
-If you want to use Edge, note it won't support HEVC video out of the box. You need to follow these instructions to enable it.
-1. Install Microsoft Edge based on Chromium. https://www.microsoft.com/en-us/edge
-1. Install the HEVC Video Extensions from Microsoft: https://www.microsoft.com/en-us/p/hevc-video-extensions-from-device-manufacturer/9n4wgh0z6vhq
-1. Open Microsoft Edge. Navigate to ``edge://flags`` in the browser
-1. Enable ``PlayReady DRM for Windows 10``
-1. Ensure ``Hardware-accelerated video encode`` and ``Hardware-accelerated video decode`` are enabled
-1. Restart Edge
+Woolyss Chromium installation instructions:
+1. Find and install an all-codecs+ (**WITH the plus sign**) build of Chromium on https://chromium.woolyss.com/
+1. Enable the Chrome web store, by manually installing https://github.com/NeverDecaf/chromium-web-store into Chromium (this is required because the Chromium build is ungoogled)
+
+Note: I used to recommend Microsoft Edge with HEVC Video Extensions to watch HEVC video on animebook, but as of October 2020 the Microsoft store started
+charging money for HEVC support, so I removed it from the browser list.
