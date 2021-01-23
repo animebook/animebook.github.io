@@ -210,6 +210,7 @@
 
       #app *::-webkit-scrollbar {
         width: 1vh;
+        height: 1vh;
         background-color: #0A0A0A;
       }
 
@@ -295,7 +296,7 @@
         margin-left: 135px;
       }
 
-      .caption-wrapper {
+      .caption-controls {
         display: block; 
         position: relative;
       }
@@ -311,6 +312,7 @@
       }
 
       .caption-text {
+        grid-area: subtitleLine;
         display: inline-block;
         padding: 0.4em;
       }
@@ -430,7 +432,7 @@
       }
 
       .set-custom-offset-button:hover,
-      .caption-wrapper:hover .set-custom-offset-button {
+      .caption-controls:hover .set-custom-offset-button {
         opacity: 1;
       }
 
@@ -634,7 +636,6 @@
         transition: background-color 100ms linear;
         box-sizing: border-box;
         overflow: hidden;
-        cursor: pointer;
         outline: 0;
       }
 
@@ -661,6 +662,96 @@
         left: 72%;
       }
 
+      .caption-parent {
+        display: grid;
+        grid-template-areas: "subtitleLine ankiControls";
+        grid-template-rows: 100%;
+        grid-template-columns: auto 24px;
+      }
+
+      .anki-export {
+        grid-area: ankiControls;
+        display: grid;
+        grid-template-areas:
+          "exportButton"
+          "playBackButton"
+          "progress";
+        grid-template-rows: 24px 24px auto;
+        grid-template-columns: 100%;
+        z-index: 3;
+      }
+
+      .export-to-recent {
+        grid-area: exportButton;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 100%;
+        background-color: #091e1f;
+        transition: background-color 100ms linear;
+      }
+
+      .audio-playback {
+        grid-area: playBackButton;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        transition: background-color 100ms linear;
+        background-color: #0e1a24;
+      }
+
+      .anki-progress {
+        grid-area: progress;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+      }
+
+      .caption-parent:hover .export-to-recent {
+        background-color: #386B62;
+      }
+
+      .caption-parent:hover .export-to-recent:hover {
+        background-color: #7fac95;
+      }
+
+      .caption-parent:hover .audio-playback {
+        background-color: #375B61;
+      }
+
+      .caption-parent:hover .audio-playback:hover {
+        background-color: #739b98;
+      }
+
+      .plus-icon, .playback-icon {
+        width: 70%;
+        height: 70%;
+        fill: #090916;
+      }
+
+      .caption-parent:hover .plus-icon,
+      .caption-parent:hover .playback-icon {
+        fill: #1e1e3d;
+      }
+
+      .caption-parent:hover .export-to-recent:hover .plus-icon,
+      .caption-parent:hover .audio-playback:hover .playback-icon {
+        fill: #0a0e22;
+      }
+
+      #extension-popup-wrapper {
+        position: absolute;
+        bottom: 0px;
+        right: 0px;
+        z-index: 99;
+      }
+
+
     </style>
 
   </head>
@@ -673,6 +764,7 @@
       @mouseout="onMouseOut"
     >
       <div
+        id="drop-wrapper"
         class="drop-wrapper"
         :class="dropWrapperClass"
         @dragover.stop.prevent="onFileDragover"
@@ -738,17 +830,19 @@
 
             <span class="current-caption" :key="shownCaptionsKey" v-html="displayedHtml"></span>
           </div>
-          <div class="resize-bar-wrapper">
+          <div id="resize-bar-wrapper" class="resize-bar-wrapper">
+            <div id="ab-extension-popup-wrapper">
+            </div>
             <div 
               class="resize-bar"
               @click.stop.prevent="onResizeBarClick"
               @mousedown.stop.prevent="onResizeBarMouseDown">
             </div>
           </div>
-          <div class="sidebar-captions" v-if="captionsUrl">
+          <div id="sidebar-captions" class="sidebar-captions" v-if="captionsUrl">
             <div class="captions-container">
               <div class="captions-list">
-                <div v-for="(caption, index) in captions" class="caption-wrapper">
+                <span v-for="(caption, index) in captions" class="caption-controls">
                   <div v-if="caption.customOffset !== null" :class="'caption-custom-offset' + (offsetTooNegative(caption) ? ' error' : '')">
                     <input 
                       form="novalidatedform" 
@@ -763,23 +857,39 @@
                       Offset too small. Using minimum offset {{caption.minCustomOffset.toFixed(2)}}s instead.
                     </div>
                   </div>
-                  <span
-                    :class="captionStyle(caption)"
-                    @click="selectCaption(caption)">
-                    <span class="caption-text"
-                      :id="caption.id"
-                      :data-start="caption.startTime"
-                      :data-end="caption.endTime"
-                      v-html="displaySidebarCaption(caption.text)">
+                  <span class="caption-parent">
+                    <span
+                      :class="captionStyle(caption)"
+                      @click="selectCaption(caption)">
+                      <span class="caption-text"
+                        :id="caption.id"
+                        :data-start="caption.startTime"
+                        :data-end="caption.endTime"
+                        v-html="displaySidebarCaption(caption.text)">
+                      </span>
+                      <span v-if="isOffsetMode" class='caption-time-offset unselectable' v-html="displayCaptionOffset(caption)"></span>
                     </span>
-                    <div v-if="isOffsetMode" class='caption-time-offset unselectable' v-html="displayCaptionOffset(caption)"></div>
+                    <span v-html="'\n'"></span>
+                    <span v-if="isOffsetMode" class='set-custom-offset-button unselectable' @click="setCustomOffset(caption)">
+                      <span v-if="isOffsetMode" class='custom-time-offset' v-html="displayCaptionOffset(caption)"></span>
+                      Only offset this line and lines after
+                    </span>
+                    <span :data-caption-id="caption.id" class="anki-export unselectable">
+                      <span :data-caption-id="caption.id" class="export-to-recent">
+                        <svg class="plus-icon" viewBox="0 0 11 14">
+                          <path d="M9.5 7.5v-1q0-0.203-0.148-0.352t-0.352-0.148h-2v-2q0-0.203-0.148-0.352t-0.352-0.148h-1q-0.203 0-0.352 0.148t-0.148 0.352v2h-2q-0.203 0-0.352 0.148t-0.148 0.352v1q0 0.203 0.148 0.352t0.352 0.148h2v2q0 0.203 0.148 0.352t0.352 0.148h1q0.203 0 0.352-0.148t0.148-0.352v-2h2q0.203 0 0.352-0.148t0.148-0.352zM12 7q0 1.633-0.805 3.012t-2.184 2.184-3.012 0.805-3.012-0.805-2.184-2.184-0.805-3.012 0.805-3.012 2.184-2.184 3.012-0.805 3.012 0.805 2.184 2.184 0.805 3.012z"></path>
+                        </svg>
+                      </span>
+                      <span :data-caption-id="caption.id" class="audio-playback">
+                        <svg class="playback-icon" viewBox="0 0 11 14">
+                          <path d="M10.812 7.242l-10.375 5.766q-0.18 0.102-0.309 0.023t-0.129-0.281v-11.5q0-0.203 0.129-0.281t0.309 0.023l10.375 5.766q0.18 0.102 0.18 0.242t-0.18 0.242z"></path>
+                        </svg>
+                      </span>
+                      <span :id="'progress_' + caption.id" class="anki-progress">
+                      </span>
+                    </span>
                   </span>
-                  <span v-html="'\n'"></span>
-                  <div v-if="isOffsetMode" class='set-custom-offset-button unselectable' @click="setCustomOffset(caption)">
-                    <div v-if="isOffsetMode" class='custom-time-offset' v-html="displayCaptionOffset(caption)"></div>
-                    Only offset this line and lines after
-                  </div>
-                </div>
+                </span>
               </div>
             </div>
           </div>
