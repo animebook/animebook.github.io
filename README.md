@@ -1,11 +1,11 @@
 # Animebook
 https://animebook.github.io
 
-An HTML5 video player with navigable subtitles. Since subtitles are in the browser, you can quickly look up words using popup dictionaries like [yomichan](https://foosoft.net/projects/yomichan/), and you can quickly create flashcards for Anki using the [Animebook Chrome extension](https://github.com/animebook/animebook.github.io/releases).
+An HTML5 video player with navigable subtitles. Since subtitles are in the browser, you can quickly look up words with popup dictionaries like [yomichan](https://foosoft.net/projects/yomichan/), and you can quickly create flashcards for Anki using the [Animebook Chrome extension](https://github.com/animebook/animebook.github.io/releases).
 
 ![Animebook Screencapture](screencapture.gif)
 
-Animebook is a video player designed to match the mining workflow described in https://www.animecards.site, with features such as:
+Animebook is designed to match the mining workflow described in https://www.animecards.site, with features such as:
 - Ability to retime subtitles directly in the web player. Useful for the majority of subtitles on https://kitsunekko.net/ and https://itazuraneko.neocities.org/library/sub.html, which almost always need to be retimed to the video you're watching.
 - Fast flashcard creation using the [Animebook Chrome extension](https://github.com/animebook/animebook.github.io/releases). If you use Yomichan to add a word to Anki while watching a show, you can then use Animebook to add screenshots, audio, and subtitle lines automatically to your flashcard.
 - App is a single html page, making it easier to download and save locally. If you want this, download at https://github.com/animebook/animebook.github.io/releases/.
