@@ -1,0 +1,303 @@
+#background-animebook-iframe {
+    position: fixed !important;
+    top:-99px !important;
+    left:-99px !important;
+    width:2px !important;
+    height:2px !important;
+    border:0 !important;
+}
+
+#ab-toasts {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+#ab-card {
+	display: flex;
+    flex-direction: column;
+    position: relative;
+    bottom: 0px;
+    right: 0px;
+    width: 250px;
+    padding: 8px;
+    color: #C0C0C0;
+    background-color: #375B61;
+}
+
+#ab-card-screenshot img {
+	width: 100%;
+	height: auto;
+}
+
+#ab-error {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    bottom: 0px;
+    right: 0px;
+    min-width: 320px;
+    padding: 8px;
+    margin-top: 10px;
+    color: #C0C0C0;
+    background-color: #6d0a0a;
+}
+
+#ab-error-message {
+    flex-grow: 2;
+    margin: 3px 0 3px 0;
+    display: flex;
+}
+
+#ab-error-alert {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    margin: auto 8px auto 0;
+    font-size: 24px;
+    min-width: 24px;
+    height: 24px;
+    color: #6d0a0a;
+    background-color: #C0C0C0;
+    border-radius: 50%;
+}
+
+#ab-error-text {
+    margin: auto 16px auto 0;
+}
+
+#ab-error-navigation {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row-reverse;
+    margin-top: 5px;
+}
+
+#ab-stack-trace {
+    position: relative;
+    right: 0;
+    bottom: 0;
+    margin-top: 4px;
+    flex-grow: 7;
+    overflow: scroll;
+    height: 180px;
+    color: #C0C0C0;
+    background-color: #550E0E;
+}
+
+#ab-error-close {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+    top: 0px;
+    right: 0px;
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    padding: 2px;
+    margin-left: 2px;
+}
+
+#ab-error-close:hover {
+    background-color: #333;
+}
+
+.arrow {
+    display: inline-block;
+    width: 0; 
+    height: 0; 
+    margin-left: 4px;
+}
+
+.arrow-right {
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid #C0C0C0;
+}
+  
+.arrow-left {
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent; 
+    border-right: 8px solid #C0C0C0; 
+}
+
+
+.fade-in {
+    opacity: 1;
+	animation-name: fadeInOpacity;
+	animation-iteration-count: 1;
+	animation-timing-function: ease-in;
+	animation-duration: 0.2s;
+}
+
+@keyframes fadeInOpacity {
+	0% {opacity: 0;}
+	100% { opacity: 1; }
+}
+
+.fade-in-out {
+    opacity: 0;
+	animation-name: fadeInOutOpacity;
+	animation-iteration-count: 1;
+	animation-timing-function: ease-in;
+	animation-duration: 1.5s;
+}
+
+@keyframes fadeInOutOpacity {
+    0%,100% {opacity: 0;}
+    10%, 80% {opacity: 1;}
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.clickable, .unselectable {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Reveal sidebar */
+.caption-parent {
+    grid-template-columns: auto 24px !important;
+}
+
+.anki-export {
+    display: grid !important;
+    grid-area: ankiControls;
+    grid-template-areas:
+        "exportButton"
+        "spinner"
+        "success"
+        "alert";
+    grid-template-rows: 24px 0 0 0;
+    grid-template-columns: 100%;
+    z-index: 3;
+}
+
+.export-to-recent, .export-spinner, .export-success, .export-alert {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    transition: background-color 100ms linear;
+    transition: fill 100ms linear;
+}
+
+.export-to-recent {
+    grid-area: exportButton;
+    background-color: #161616;
+    cursor: pointer;
+}
+
+.export-spinner {
+    grid-area: spinner;
+}
+
+.export-success {
+    grid-area: success;
+}
+
+.export-alert {
+    grid-area: alert;
+}
+
+.caption-parent:hover .export-to-recent,
+.anki-export.please-click .export-to-recent {
+    background-color: #386B62;
+}
+
+.caption-parent:hover .export-to-recent:hover {
+    background-color: #7fac95;
+}
+
+.plus-icon {
+    width: 85%;
+    height: 85%;
+    fill: #090916;
+}
+
+.caption-parent:hover .plus-icon {
+    fill: #1e1e3d;
+}
+
+.caption-parent:hover .export-to-recent:hover .plus-icon {
+    fill: #0a0e22;
+}
+
+.spinner-icon {
+    width: 90%;
+    height: 90%;
+    fill: #555;
+    transform-origin: center center;
+    transform-box: fill-box;
+    animation: rotate 1s infinite 0s steps(8); 
+}
+
+@keyframes rotate  {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+}
+
+.success-icon {
+    width: 90%;
+    height: 90%;
+    fill: #161616;
+}
+
+.caption-parent:hover .success-icon {
+    fill: #739b98;
+}
+
+.alert-icon {
+    width: 90%;
+    height: 90%;
+    fill: #6d0a0a;
+}
+
+.caption:hover .anki-export.highlight::after {
+    background-color: #386B62;
+}
+
+.anki-export.highlight::after {
+    content: '';
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    height: 100%;
+    background-color: #386B62;
+    width: 3px;
+}
+
+.anki-export.disabled .export-to-recent {
+    pointer-events: none;
+    cursor: not-allowed;
+    background-color: #161616;
+}
+
+.anki-export.disabled .plus-icon,
+.anki-export.disabled .success-icon {
+    fill: #0a0e22;
+
+}
+
+.running {
+    pointer-events: none;
+    cursor: not-allowed;
+}

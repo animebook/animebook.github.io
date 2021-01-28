@@ -1,0 +1,20 @@
+.unselectable-button {
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    text-decoration: none;
+}
+
+.nav-button {
+    display: block;
+    border-radius: 2px;
+    padding: 7px;
+    box-sizing: border-box;
+    width: 95%;
+    height: 95%;
+    background-color: #444;
+    color: #FFF;
+    cursor: pointer;
+}

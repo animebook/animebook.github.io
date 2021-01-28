@@ -580,9 +580,16 @@
 
       .exit-popup {
         position: absolute;
-        top: 5px;
-        right: 5px;
-        padding: 4px 9px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        top: 2px;
+        right: 2px;
+        width: 32px;
+        height: 32px;
+        font-size: 32px;
         cursor: pointer;
         border-radius: 0px;
       }
@@ -666,91 +673,16 @@
         display: grid;
         grid-template-areas: "subtitleLine ankiControls";
         grid-template-rows: 100%;
-        grid-template-columns: auto 24px;
+        grid-template-columns: 100% 0%;
       }
 
       .anki-export {
-        grid-area: ankiControls;
-        display: grid;
-        grid-template-areas:
-          "exportButton"
-          "playBackButton"
-          "progress";
-        grid-template-rows: 24px 24px auto;
-        grid-template-columns: 100%;
-        z-index: 3;
+        display: none;
       }
 
-      .export-to-recent {
-        grid-area: exportButton;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-        width: 100%;
-        background-color: #091e1f;
-        transition: background-color 100ms linear;
+      [data-pseudo-content]::before {
+          content: attr(data-pseudo-content);
       }
-
-      .audio-playback {
-        grid-area: playBackButton;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        height: 100%;
-        transition: background-color 100ms linear;
-        background-color: #0e1a24;
-      }
-
-      .anki-progress {
-        grid-area: progress;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        height: 100%;
-      }
-
-      .caption-parent:hover .export-to-recent {
-        background-color: #386B62;
-      }
-
-      .caption-parent:hover .export-to-recent:hover {
-        background-color: #7fac95;
-      }
-
-      .caption-parent:hover .audio-playback {
-        background-color: #375B61;
-      }
-
-      .caption-parent:hover .audio-playback:hover {
-        background-color: #739b98;
-      }
-
-      .plus-icon, .playback-icon {
-        width: 70%;
-        height: 70%;
-        fill: #090916;
-      }
-
-      .caption-parent:hover .plus-icon,
-      .caption-parent:hover .playback-icon {
-        fill: #1e1e3d;
-      }
-
-      .caption-parent:hover .export-to-recent:hover .plus-icon,
-      .caption-parent:hover .audio-playback:hover .playback-icon {
-        fill: #0a0e22;
-      }
-
-      #extension-popup-wrapper {
-        position: absolute;
-        bottom: 0px;
-        right: 0px;
-        z-index: 99;
-      }
-
 
     </style>
 
@@ -764,7 +696,7 @@
       @mouseout="onMouseOut"
     >
       <div
-        id="drop-wrapper"
+        id="animebook-drop-wrapper"
         class="drop-wrapper"
         :class="dropWrapperClass"
         @dragover.stop.prevent="onFileDragover"
@@ -801,7 +733,7 @@
           <div :class="notifyTextClass" v-if="notifyText" v-html="notifyText"></div>
           <div class="video-container" v-show="videoUrl && !shouldShowVideoError">
             <video
-              id="video-element"
+              id="ab-video-element"
               class="video-element"
               :style="videoStyle"
               :src="videoUrl"
@@ -813,6 +745,7 @@
               disabled
               tabIndex="-1"
               @focus="onVideoFocus"
+              @click="onVideoClick"
               @seeked="onVideoSeek"
               @loadeddata="onVideoLoad"
               :key="videoKey"
@@ -830,6 +763,7 @@
 
             <span class="current-caption" :key="shownCaptionsKey" v-html="displayedHtml"></span>
           </div>
+          <span id="ab-meta-data" :data-audio-track="selectedAudioTrack || 0"></span>
           <div id="resize-bar-wrapper" class="resize-bar-wrapper">
             <div id="ab-extension-popup-wrapper">
             </div>
@@ -863,6 +797,7 @@
                       @click="selectCaption(caption)">
                       <span class="caption-text"
                         :id="caption.id"
+                        :data-caption-id="caption.id"
                         :data-start="caption.startTime"
                         :data-end="caption.endTime"
                         v-html="displaySidebarCaption(caption.text)">
@@ -870,22 +805,29 @@
                       <span v-if="isOffsetMode" class='caption-time-offset unselectable' v-html="displayCaptionOffset(caption)"></span>
                     </span>
                     <span v-html="'\n'"></span>
-                    <span v-if="isOffsetMode" class='set-custom-offset-button unselectable' @click="setCustomOffset(caption)">
+                    <span v-if="isOffsetMode" class='set-custom-offset-button unselectable' @click="setCustomOffset(caption)" data-pseudo-content="Only offset this line and lines after">
                       <span v-if="isOffsetMode" class='custom-time-offset' v-html="displayCaptionOffset(caption)"></span>
-                      Only offset this line and lines after
                     </span>
-                    <span :data-caption-id="caption.id" class="anki-export unselectable">
+                    <span :data-caption-id="caption.id" :id="'anki-export-' + caption.id" class="anki-export unselectable">
                       <span :data-caption-id="caption.id" class="export-to-recent">
                         <svg class="plus-icon" viewBox="0 0 11 14">
                           <path d="M9.5 7.5v-1q0-0.203-0.148-0.352t-0.352-0.148h-2v-2q0-0.203-0.148-0.352t-0.352-0.148h-1q-0.203 0-0.352 0.148t-0.148 0.352v2h-2q-0.203 0-0.352 0.148t-0.148 0.352v1q0 0.203 0.148 0.352t0.352 0.148h2v2q0 0.203 0.148 0.352t0.352 0.148h1q0.203 0 0.352-0.148t0.148-0.352v-2h2q0.203 0 0.352-0.148t0.148-0.352zM12 7q0 1.633-0.805 3.012t-2.184 2.184-3.012 0.805-3.012-0.805-2.184-2.184-0.805-3.012 0.805-3.012 2.184-2.184 3.012-0.805 3.012 0.805 2.184 2.184 0.805 3.012z"></path>
                         </svg>
                       </span>
-                      <span :data-caption-id="caption.id" class="audio-playback">
-                        <svg class="playback-icon" viewBox="0 0 11 14">
-                          <path d="M10.812 7.242l-10.375 5.766q-0.18 0.102-0.309 0.023t-0.129-0.281v-11.5q0-0.203 0.129-0.281t0.309 0.023l10.375 5.766q0.18 0.102 0.18 0.242t-0.18 0.242z"></path>
+                      <span class="export-spinner">
+                        <svg class="spinner-icon" viewBox="0 0 1792 1792">
+                          <path d="M526 1394q0 53-37.5 90.5t-90.5 37.5q-52 0-90-38t-38-90q0-53 37.5-90.5t90.5-37.5 90.5 37.5 37.5 90.5zm498 206q0 53-37.5 90.5t-90.5 37.5-90.5-37.5-37.5-90.5 37.5-90.5 90.5-37.5 90.5 37.5 37.5 90.5zm-704-704q0 53-37.5 90.5t-90.5 37.5-90.5-37.5-37.5-90.5 37.5-90.5 90.5-37.5 90.5 37.5 37.5 90.5zm1202 498q0 52-38 90t-90 38q-53 0-90.5-37.5t-37.5-90.5 37.5-90.5 90.5-37.5 90.5 37.5 37.5 90.5zm-964-996q0 66-47 113t-113 47-113-47-47-113 47-113 113-47 113 47 47 113zm1170 498q0 53-37.5 90.5t-90.5 37.5-90.5-37.5-37.5-90.5 37.5-90.5 90.5-37.5 90.5 37.5 37.5 90.5zm-640-704q0 80-56 136t-136 56-136-56-56-136 56-136 136-56 136 56 56 136zm530 206q0 93-66 158.5t-158 65.5q-93 0-158.5-65.5t-65.5-158.5q0-92 65.5-158t158.5-66q92 0 158 66t66 158z"/>
                         </svg>
                       </span>
-                      <span :id="'progress_' + caption.id" class="anki-progress">
+                      <span class="export-success">
+                        <svg class="success-icon" viewBox="0 0 1792 1792">
+                          <path d="M1412 734q0-28-18-46l-91-90q-19-19-45-19t-45 19l-408 407-226-226q-19-19-45-19t-45 19l-91 90q-18 18-18 46 0 27 18 45l362 362q19 19 45 19 27 0 46-19l543-543q18-18 18-45zm252 162q0 209-103 385.5t-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z"/>
+                        </svg>
+                      </span>
+                      <span class="export-alert">
+                        <svg class="alert-icon" viewBox="0 0 1792 1792">
+                          <path d="M896 128q209 0 385.5 103t279.5 279.5 103 385.5-103 385.5-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103zm128 1247v-190q0-14-9-23.5t-22-9.5h-192q-13 0-23 10t-10 23v190q0 13 10 23t23 10h192q13 0 22-9.5t9-23.5zm-2-344l18-621q0-12-10-18-10-8-24-8h-220q-14 0-24 8-10 6-10 18l17 621q0 10 10 17.5t24 7.5h185q14 0 23.5-7.5t10.5-17.5z"/>
+                        </svg>
                       </span>
                     </span>
                   </span>
@@ -903,7 +845,7 @@
             <a tabindex="4" :class="helpClass" @click="toggleHelp(); enableHelpMode('hotkeys')"><span>?</span></a>
           </div>
           <div v-if="shouldShowHelpPopup" class="help-popup">
-            <div class="exit-popup unselectable" @click="toggleHelp()">X</div>
+            <div class="exit-popup unselectable" @click="toggleHelp()">&times;</div>
             <div class="help-mode-button-container">
               <div :class="helpButtonClass('hotkeys')" @click="enableHelpMode('hotkeys')">Hotkeys</div>
               <div :class="helpButtonClass('tips')" @click="enableHelpMode('tips')">Tips</div>
@@ -1536,6 +1478,10 @@
             this.getVideoElement().blur();
           },
 
+          onVideoClick: function (event) {
+            this.clearSelection();
+          },
+
           onVideoSeek: function (event) {
             if (this.scheduledImageCopies > 0) {
               this.copyImage();
@@ -1544,7 +1490,7 @@
           },
 
           getVideoElement: function() {
-            return this.$el.querySelector("#video-element");
+            return this.$el.querySelector("#ab-video-element");
           },
 
           onTimeUpdate: function () {
@@ -1832,7 +1778,7 @@
 
           displayCaptionOffset: function (caption) {
             var offset = this.calcCaptionOffset(caption);
-            return (offset > 0 ? '+' : '') + this.calcCaptionOffset(caption).toFixed(2) + "s";
+            return '<span data-pseudo-content="' + (offset > 0 ? '+' : '') + this.calcCaptionOffset(caption).toFixed(2) + "s" + '"></span>';
           },
 
           displayAsVideoTime: function (seconds) {

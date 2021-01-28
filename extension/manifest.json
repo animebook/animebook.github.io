@@ -1,0 +1,74 @@
+{
+    "manifest_version": 2,
+    "name": "Animebook Anki Export",
+    "version": "1.0.0",
+    "description": "Anki integration for animebook.github.io",
+    "author": "Animebook",
+    "icons": {
+        "16": "img/icon16.png",
+        "19": "img/icon19.png",
+        "32": "img/icon32.png",
+        "38": "img/icon38.png",
+        "48": "img/icon48.png",
+        "64": "img/icon64.png",
+        "128": "img/icon128.png"
+    },
+    "browser_action": {
+        "default_icon": {
+            "16": "img/icon16.png",
+            "19": "img/icon19.png",
+            "32": "img/icon32.png",
+            "38": "img/icon38.png",
+            "48": "img/icon48.png",
+            "64": "img/icon64.png",
+            "128": "img/icon128.png"
+        },
+        "default_title": "Animebook Anki Export",
+        "default_popup": "popup/popup.html"
+    },
+    "content_scripts": [
+        {
+            "matches": ["file://*/*", "*://*.animebook.github.io/*", "*://*/animebook.*", "*://*/animebook"],
+            "js": [
+                "bg/js/lib/vue.min.js", 
+                "fg/toast.js", 
+                "fg/caption_utils.js", 
+                "fg/icons.js",
+                "fg/selection_highlighter.js",
+                "fg/card_creator.js",
+                "fg/frontend.js"
+            ],
+            "match_about_blank": true,
+            "all_frames": true
+        }
+    ],
+    "minimum_chrome_version": "57.0.0.0",
+    "options_page": "bg/settings.html",
+    "options_ui": {
+        "page": "bg/settings.html",
+        "open_in_tab": true
+    },
+    "permissions": [
+        "<all_urls>",
+        "storage",
+        "unlimitedStorage",
+        "nativeMessaging",
+        "webRequest",
+        "webRequestBlocking"
+    ],
+    "optional_permissions": [
+    ],
+    "commands": {
+        "export": {
+            "suggested_key": {
+                "default": "Alt+C"
+            },
+            "description": "Export selected text in animebook to Anki"
+        }
+    },
+    "web_accessible_resources": [
+        "bg/background.html",
+        "fg/frontend.css"
+    ],
+    "content_security_policy": "script-src 'self' 'unsafe-eval' blob:; object-src 'self'"
+}

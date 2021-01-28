@@ -1,0 +1,35 @@
+body {
+    background-color: #CDCCC5;
+}
+
+.ab-form-section {
+    background-color: #F2F2EF;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 
+                0 4px 8px 0 rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+}
+
+.ab-option-label {
+    font-weight: bold;
+}
+
+.tiny-tip {
+    background-color: #007bff;
+    color: #FFF;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    float: right;
+    margin-left: 4px;
+}
+
+.ffmpeg-command {
+    background-color: #555;
+    color: #FFF;
+    font-family: consolas, "Liberation Mono", courier, monospace;
+    padding: 2px;
+    overflow-x: auto;
+}

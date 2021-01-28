@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Animebook Anki Options</title>
+        <link rel="icon" type="image/png" href="/img/icon16.png" sizes="16x16">
+        <link rel="icon" type="image/png" href="/img/icon19.png" sizes="19x19">
+        <link rel="icon" type="image/png" href="/img/icon32.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="/img/icon38.png" sizes="38x38">
+        <link rel="icon" type="image/png" href="/img/icon48.png" sizes="48x48">
+        <link rel="icon" type="image/png" href="/img/icon64.png" sizes="64x64">
+        <link rel="icon" type="image/png" href="/img/icon128.png" sizes="128x128">
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="css/settings.css">
+    </head>
+    <!-- TODO
+        Add custom audio filter flags
+        Clean forvo audio?
+     -->
+    <body>
+        <div id="app" class="container">
+            <div class="ab-form-section mb-3 mt-5">
+                <h1>
+                    Animebook Anki Export
+                </h1>
+
+                <p class="help-block">
+                    For this extension to work, you must have Anki downloaded and the anki-connect plugin installed.
+                    <p>Download Anki: <a href="https://apps.ankiweb.net/" target="_blank" rel="noopener">https://apps.ankiweb.net/</a></p>
+                    <p>Download AnkiConnect: <a href="https://foosoft.net/projects/anki-connect/" target="_blank" rel="noopener">https://foosoft.net/projects/anki-connect/</a></p>
+                </p>
+            </div>
+
+            <div v-if="ankiLoadError" class="alert alert-danger" role="alert">
+                {{ankiLoadError}}
+            </div>
+
+            <div v-if="notFilledOut.length !== 0" class="alert alert-warning" role="alert">
+                Todo to setup anki export:
+                <li v-for="warning in notFilledOut">{{warning}}</li>
+                Once the above are done, you can then fill out what content should go in what field for your Anki cards.
+            </div>
+
+            <div class="ab-form-section mb-3" id="anki-fields-container">
+                <div class="row">
+                    <div class="form-group col-5">
+                        <label for="anki-terms-deck">Deck</label>
+                        <select v-model="settings.ankiDeck" class="form-control" id="anki-terms-deck">
+                            <option v-for="deck in availableDecks" :value="deck">{{deck}}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-5">
+                        <label for="anki-terms-model">Model</label>
+                        <select v-model="settings.ankiModel" class="form-control" id="anki-terms-model">
+                            <option v-for="model in availableModels" :value="model">{{model}}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-2">
+                        <label for="anki-expression-field">
+                            Vocab Field
+                            <span class="tiny-tip" data-toggle="tooltip" data-placement="top" title="The field that contains the vocab you're trying to learn. This is used for Forvo audio lookups">?</span>
+                        </label>
+                        <select :disabled="!settings.ankiFieldTemplates || settings.ankiFieldTemplates.length === 0" v-model="settings.ankiVocabField" class="form-control" id="anki-expression-field">
+                            <option value=""></option>
+                            <option v-for="template in settings.ankiFieldTemplates" :value="template.field">{{template.field}}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Content to put in field</th>
+                            <th style="max-width: 140px;">When field already has content</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="template in settings.ankiFieldTemplates">
+                            <td>{{template.field}}</td>
+                            <td>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" v-model="template.value">
+                                    <div class="dropdown">
+                                        <button class="btn btn-light dropdown-toggle" type="button" id="template-options-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        </button>
+                                        <div class="dropdown-menu" aria-labelledby="template-options-dropdown">
+                                            <button v-for="expression in availableTemplateExpressions" :disabled="expression === 'forvo-word-audio' && !settings.ankiVocabField" class="dropdown-item" type="button" @click="addExpressionToTemplate(expression, template)">
+                                                {{expression}}{{(expression === 'forvo-word-audio' && !settings.ankiVocabField) ? ' (no Vocab Field found)' : ''}}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="max-width: 140px;">
+                                <select :disabled="template.value.length === 0" class="form-control" v-model="template.behavior">
+                                    <option value="replace">Replace existing content</option>
+                                    <option value="insertIfEmpty">Only insert if already empty</option>
+                                    <option value="prepend">Prepend to start of content</option>
+                                    <option value="append">Append to end of content</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+            <div class="ab-form-section mb-3 col-8">
+                <h4>Sentence Text</h4>
+                <div class="form-group row">
+                    <div class="col-7 my-auto">What to do with newlines</div>
+                    <select class="form-control col-5" v-model="settings.newlineBehavior">
+                        <option value="divs">Convert to &lt;div&gt; elements</option>
+                        <option value="remove">Remove entirely</option>
+                        <option value="leave">Leave as is</option>
+                    </select>
+                </div>
+
+                <h4>Regex Replacements</h4>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Regex</th>
+                            <th>Replacement Text</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(replacement, index) in settings.sentenceReplacements">
+                            <td>
+                                <input type="text" class="form-control" v-model="replacement.regex">
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" v-model="replacement.replaceText">
+                            </td>
+                            <td>
+                                <button @click="removeSentenceReplacement(index)" class="btn btn-danger">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button @click="addSentenceReplacement()" class="btn btn-success">+ Add replacement</button>
+            </div>
+
+            <div class="ab-form-section mb-3 col-8">
+                <h4>Screenshots</h4>
+                <div class="row mb-2">
+                    <div class="col-7 my-auto">Resizing</div>
+                    <select class="form-control col-5" v-model="settings.imageResizeSelection">
+                        <option value="height">Resize to specific height</option>
+                        <option value="width">Resize to specific width</option>
+                        <option value="none">Do not resize</option>
+                    </select>
+                </div>
+
+                <div style="min-height: 50px;">
+                    <div v-if="settings.imageResizeSelection == 'height'" class="form-group row">
+                        <label class="col-7 my-auto" for="image-resize-height">Height to resize to (px)</label>
+                        <input class="col-5 form-control" v-model.number="settings.imageResizeHeight" type="number" id="image-resize-height" >
+                    </div>
+
+                    <div v-if="settings.imageResizeSelection == 'width'" class="form-group row">
+                        <label class="col-7 my-auto" for="image-resize-width">Width to resize to (px)</label>
+                        <input class="col-5 form-control" v-model.number="settings.imageResizeWidth" type="number" id="image-resize-width" >
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-7 my-auto">Screenshot format</div>
+                    <select class="form-control col-5" v-model="settings.imageFormat">
+                        <option value="png">PNG</option>
+                        <option value="jpg">JPEG</option>
+                    </select>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-5 my-auto">Take screenshots at the</div>
+                    <select class="form-control col-7" v-model="settings.imageTiming">
+                        <option value="middle">Time point in the middle of the selected captions</option>
+                        <option value="currentFrame">Current frame the video's playing at</option>
+                    </select>
+                </div>
+
+                <label for="image-ffmpeg-flags">Custom ffmpeg flags when taking screenshots:</label>
+                <input class="form-control mb-1" v-model="settings.imageFfmpegFlags" type="text" id="image-ffmpeg-flags">
+
+                <label>Preview:</label>
+                <div class="ffmpeg-command">
+                    {{imageCommand}}
+                </div>
+            </div>
+
+            <div class="ab-form-section mb-3 col-8">
+                <h4>Recorded Audio</h4>
+                <div class="form-group row">
+                    <label class="col-7 my-auto" for="audio-multiplier">Multiply volume of recorded audio by</label>
+                    <input class="col-5 form-control" step= "0.1" v-model.number="settings.audioVolumeMultiplier" type="number" id="audio-multiplier" >
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-7 my-auto" for="audio-clip-padding">Expand start and end of recorded audio by (seconds)</label>
+                    <input class="col-5 form-control" step="0.1" v-model.number="settings.audioClipPadding" type="number" id="audio-clip-padding" >
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-7 my-auto" for="audio-clip-fade">Fade start and end of recorded audio by (seconds)</label>
+                    <input class="col-5 form-control" step="0.1" v-model.number="settings.audioClipFade" type="number" id="audio-clip-fade" >
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-7 my-auto">Autoplay forvo word audio found after recording card?</div>
+                    <select class="form-control col-5" v-model="settings.forvoAudioPlayback">
+                        <option value="autoPlay">Yes</option>
+                        <option value="none">No</option>
+                    </select>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-7 my-auto">Autoplay sentence audio after recording card?</div>
+                    <select class="form-control col-5" v-model="settings.audioPlayback">
+                        <option value="autoPlay">Yes</option>
+                        <option value="none">No</option>
+                    </select>
+                </div>
+
+                <label class="" for="audio-ffmpeg-flags">Custom ffmpeg flags when recording audio:</label>
+                <input class="form-control" v-model="settings.audioFfmpegFlags" type="text" id="audio-ffmpeg-flags">
+
+                <label>Preview:</label>
+                <div class="ffmpeg-command">
+                    {{audioCommand}}
+                </div>
+            </div>
+
+            <div class="ab-form-section mb-3 col-8">
+                <h4>Advanced</h4>
+                <div class="form-group row">
+                    <label class="col-7 my-auto" for="anki-server">Anki server address</label>
+                    <input class="col-5 form-control" v-model="settings.ankiServer" type="text" id="anki-server" >
+                </div>
+                <div class="form-group row">
+                    <div class="col-7 my-auto">What to show in anki browser after upload?</div>
+                    <select class="form-control col-5" v-model="settings.ankiBrowserFinalDisplay">
+                        <option value="currentDeck">Cards from updated anki deck</option>
+                        <option value="customQuery">Custom browser query</option>
+                    </select>
+
+                </div>
+                <div style="min-height: 50px;">
+                    <div v-if="settings.ankiBrowserFinalDisplay === 'customQuery'" class="form-group row">
+                        <label class="col-7 my-auto" for="anki-custom-query">Custom query</label>
+                        <input class="col-5 form-control" v-model.number="settings.ankiBrowserFinalQuery" id="anki-custom-query" >
+                    </div>
+                </div>
+            </div>
+
+            <div class="ab-form-section col-8">
+                <h4>Backup</h3>
+                <p class="help-block">
+                    If you need a backup of your Animebook export settings, you can download them as json here:
+                </p>
+                <div>
+                    <button class="btn btn-info" id="settings-export" @click="onExportSettings">Export Settings</button>
+                    <input type="file" id="settings-import-hidden" @change="onImportSettings" name="files" style="display: none;" />
+                    <label style="margin: 0;" class="btn btn-info" for="settings-import-hidden" id="settings-import">
+                        Import Settings
+                    </label>
+                    <button class="btn btn-danger" id="settings-reset" @click="" data-toggle="modal" data-target="#reset-modal">Reset Default Settings</button>
+
+                    <div id="reset-modal" class="modal fade" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered">
+                          <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Reset to Default Settings?</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    <p style="color: #AA3939;">You are about to reset all Animebook settings back to their default values. <b>This action cannot be undone.</b></p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal" @click="restoreDefaults()">Reset to Defaults</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pull-right bottom-links mt-3">
+                <small>
+                    &bull; <a href="https://github.com/animebook/animebook.github.io">Github</a>
+                </small>
+            </div>
+        </div>
+        <script src="js/lib/jquery-3.2.1.slim.min.js"></script>
+        <script src="js/lib/popper.min.js"></script>
+        <script src="js/lib/bootstrap.min.js"></script>
+        <script src="js/lib/vue.min.js"></script>
+        <script src="js/ffmpeg_commands.js"></script>
+        <script src="js/errors.js"></script>
+        <script src="js/anki.js"></script>
+        <script src="js/defaults.js"></script>
+        <script src="js/settings.js"></script>
+    </body>
+</html>
