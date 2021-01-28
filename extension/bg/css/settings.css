@@ -9,6 +9,10 @@ body {
     padding: 1.5rem;
 }
 
+.ab-form-section.thin-form {
+    max-width: 700px;
+}
+
 .ab-option-label {
     font-weight: bold;
 }
