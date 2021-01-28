@@ -50,11 +50,7 @@
     },
     "permissions": [
         "<all_urls>",
-        "storage",
-        "unlimitedStorage",
-        "nativeMessaging",
-        "webRequest",
-        "webRequestBlocking"
+        "storage"
     ],
     "optional_permissions": [
     ],
