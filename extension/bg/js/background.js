@@ -116,6 +116,8 @@ async function recordFlashcard(text, start, end, currentVideoTime, audioTrack) {
         } else {
             expressionLookup['forvo-word-audio'] = ''
         }
+    } else if (neededExpressions.has('forvo-word-audio')) {
+            expressionLookup['forvo-word-audio'] = ''
     }
 
     if (neededExpressions.has('sentence-audio')) {
