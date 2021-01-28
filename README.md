@@ -3,9 +3,7 @@ https://animebook.github.io
 
 An HTML5 video player with navigable subtitles. Since subtitles are in the browser, you can quickly look up words using popup dictionaries like [yomichan](https://foosoft.net/projects/yomichan/), and you can quickly create flashcards for Anki using the [Animebook Chrome extension](https://github.com/animebook/animebook.github.io/releases).
 
-<video controls>
-  <source src="screencapture.webm" type="video/webm">
-</video>
+[![Animebook Screencapture](screencapture.gif)]
 
 Animebook is a video player designed to match the mining workflow described in https://www.animecards.site, with features such as:
 - Ability to retime subtitles directly in the web player. Useful for the majority of subtitles on https://kitsunekko.net/ and https://itazuraneko.neocities.org/library/sub.html, which almost always need to be retimed to the video you're watching.
