@@ -58,14 +58,7 @@
     ],
     "optional_permissions": [
     ],
-    "commands": {
-        "export": {
-            "suggested_key": {
-                "default": "Alt+C"
-            },
-            "description": "Export selected text in animebook to Anki"
-        }
-    },
+    "commands": {},
     "web_accessible_resources": [
         "bg/background.html",
         "fg/frontend.css"
