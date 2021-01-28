@@ -43,7 +43,7 @@ class FFmpegClient {
     async getAudioData(start, end, audioTrack) {
         const audioData = await this.recordAudio(start, end, audioTrack);
         const audioBlob = new Blob([audioData.buffer]);
-        const audioBase64 = await new BlobUtils().blobToBase64(audioBlob);
+        const audioBase64 = await (new BlobUtils().blobToBase64(audioBlob));
         const audioFileName = this.createName(start, end) + '.mp3';
         return [audioFileName, audioBlob, audioBase64];
     }
@@ -52,25 +52,10 @@ class FFmpegClient {
         const screenshotTime = (this.settings.imageTiming === 'currentFrame') ? currentVideoTime : ((start + end) / 2);
         const imageData = await this.takeScreenshot(screenshotTime);
         const imageBlob = new Blob([imageData.buffer]);
-        const imageBase64 = await this.blobToBase64(imageBlob);
+        const imageBase64 = await (new BlobUtils().blobToBase64(imageBlob));
         const imageFileName = this.createName(screenshotTime) + '.' + this.settings['imageFormat'];
         return [imageFileName, imageBase64]
     }
-
-    async blobToBase64(blob) {
-        const promise = new Promise((resolve, reject) => {
-            var reader = new FileReader();
-            reader.onload = function() {
-                var dataUrl = reader.result;
-                var base64 = dataUrl.split(',')[1];
-                resolve(base64);
-            };
-            reader.readAsDataURL(blob);
-        })
-
-        const result = await promise;
-        return result;
-    };
 
     guessEpisodeNumber(videoFileName) {
         var matches = videoFileName
