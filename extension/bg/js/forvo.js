@@ -1,4 +1,7 @@
 class ForvoFetch {
+    constructor(ffmpegClient) {
+        this.ffmpegClient = ffmpegClient;
+    }
 
     async fetchWordAudio(word) {
         try {
@@ -28,12 +31,13 @@ class ForvoFetch {
 
             const audioResp = await fetch(audioUrl);
             const audioData = await audioResp.arrayBuffer();
-            const audioBlob = new Blob([audioData]);
-            const audioBase64 = await new BlobUtils().blobToBase64(audioBlob);
+            const cleanAudioBlob = await this.ffmpegClient.cleanAudio(audioData);
+            const audioBase64 = await new BlobUtils().blobToBase64(cleanAudioBlob);
             const audioFileName = 'ab_' + word.replaceAll(/\w/g, '_') + '_' + (new TimeFormatter().createDateTimeString()) + '.mp3';
 
-            return [audioFileName, audioBlob, audioBase64];
+            return [audioFileName, cleanAudioBlob, audioBase64];
         } catch (e) {
+            console.error("Failed to fetch forvo audio: " + e.message);
             return null;
         }
     }

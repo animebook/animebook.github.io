@@ -84,7 +84,6 @@ async function recordFlashcard(text, start, end, currentVideoTime, audioTrack) {
 
     await updateFilePromise;
     const ffmpegClient = new FFmpegClient(videoFile, settings);
-    const neededExpressions = templateCompiler.findNeededExpressions();
 
     const recentNoteIds = await anki.findRecentNoteIds();
     const latestId = recentNoteIds.result.reduce((a,b) => Math.max(a,b), -1);
@@ -94,6 +93,7 @@ async function recordFlashcard(text, start, end, currentVideoTime, audioTrack) {
     if (!latestNotes || latestNotes.length === 0)
         throw new UserFacingError("No anki card to export to");
     const latestNote = latestNotes[0];
+    const neededExpressions = templateCompiler.findNeededExpressions(latestNote);
 
     var promises = [];
     var expressionLookup  = {}
@@ -106,18 +106,16 @@ async function recordFlashcard(text, start, end, currentVideoTime, audioTrack) {
         expression = latestNote.fields[settings.ankiVocabField].value;
 
     if (neededExpressions.has('forvo-word-audio') && expression) {
-        const forvoFetch = new ForvoFetch();
-        const forvoPromise = forvoFetch.fetchWordAudio(expression).then(wordAudioObj => {
-            if (wordAudioObj) {
-                const [wordAudioFilename, wordBlob, wordAudioBase64] = wordAudioObj;
-                expressionLookup['forvo-word-audio'] = `[sound:${wordAudioFilename}]`
-                wordBlobToPlay = wordBlob;
-                return anki.storeMediaFile(wordAudioFilename, wordAudioBase64);
-            } else {
-                expressionLookup['forvo-word-audio'] = ''
-            }
-        });
-        promises.push(forvoPromise)
+        const forvoFetch = new ForvoFetch(ffmpegClient);
+        const wordAudioObj = await forvoFetch.fetchWordAudio(expression)
+        if (wordAudioObj) {
+            const [wordAudioFilename, wordBlob, wordAudioBase64] = wordAudioObj;
+            expressionLookup['forvo-word-audio'] = `[sound:${wordAudioFilename}]`
+            wordBlobToPlay = wordBlob;
+            promises.push(anki.storeMediaFile(wordAudioFilename, wordAudioBase64));
+        } else {
+            expressionLookup['forvo-word-audio'] = ''
+        }
     }
 
     if (neededExpressions.has('sentence-audio')) {

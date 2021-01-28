@@ -16,9 +16,10 @@ const AB_DEFAULT_OPTIONS = {
     audioVolumeMultiplier: 1.0,
     audioClipPadding: 0.5,
     audioClipFade: 0.2,
-    forvoAudioPlayback: 'autoPlay',
     audioPlayback: 'autoPlay',
     audioFfmpegFlags: "",
+    forvoAudioPlayback: 'autoPlay',
+    forvoAudioVolumeMultiplier: 1.0,
     ankiServer: "http://127.0.0.1:8765"
 }
 

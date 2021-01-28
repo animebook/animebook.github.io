@@ -57,6 +57,17 @@ class FFmpegClient {
         return [imageFileName, imageBase64]
     }
 
+    async cleanAudio(audioBuffer) {
+        const audioBlob = new Blob([audioBuffer]);
+        const file = new File([audioBlob], "animebook_clean_audio.mp3")
+        await AB_INTERNAL_FFMPEG.FS('writeFile', this.ffmpegCommands.makeFileNameSafe(file.name), new Uint8Array(audioBuffer));
+        const command = this.ffmpegCommands.createCleanAudioCommand(file);
+        await this.ffmpeg.run(...command.commandArgs);
+        const audioData = this.ffmpeg.FS('readFile', command.outputFileName);
+        this.ffmpeg.FS('unlink', command.outputFileName);
+        return new Blob([audioData.buffer]);
+    }
+
     guessEpisodeNumber(videoFileName) {
         var matches = videoFileName
             .replace(/[a-uw-zA-UW-Z]/g, "a")

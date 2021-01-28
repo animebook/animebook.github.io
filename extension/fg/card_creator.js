@@ -51,20 +51,26 @@ class CardCreator {
     
         this.abIcons.setSpinner(captionId);
         this.abIcons.disableAll();
-        chrome.runtime.sendMessage(message, {}, response => {
+        try {
+            chrome.runtime.sendMessage(message, {}, response => {
+                this.abIcons.reEnableAll();
+                if (!response || !response.type) {
+                    this.toaster.$emit('add-error', { message: 'Failed to record flashcard. The Animebook extension may not be fully loaded yet.', isUserFacing: true })
+                    this.abIcons.setAlert(captionId);
+                } else if (response.type === 'card-created') {
+                    this.toaster.$emit('set-card', response);
+                    this.abIcons.setSuccess(captionId);
+                } 
+                else {
+                    this.toaster.$emit('add-error', response);
+                    this.abIcons.setAlert(captionId);
+                } 
+            })
+        } catch (e) {
             this.abIcons.reEnableAll();
-            if (!response || !response.type) {
-                this.toaster.$emit('add-error', { message: 'Failed to record flashcard. The Animebook extension may not be fully loaded yet.', isUserFacing: true })
-                this.abIcons.setAlert(captionId);
-            } else if (response.type === 'card-created') {
-                this.toaster.$emit('set-card', response);
-                this.abIcons.setSuccess(captionId);
-            } 
-            else {
-                this.toaster.$emit('add-error', response);
-                this.abIcons.setAlert(captionId);
-            } 
-        })
+            this.toaster.$emit('add-error', { message: 'Failed to connect to extension: ' + e.message, isUserFacing: true })
+            this.abIcons.setAlert(captionId);
+        }
     }
 
 }

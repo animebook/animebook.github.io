@@ -39,9 +39,12 @@ class TemplateCompiler {
         return fieldMap;
     }
     
-    findNeededExpressions() {
+    findNeededExpressions(latestNote) {
         var uniqueExpressions = new Set();
         this.settings.ankiFieldTemplates.forEach(fieldTemplate => {
+            if (fieldTemplate.behavior === 'insertIfEmpty' && latestNote.fields[fieldTemplate.field].value.length > 0)
+                return;
+
             AB_TEMPLATE_EXPRESSIONS.forEach(expr => {
                 if (fieldTemplate.value.indexOf("{" + expr + "}") !== -1)
                     uniqueExpressions.add(expr)

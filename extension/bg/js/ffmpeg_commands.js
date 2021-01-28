@@ -72,6 +72,29 @@ class FFmpegCommands {
         }
     }
 
+    createCleanAudioCommand(audioFile) {
+        var audioFilterFlags = [];
+        audioFilterFlags.push(`volume=${this.settings.forvoAudioVolumeMultiplier}`)
+        audioFilterFlags.push('lowpass=3000')
+        audioFilterFlags.push('highpass=200')
+        audioFilterFlags.push('areverse')
+        audioFilterFlags.push('silenceremove=1:0:-35dB')
+        audioFilterFlags.push('areverse')
+
+        var effectFlags = [`-af`, audioFilterFlags.join(',')];
+        var fileName = 'output.mp3'
+
+        return {
+            outputFileName: fileName,
+            commandArgs: [
+                `-y`,
+                `-i`, `${this.makeFileNameSafe(audioFile.name)}`,
+                ...effectFlags,
+                fileName
+            ].filter(arg => arg)
+        }
+    }
+
     makeFileNameSafe(fileName) {
         // Unicode filenames don't work with ffmpeg.wasm :(
         var noUnicodeFileName = fileName.replaceAll(/[^\x00-\x7F]+/g, '');
