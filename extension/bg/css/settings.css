@@ -2,6 +2,10 @@ body {
     background-color: #CDCCC5;
 }
 
+[v-cloak] {
+    display: none;
+}
+
 .ab-form-section {
     background-color: #F2F2EF;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 
