@@ -1,17 +1,18 @@
 # Animebook
 https://animebook.github.io
 
-An HTML5 video player with navigable subtitles. Since subtitles are in the browser, you can quickly look up words using popup dictionaries like [yomichan](https://foosoft.net/projects/yomichan/).
+An HTML5 video player with navigable subtitles. Since subtitles are in the browser, you can quickly look up words using popup dictionaries like [yomichan](https://foosoft.net/projects/yomichan/), and you can quickly create flashcards for Anki using the [Animebook Chrome extension](https://github.com/animebook/animebook.github.io/releases).
 
-![Animebook Screenshot](screenshot.png)
+<video controls>
+  <source src="screencapture.webm" type="video/webm">
+</video>
 
-This is a modified version of https://github.com/katspaugh/videobook, with some quality-of-life improvements to match the workflow described in https://www.animecards.site.
-- Dark color scheme by default
-- Resizable sidebar
+Animebook is a video player designed to match the mining workflow described in https://www.animecards.site, with features such as:
 - Ability to retime subtitles directly in the web player. Useful for the majority of subtitles on https://kitsunekko.net/ and https://itazuraneko.neocities.org/library/sub.html, which almost always need to be retimed to the video you're watching.
-- Built-in browser zoom works more reliably, in case you need to change the font size
-- App is a single html page, making it easier to download and save locally. If you want this, download at https://raw.githubusercontent.com/animebook/animebook.github.io/master/index.html by right clicking and hitting 'Save As...'.
-
+- Fast flashcard creation using the [Animebook Chrome extension](https://github.com/animebook/animebook.github.io/releases). If you use Yomichan to add a word to Anki while watching a show, you can then use Animebook to add screenshots, audio, and subtitle lines automatically to your flashcard.
+- App is a single html page, making it easier to download and save locally. If you want this, download at https://github.com/animebook/animebook.github.io/releases/.
+- Resizable sidebar
+- Built-in browser zoom can be used to adjust the player's font size
 
 ## Usage
 Drag and drop your video file and your subtitle file (vtt, srt, or ass) onto the webpage and you should be good to go. You can also right click on the video and disable "Show controls" if you find the browser's built-in controls distracting. I typically do this and rely on the sidebar and hotkeys for navigation.
@@ -56,3 +57,6 @@ Woolyss Chromium installation instructions:
 
 Note: I used to recommend Microsoft Edge with HEVC Video Extensions to watch HEVC video on animebook, but as of October 2020 the Microsoft store started
 charging money for HEVC support, so I removed it from the browser list.
+
+## Special thanks
+Credits to https://github.com/katspaugh/videobook, which animebook was originally based on.
