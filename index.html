@@ -2067,7 +2067,7 @@
                   id: lines[0],
                   startTime: getSeconds(timestamps[0]),
                   endTime: getSeconds(timestamps[1]),
-                  text: lines.slice(2).join("\n"),
+                  text: lines.slice(2).join("\n").replaceAll(/\{\\an[0-9]{1,2}\}/g, ''),
                 };
               })
               .filter(function (caption) {
