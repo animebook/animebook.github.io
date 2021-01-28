@@ -118,15 +118,7 @@ new Vue({
         },
         onExportSettings: function (e) {
             var settingsStr = JSON.stringify(this.settings, null, 2);
-            var date = new Date();
-            var timeStr = [
-                date.getFullYear(),
-                date.getMonth() + 1,
-                date.getDate(),
-                date.getHours(),
-                date.getMinutes(),
-                date.getSeconds()
-            ].join('-')
+            var timeStr = new TimeFormatter().createDateTimeString();
             this.downloadString(settingsStr, 'json', 'animebook-settings-' + timeStr + '.json');
         },
         downloadString: function (text, fileType, fileName) {
