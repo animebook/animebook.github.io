@@ -78,7 +78,7 @@ class FFmpegCommands {
         audioFilterFlags.push('lowpass=3000')
         audioFilterFlags.push('highpass=200')
         audioFilterFlags.push('areverse')
-        audioFilterFlags.push('silenceremove=1:0:-35dB')
+        audioFilterFlags.push('silenceremove=1:0:-50dB')
         audioFilterFlags.push('areverse')
 
         var effectFlags = [`-af`, audioFilterFlags.join(',')];
