@@ -23,7 +23,7 @@ class CardCreator {
                 return;
             }
             
-            const isTimeNode = n => n && n.hasAttribute("data-start") && n.hasAttribute("data-end");
+            const isTimeNode = n => n && n.hasAttribute && n.hasAttribute("data-start") && n.hasAttribute("data-end");
             const parentStart = this.captionUtils.findParentMatchingCondition(startNode.parentElement, isTimeNode);
             const parentEnd = this.captionUtils.findParentMatchingCondition(endNode.parentElement, isTimeNode);
     
