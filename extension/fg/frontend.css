@@ -181,7 +181,7 @@
         "spinner"
         "success"
         "alert";
-    grid-template-rows: 24px 0 0 0;
+    grid-template-rows: calc(100% - 24px) 0 0 0;
     grid-template-columns: 100%;
     z-index: 3;
 }
@@ -190,6 +190,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    box-sizing: border-box;
     height: 100%;
     width: 100%;
     transition: background-color 100ms linear;
@@ -224,8 +225,8 @@
 }
 
 .plus-icon {
-    width: 85%;
-    height: 85%;
+    width: 20px;
+    height: 20px;
     fill: #090916;
 }
 
