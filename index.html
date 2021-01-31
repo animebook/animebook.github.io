@@ -849,6 +849,7 @@
             <div class="help-mode-button-container">
               <div :class="helpButtonClass('hotkeys')" @click="enableHelpMode('hotkeys')">Hotkeys</div>
               <div :class="helpButtonClass('tips')" @click="enableHelpMode('tips')">Tips</div>
+              <div :class="helpButtonClass('anki-automatic-export')" @click="enableHelpMode('anki-automatic-export')">Anki Export</div>
             </div>
             <div v-if="helpMode === 'hotkeys'" class="help-inner">
               <div class="table">
@@ -893,6 +894,25 @@
                   <li>Enable the Chrome web store, by manually installing <a target="_blank" href="https://github.com/NeverDecaf/chromium-web-store">https://github.com/NeverDecaf/chromium-web-store</a> into Chromium (this is required because the Chromium build is ungoogled)</li>
                 </ol>
                 Note: I used to recommend Microsoft Edge with HEVC Video Extensions to watch HEVC video on animebook, but as of October 2020 the Microsoft store started charging money for HEVC support, so I removed it from the browser list.
+              </p>
+            </div>
+            <div v-if="helpMode === 'anki-automatic-export'" class="help-inner">
+              <h3>Automatic Anki Export (January 2021)</h3>
+              <p>
+                Animebook now supports exporting flashcards to Anki with a Chrome extension. It's meant to work in tandem with Yomichan, so if you're interested, check out the github for more info and where to download.
+                <div><a target="_blank" href="https://github.com/animebook/animebook.github.io">https://github.com/animebook/animebook.github.io</a></div>
+              </p>
+              <h3>Usage</h3>
+              <p>
+                To use the Animebook Chrome extension,
+                <ol>
+                  <li>Click the extension to open its settings</li>
+                  <li>Configure the Anki deck, model, and fields you want to export to</li>
+                  <li>Add a word to Anki using a tool like Yomichan</li>
+                  <li>Select and highlight the subtitle text you want on your card</li>
+                  <li>Hit the plus button</li>
+                </ol>
+                After that, the most recent card in your Anki should get a screenshot, audio, and text added to it.
               </p>
             </div>
           </div>
