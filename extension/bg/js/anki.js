@@ -31,7 +31,7 @@ class AnkiConnect {
     }
 
     async findRecentNoteIds() {
-        return await this._invoke('findNotes', {query: `deck:${this._settings.ankiDeck} note:${this._settings.ankiModel} added:2`});
+        return await this._invoke('findNotes', {query: `"deck:${this._settings.ankiDeck}" "note:${this._settings.ankiModel}" added:2`});
     }
 
     async findNoteInfoByIds(noteIds) {
@@ -44,7 +44,7 @@ class AnkiConnect {
 
     async showCurrentDeckInGui() {
         var deck = this._settings.ankiDeck || "current";
-        return await this._invoke('guiBrowse', {query: "deck:" + deck})
+        return await this._invoke('guiBrowse', {query: `"deck:${deck}"`})
     }
 
     async runCustomBrowserQuery(query) {
