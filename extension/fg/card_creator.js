@@ -19,7 +19,7 @@ class CardCreator {
         else {
             const [startNode, endNode] = this.captionUtils.getStartEnd(selection);
             if (!startNode || !endNode) {
-                this.recordCard(captionElement, captionElement, captionText, captionId);
+                this.recordCard(captionElement, captionElement, captionText, captionId, audioTrack);
                 return;
             }
             
@@ -28,11 +28,11 @@ class CardCreator {
             const parentEnd = this.captionUtils.findParentMatchingCondition(endNode.parentElement, isTimeNode);
     
             if (!parentStart || !parentEnd) {
-                this.recordCard(captionElement, captionElement, captionText, captionId);
+                this.recordCard(captionElement, captionElement, captionText, captionId, audioTrack);
                 return;
             }
     
-            this.recordCard(parentStart, parentEnd, selection.toString(), captionId);
+            this.recordCard(parentStart, parentEnd, selection.toString(), captionId, audioTrack);
         }
     }
 
