@@ -3,6 +3,10 @@ class ForvoFetch {
         this.ffmpegClient = ffmpegClient;
     }
 
+    replaceNonAlphaNumericAscii(text, replacer) {
+        return text.replaceAll(/[\x00-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F]+/g, replacer);
+    }
+
     async fetchWordAudio(word) {
         try {
             const response = await fetch(`https://forvo.com/search/${word}/ja/`);
@@ -33,7 +37,7 @@ class ForvoFetch {
             const audioData = await audioResp.arrayBuffer();
             const cleanAudioBlob = await this.ffmpegClient.cleanAudio(audioData);
             const audioBase64 = await new BlobUtils().blobToBase64(cleanAudioBlob);
-            const audioFileName = 'ab_' + word.replaceAll(/\w/g, '_') + '_' + (new TimeFormatter().createDateTimeString()) + '.mp3';
+            const audioFileName = 'ab_' + this.replaceNonAlphaNumericAscii(word, '_') + '_' + (new TimeFormatter().createDateTimeString()) + '.mp3';
 
             return [audioFileName, cleanAudioBlob, audioBase64];
         } catch (e) {
