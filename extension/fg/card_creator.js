@@ -3,37 +3,39 @@ class CardCreator {
         this.toaster = toaster;
         this.abIcons = abIcons;
         this.captionUtils = captionUtils;
+        this.isRunning = false;
     }
 
     addCard(captionId) {
+        if (this.isRunning)
+            return;
         var captionElement = document.getElementById(captionId);
         var captionText = captionElement.textContent;
-        const selection = window.getSelection();
         const videoElement = document.getElementById('ab-video-element');
         const currentTime = videoElement ? videoElement.currentTime : 0;
         const metaData = document.getElementById('ab-meta-data');
         const audioTrack = metaData ? metaData.getAttribute('data-audio-track') : 0;
-        if (!selection || !selection.toString()) {
-            this.recordCard(captionElement, captionElement, captionText, captionId, currentTime, audioTrack);
-        }
-        else {
-            const [startNode, endNode] = this.captionUtils.getStartEnd(selection);
-            if (!startNode || !endNode) {
-                this.recordCard(captionElement, captionElement, captionText, captionId, currentTime, audioTrack);
-                return;
-            }
-            
-            const isTimeNode = n => n && n.hasAttribute && n.hasAttribute("data-start") && n.hasAttribute("data-end");
-            const parentStart = this.captionUtils.findParentMatchingCondition(startNode.parentElement, isTimeNode);
-            const parentEnd = this.captionUtils.findParentMatchingCondition(endNode.parentElement, isTimeNode);
-    
-            if (!parentStart || !parentEnd) {
-                this.recordCard(captionElement, captionElement, captionText, captionId, currentTime, audioTrack);
-                return;
-            }
-    
-            this.recordCard(parentStart, parentEnd, selection.toString(), captionId, currentTime, audioTrack);
-        }
+        const [startNode, endNode] = this.findStartEndElements(captionElement);
+        this.recordCard(startNode, endNode, captionText, captionId, currentTime, audioTrack);
+    }
+
+    findStartEndElements(clickedCaption) {
+        const selection = window.getSelection();
+        if (!selection || !selection.toString())
+            return [clickedCaption, clickedCaption];
+
+        const [startNode, endNode] = this.captionUtils.getStartEnd(selection);
+        if (!startNode || !endNode)
+            return [clickedCaption, clickedCaption];
+
+        const isTimeNode = n => n && n.hasAttribute && n.hasAttribute("data-start") && n.hasAttribute("data-end");
+        const parentStart = this.captionUtils.findParentMatchingCondition(startNode.parentElement, isTimeNode);
+        const parentEnd = this.captionUtils.findParentMatchingCondition(endNode.parentElement, isTimeNode);
+
+        if (!parentStart || !parentEnd)
+            return [clickedCaption, clickedCaption];
+
+        return [parentStart, parentEnd];
     }
 
     recordCard(startElement, endElement, text, captionId, currentVideoTime, audioTrack) {
@@ -51,8 +53,10 @@ class CardCreator {
     
         this.abIcons.setSpinner(captionId);
         this.abIcons.disableAll();
+        this.isRunning = true;
         try {
             chrome.runtime.sendMessage(message, {}, response => {
+                this.isRunning = false;
                 this.abIcons.reEnableAll();
                 if (!response || !response.type) {
                     this.toaster.$emit('add-error', { message: 'Failed to record flashcard. The Animebook extension may not be fully loaded yet.', isUserFacing: true })
@@ -67,6 +71,7 @@ class CardCreator {
                 } 
             })
         } catch (e) {
+            this.isRunning = false;
             this.abIcons.reEnableAll();
             this.toaster.$emit('add-error', { message: 'Failed to connect to extension: ' + e.message, isUserFacing: true })
             this.abIcons.setAlert(captionId);

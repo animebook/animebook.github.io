@@ -18,6 +18,7 @@ function main() {
 
     const selectionHighlighter = new SelectionHighlighter(captionUtils);
     document.addEventListener('selectionchange', e => selectionHighlighter.onSelectionChange());
+    document.addEventListener('keydown', e => handleKeyDown(e, cardCreator));
 }
 
 function loadIFrame() {
@@ -74,6 +75,24 @@ function onHTMLMutation(mutationsList, cardCreator) {
         })
     }
 };
+
+function handleKeyDown(e, cardCreator) {
+    switch (e.key) {
+        case 'e':
+        case 'E':
+            if (e.ctrlKey || e.altKey || e.metaKey)
+                return;
+            const caption = document.querySelector('.caption.active');
+            if (!caption || !caption.getAttribute('data-caption-id'))
+                return;
+
+            const [start, end] = cardCreator.findStartEndElements(caption);
+            cardCreator.addCard(start.getAttribute('data-caption-id'));
+            break;
+        default:
+            break;
+    }
+}
 
 
 
