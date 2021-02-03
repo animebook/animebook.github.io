@@ -10,32 +10,31 @@ class CardCreator {
         if (this.isRunning)
             return;
         var captionElement = document.getElementById(captionId);
-        var captionText = captionElement.textContent;
         const videoElement = document.getElementById('ab-video-element');
         const currentTime = videoElement ? videoElement.currentTime : 0;
         const metaData = document.getElementById('ab-meta-data');
         const audioTrack = metaData ? metaData.getAttribute('data-audio-track') : 0;
-        const [startNode, endNode] = this.findStartEndElements(captionElement);
-        this.recordCard(startNode, endNode, captionText, captionId, currentTime, audioTrack);
+        const [startNode, endNode, text] = this.findElementRange(captionElement);
+        this.recordCard(startNode, endNode, text, captionId, currentTime, audioTrack);
     }
 
-    findStartEndElements(clickedCaption) {
+    findElementRange(clickedCaption) {
         const selection = window.getSelection();
         if (!selection || !selection.toString())
-            return [clickedCaption, clickedCaption];
+            return [clickedCaption, clickedCaption, clickedCaption.textContent];
 
         const [startNode, endNode] = this.captionUtils.getStartEnd(selection);
         if (!startNode || !endNode)
-            return [clickedCaption, clickedCaption];
+            return [clickedCaption, clickedCaption, clickedCaption.textContent];
 
         const isTimeNode = n => n && n.hasAttribute && n.hasAttribute("data-start") && n.hasAttribute("data-end");
         const parentStart = this.captionUtils.findParentMatchingCondition(startNode.parentElement, isTimeNode);
         const parentEnd = this.captionUtils.findParentMatchingCondition(endNode.parentElement, isTimeNode);
 
         if (!parentStart || !parentEnd)
-            return [clickedCaption, clickedCaption];
+            return [clickedCaption, clickedCaption, clickedCaption.textContent];
 
-        return [parentStart, parentEnd];
+        return [parentStart, parentEnd, selection.toString()];
     }
 
     recordCard(startElement, endElement, text, captionId, currentVideoTime, audioTrack) {
