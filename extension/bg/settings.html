@@ -17,24 +17,18 @@
     <body>
         <div v-cloak id="app" class="container">
             <div class="ab-form-section mb-3 mt-5">
-                <h1>
-                    Animebook Anki Export
-                </h1>
+                <h1>Animebook Anki Export</h1>
+                <ol>
+                    <li>Configure the extension below</li>
+                    <li>Add a word to Anki using a tool like Yomichan</li>
+                    <li>On animebook, select and highlight the subtitle text you want on your card</li>
+                    <li>Hit the plus button on the sidebar</li>
+                    <li>Wait for your most recent Anki card to be updated with a screenshot, audio, and text</li>
+                </ol>
 
-                <p class="help-block">
-                    For this extension to work, you must have Anki downloaded and the anki-connect plugin installed.
-                    <p>Download Anki: <a href="https://apps.ankiweb.net/" target="_blank" rel="noopener">https://apps.ankiweb.net/</a></p>
-                    <p>Download AnkiConnect: <a href="https://foosoft.net/projects/anki-connect/" target="_blank" rel="noopener">https://foosoft.net/projects/anki-connect/</a></p>
-
-                    <h3>Usage</h3>
-                    <ol>
-                        <li>Configure the Anki deck, model, and fields you want to export to</li>
-                        <li>Add a word to Anki using a tool like Yomichan</li>
-                        <li>Select and highlight the subtitle text on animebook you want on your card</li>
-                        <li>Hit the plus button</li>
-                    </ol>
-                    Then, the most recent card in your Anki should get a screenshot, audio, and text added to it.
-                </p>
+                <p>For this extension to work, you must have Anki downloaded and the anki-connect plugin installed.</p>
+                <p>Download Anki: <a href="https://apps.ankiweb.net/" target="_blank" rel="noopener">https://apps.ankiweb.net/</a></p>
+                <p>Download AnkiConnect: <a href="https://foosoft.net/projects/anki-connect/" target="_blank" rel="noopener">https://foosoft.net/projects/anki-connect/</a></p>
 
             </div>
 
@@ -45,7 +39,7 @@
             <div v-if="notFilledOut.length !== 0" class="alert alert-warning" role="alert">
                 Todo to setup anki export:
                 <li v-for="warning in notFilledOut">{{warning}}</li>
-                Once the above are done, you can then fill out what content should go in what field for your Anki cards.
+                Then, you can fill out what content should go in what field for your cards.
             </div>
 
             <div class="ab-form-section mb-3" id="anki-fields-container">
