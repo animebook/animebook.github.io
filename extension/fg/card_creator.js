@@ -21,18 +21,18 @@ class CardCreator {
     findElementRange(clickedCaption) {
         const selection = window.getSelection();
         if (!selection || !selection.toString())
-            return [clickedCaption, clickedCaption, clickedCaption.textContent];
+            return [clickedCaption, clickedCaption, clickedCaption.innerText];
 
         const [startNode, endNode] = this.captionUtils.getStartEnd(selection);
         if (!startNode || !endNode)
-            return [clickedCaption, clickedCaption, clickedCaption.textContent];
+            return [clickedCaption, clickedCaption, clickedCaption.innerText];
 
         const isTimeNode = n => n && n.hasAttribute && n.hasAttribute("data-start") && n.hasAttribute("data-end");
         const parentStart = this.captionUtils.findParentMatchingCondition(startNode.parentElement, isTimeNode);
         const parentEnd = this.captionUtils.findParentMatchingCondition(endNode.parentElement, isTimeNode);
 
         if (!parentStart || !parentEnd)
-            return [clickedCaption, clickedCaption, clickedCaption.textContent];
+            return [clickedCaption, clickedCaption, clickedCaption.innerText];
 
         return [parentStart, parentEnd, selection.toString()];
     }
