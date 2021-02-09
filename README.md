@@ -1,13 +1,13 @@
 # Animebook
 https://animebook.github.io
 
-An HTML5 video player with navigable subtitles. Since subtitles are in the browser, you can quickly look up words with popup dictionaries like [yomichan](https://foosoft.net/projects/yomichan/), and you can quickly create flashcards for Anki using the [Animebook Chrome extension](https://github.com/animebook/animebook.github.io/releases).
+An HTML5 video player with navigable subtitles. Since subtitles are in the browser, you can quickly look up words with popup dictionaries like [yomichan](https://foosoft.net/projects/yomichan/), and you can quickly create flashcards for Anki using the [Animebook Chrome extension](https://chrome.google.com/webstore/detail/animebook-anki-export/ohcbgkombhgcbjcikjlgdmjkpibafppa).
 
 ![Animebook Screencapture](screencapture.gif)
 
 Animebook is designed to match the mining workflow described in https://www.animecards.site, with features such as:
 - Ability to retime subtitles directly in the web player. Useful for the majority of subtitles on https://kitsunekko.net/ and https://itazuraneko.neocities.org/library/sub.html, which almost always need to be retimed to the video you're watching.
-- Fast flashcard creation using the [Animebook Chrome extension](https://github.com/animebook/animebook.github.io/releases). If you use Yomichan to add a word to Anki while watching a show, you can then use Animebook to add screenshots, audio, and subtitle lines automatically to your flashcard.
+- Fast flashcard creation using the [Animebook Chrome extension](https://chrome.google.com/webstore/detail/animebook-anki-export/ohcbgkombhgcbjcikjlgdmjkpibafppa). If you use Yomichan to add a word to Anki while watching a show, you can then use Animebook to add screenshots, audio, and subtitle lines automatically to your flashcard.
 - App is a single html page, making it easier to download and save locally. If you want this, download at https://github.com/animebook/animebook.github.io/releases/.
 - Resizable sidebar
 - Built-in browser zoom can be used to adjust the player's font size
@@ -33,7 +33,7 @@ Drag and drop your video file and your subtitle file (vtt, srt, or ass) onto the
 | t | Cycle through available audio tracks. Currently (as of July 2020), this only works in Chrome and other chromium-based browsers if ``enable-experimental-web-platform-features`` is enabled in chrome://flags. On Firefox, ``media.track.enabled`` must be set to true in about:config. |
 | Page Up/Page Down | OP Skip. Move backward/forward 87 seconds. |
 | Shift D | Download retimed subs as an srt file |
-| e | Add context to most recent anki card (requires the [Animebook Chrome extension](https://github.com/animebook/animebook.github.io/releases) to be installed) |
+| e | Add context to most recent anki card (requires the [Animebook Chrome extension](https://chrome.google.com/webstore/detail/animebook-anki-export/ohcbgkombhgcbjcikjlgdmjkpibafppa) to be installed) |
 
 
 ## Video format support
