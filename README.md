@@ -57,5 +57,6 @@ Woolyss Chromium installation instructions:
 Note: I used to recommend Microsoft Edge with HEVC Video Extensions to watch HEVC video on animebook, but as of October 2020 the Microsoft store started
 charging money for HEVC support, so I removed it from the browser list.
 
-## Special thanks
-Credits to https://github.com/katspaugh/videobook, which animebook was originally based on.
+## Credits
+- https://github.com/katspaugh/videobook, which animebook was originally based on.
+- [Anacreon's mpv script](http://anacreondjt.gitlab.io), which the Anki export extension was based on.
