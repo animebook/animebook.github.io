@@ -11,7 +11,7 @@ class SentenceFormatter {
         this.settings.sentenceReplacements.forEach(replacement => {
             if (replacement.regex.length > 0) {
                 const reg = this.createUserRegex(replacement.regex)
-                text = text.replaceAll(reg, replacement.replaceText);
+                text = text.replace(reg, replacement.replaceText);
             }
         });
         return text;
@@ -19,9 +19,9 @@ class SentenceFormatter {
 
     applyNewlineReplacements(text) {
         if (this.settings.newlineBehavior === 'divs') {
-            text = text.replaceAll('\r', '').split(/\n+/g).map(line => "<div>" + line + "</div>").join("\n");
+            text = text.replace(/\r/g, '').split(/\n+/g).map(line => "<div>" + line + "</div>").join("\n");
         } else if (this.settings.newlineBehavior === 'remove') {
-            text = text.replaceAll('\r', '').replaceAll(/\n+/g, '');
+            text = text.replace(/\r/g, '').replace(/\n+/g, '');
         }
         return text;
     }

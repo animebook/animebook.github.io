@@ -97,7 +97,7 @@ class FFmpegCommands {
 
     makeFileNameSafe(fileName) {
         // Unicode filenames don't work with ffmpeg.wasm :(
-        var noUnicodeFileName = fileName.replaceAll(/[^\x00-\x7F]+/g, '');
-        return "'" + noUnicodeFileName.replaceAll("'", "'\\''") + "'"
+        var noUnicodeFileName = fileName.replace(/[^\x00-\x7F]+/g, '');
+        return "'" + noUnicodeFileName.replace(/'/g, "'\\''") + "'"
     }
 }

@@ -4,7 +4,7 @@ class ForvoFetch {
     }
 
     replaceNonAlphaNumericAscii(text, replacer) {
-        return text.replaceAll(/[\x00-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F]+/g, replacer);
+        return text.replace(/[\x00-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F]+/g, replacer);
     }
 
     async fetchWordAudio(word) {
@@ -15,7 +15,7 @@ class ForvoFetch {
             if (!playFunctionMatches || playFunctionMatches.length === 0)
                 return null;
             const playParameterMatches = playFunctionMatches
-                .map(playFunc => playFunc.match(/'(.*?)'/g).map(m => m.replaceAll("'", "")))
+                .map(playFunc => playFunc.match(/'(.*?)'/g).map(m => m.replace(/'/g, "")))
                 .reduce((a,b) => a.concat(b), [])
 
             if (!playParameterMatches || playParameterMatches.length === 0)

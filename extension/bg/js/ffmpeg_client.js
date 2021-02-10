@@ -83,14 +83,14 @@ class FFmpegClient {
     }
 
     displayAsVideoTime(seconds) {
-        return new Date(seconds * 1000).toISOString().substr(11, 8).replace(/^00:/g, '').replaceAll(':', '-');
+        return new Date(seconds * 1000).toISOString().substr(11, 8).replace(/^00:/g, '').replace(/:/g, '-');
     }
 
     createName(...times) {
         var wordLimit = 3;
         var characterLimit = 18;
         const episodeNumber = this.guessEpisodeNumber(this.videoFile.name)
-        const noNoiseName = this.videoFile.name.replaceAll(/(\[.*?\]|\d+)/g, '').replace(/\.[a-zA-Z]{0,4}$/g, '').trim();
+        const noNoiseName = this.videoFile.name.replace(/(\[.*?\]|\d+)/g, '').replace(/\.[a-zA-Z]{0,4}$/g, '').trim();
         var name = (noNoiseName || this.videoFile.name)
         var allWords = name.split(/\W/g).filter(word => word);
         var lessWords = [];
