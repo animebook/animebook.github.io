@@ -2272,7 +2272,7 @@
             captions.sort(function (a, b) {
               if (a.startTime === b.startTime) {
                 if (a.endTime === b.endTime) {
-                  return a.text > b.text ? 1 : a.text < b.text ? -1 : 0;
+                  return 0;
                 }
                 return a.endTime > b.endTime ? 1 : -1;
               }
@@ -2285,11 +2285,14 @@
             for (var i = 0; i < captions.length - 1; i++) {
               var caption = captions[i];
               var nextCaption = captions[i + 1];
-              if (caption.text !== nextCaption.text || !this.isOverlapping(caption, nextCaption))
-                continue;
-              nextCaption.startTime = Math.min(caption.startTime, nextCaption.startTime)
-              nextCaption.endTime = Math.max(caption.endTime, nextCaption.endTime)
-              duplicateIndexes.push(i);
+              if (caption.text === nextCaption.text && this.isOverlapping(caption, nextCaption)) {
+                nextCaption.startTime = Math.min(caption.startTime, nextCaption.startTime)
+                nextCaption.endTime = Math.max(caption.endTime, nextCaption.endTime)
+                duplicateIndexes.push(i);
+              } else if (caption.startTime === nextCaption.startTime && caption.endTime === nextCaption.endTime) {
+                nextCaption.text = caption.text + '\n' + nextCaption.text;
+                duplicateIndexes.push(i);
+              }
             }
 
             for (var i = duplicateIndexes.length -1; i >= 0; i--)
