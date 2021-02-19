@@ -1594,13 +1594,18 @@
             if (!caption)
               return;
             this.setCurrentTime(caption.startTime + 0.0001, true);
+            // For subtitles that are too close to each other chronologically,
+            // setting the active caption here makes sure we don't get stuck on a single
+            // caption when hitting the left and right arrow keys
             this.activeCaptionIds = [caption.id];
           },
 
           replayCaption: function (e) {
             if (!this.captions)
               return;
+            var currentCaptionIds = this.activeCaptionIds;
             this.playCaption(this.activeCaptions[0] || this.captions[0]);
+            this.activeCaptionIds = currentCaptionIds;
           },
 
           previousCaption: function (e) {
