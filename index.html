@@ -2053,7 +2053,7 @@
                   id: index + 1,
                   startTime: getSeconds(match[1]),
                   endTime: getSeconds(match[2]),
-                  text: match[5].replace(reStyle, "").replace(/\\N/gi, "\n"),
+                  text: match[5].replace(reStyle, "").replace(/\\N/gi, "\n").trim(),
                   voice: match[3] && match[4] ? match[3] + " " + match[4] : "",
                 };
               })
