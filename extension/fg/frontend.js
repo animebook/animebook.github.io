@@ -86,8 +86,10 @@ function handleKeyDown(e, cardCreator) {
             if (!caption || !caption.getAttribute('data-caption-id'))
                 return;
 
-            const [start, end, text] = cardCreator.findElementRange(caption);
-            cardCreator.addCard(start.getAttribute('data-caption-id'));
+            const selectionRange = cardCreator.findSelectionRange(window.getSelection());
+            const start = (selectionRange && selectionRange.length > 0) ? selectionRange[0] : caption;
+            const id = start.getAttribute('data-caption-id');
+            cardCreator.addCard(id);
             break;
         default:
             break;

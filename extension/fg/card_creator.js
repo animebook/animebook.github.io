@@ -14,36 +14,58 @@ class CardCreator {
         const currentTime = videoElement ? videoElement.currentTime : 0;
         const metaData = document.getElementById('ab-meta-data');
         const audioTrack = metaData ? metaData.getAttribute('data-audio-track') : 0;
-        const [startNode, endNode, text] = this.findElementRange(captionElement);
-        this.recordCard(startNode, endNode, text, captionId, currentTime, audioTrack);
+        const [startNode, endNode, lines] = this.findRangeAndText(captionElement);
+        this.recordCard(startNode, endNode, lines, captionId, currentTime, audioTrack);
     }
 
-    findElementRange(clickedCaption) {
-        const selection = window.getSelection();
+    findSelectionRange(selection) {
         if (!selection || !selection.toString())
-            return [clickedCaption, clickedCaption, clickedCaption.innerText];
+            return null;
 
         const [startNode, endNode] = this.captionUtils.getStartEnd(selection);
         if (!startNode || !endNode)
-            return [clickedCaption, clickedCaption, clickedCaption.innerText];
+            return null;
 
         const isTimeNode = n => n && n.hasAttribute && n.hasAttribute("data-start") && n.hasAttribute("data-end");
         const parentStart = this.captionUtils.findParentMatchingCondition(startNode.parentElement, isTimeNode);
         const parentEnd = this.captionUtils.findParentMatchingCondition(endNode.parentElement, isTimeNode);
 
         if (!parentStart || !parentEnd)
-            return [clickedCaption, clickedCaption, clickedCaption.innerText];
+            return null;
 
-        return [parentStart, parentEnd, selection.toString()];
+        return [parentStart, parentEnd];
     }
 
-    recordCard(startElement, endElement, text, captionId, currentVideoTime, audioTrack) {
-        text = text.split("\n").map(line => line.trim()).filter(line => line).join("\n");
+    findRangeAndText(clickedCaption) {
+        const selection = window.getSelection();
+        const selectionRange = this.findSelectionRange(selection);
+        if (!selectionRange)
+            return [clickedCaption, clickedCaption, [clickedCaption.innerText]];
+
+        var subtitleLines = [selection.toString()];
+        try {
+            const splitLines = this.captionUtils.getSelectionTextSplitByCaption(selection);
+            if (splitLines.length > 0)
+                subtitleLines = splitLines;
+        }
+        catch (e) {
+            console.error(e.message);
+        }
+
+        return [...selectionRange, subtitleLines];
+    }
+
+    cleanLines(lines) {
+        return lines.map(line => line.split("\n").map(singleLine => singleLine.trim()).filter(line => line).join("\n"));
+    }
+
+    recordCard(startElement, endElement, lines, captionId, currentVideoTime, audioTrack) {
+        lines = this.cleanLines(lines);
         const startTime = startElement.getAttribute("data-start");
         const endTime = endElement.getAttribute("data-end");
         const message = {
             action: 'record', 
-            text: text, 
+            lines: lines, 
             start: Number.parseFloat(startTime), 
             end: Number.parseFloat(endTime),
             currentVideoTime: currentVideoTime,

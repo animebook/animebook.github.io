@@ -120,9 +120,10 @@
             <div class="ab-form-section mb-3 thin-form">
                 <h4>Sentence Text</h4>
                 <div class="form-group row">
-                    <div class="col-7 my-auto">What to do with newlines</div>
-                    <select class="form-control col-5" v-model="settings.newlineBehavior">
+                    <div class="col-4 my-auto">What to do with newlines</div>
+                    <select class="form-control col-8" v-model="settings.newlineBehavior">
                         <option value="divs">Convert to &lt;div&gt; elements</option>
+                        <option value="subtitleSplit">Remove newlines inside captions, but convert each caption to a &lt;div&gt;</option>
                         <option value="remove">Remove entirely</option>
                         <option value="leave">Leave as is</option>
                     </select>

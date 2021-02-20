@@ -67,7 +67,7 @@ async function playAudio(audioList) {
     audio.onended = () => playAudio(audioList.slice(1))
 }
 
-async function recordFlashcard(text, start, end, currentVideoTime, audioTrack) {
+async function recordFlashcard(lines, start, end, currentVideoTime, audioTrack) {
     if (!videoFile)
         throw new UserFacingError("No video file found");
 
@@ -137,8 +137,8 @@ async function recordFlashcard(text, start, end, currentVideoTime, audioTrack) {
     await Promise.all(promises);
 
     const replacer = new SentenceFormatter(settings)
-    const postRegexText = replacer.applyRegexReplacements(text);
-    expressionLookup['sentence'] = replacer.applyNewlineReplacements(postRegexText);
+    const [regexOnlyText, fullyProccessedText] = replacer.updateLines(lines);
+    expressionLookup['sentence'] = fullyProccessedText;
 
     var fieldMap = templateCompiler.createFieldMap(expressionLookup, latestNote)
     if (Object.keys(fieldMap).length === 0)
@@ -177,7 +177,7 @@ async function recordFlashcard(text, start, end, currentVideoTime, audioTrack) {
     return { 
         type: "card-created", 
         message: message,
-        sentence: postRegexText,
+        sentence: regexOnlyText,
         image: screenshotToSendBack,
         imageFormat: settings.imageFormat
     };
@@ -189,7 +189,7 @@ chrome.runtime.onMessage.addListener(
         if (request.action !== 'record')
             return false;
 
-        recordFlashcard(request.text, request.start, request.end, request.currentVideoTime, request.audioTrack || 0)
+        recordFlashcard(request.lines, request.start, request.end, request.currentVideoTime, request.audioTrack || 0)
             .then(val => sendResponse(val))
             .catch(error => {
                 sendResponse(serializeError(error))
