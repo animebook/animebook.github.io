@@ -18,13 +18,21 @@
         <div v-cloak id="app" class="container">
             <div class="ab-form-section mb-3 mt-5">
                 <h1>Animebook Anki Export</h1>
-                <ol>
-                    <li>Configure the extension below</li>
-                    <li>Add a word to Anki using a tool like Yomichan</li>
-                    <li>On animebook, select and highlight the subtitle text you want on your card</li>
-                    <li>Hit the plus button</li>
-                    <li>Wait for your most recent Anki card to be updated with a screenshot, audio, and text</li>
-                </ol>
+                <div class="tutorial">
+                    <div class="tutorial-text">
+                        <h5>How to</h5>
+                        <ol>
+                            <li>Configure the extension below</li>
+                            <li>Add a word to Anki using a tool like Yomichan</li>
+                            <li>On animebook, select and highlight the subtitle text you want on your card</li>
+                            <li>Hit the plus button</li>
+                            <li>Wait for your most recent Anki card to be updated with a screenshot, audio, and text</li>
+                        </ol>
+                    </div>
+                    <video class="tutorial-video" controls width="320" height="192" muted>
+                        <source src="resources/maoujou_de_oyasumi.webm" type="video/webm">
+                    </video>
+                </div>
 
                 <p>For this extension to work, you must have Anki downloaded and the anki-connect plugin installed.</p>
                 <p>Download Anki: <a href="https://apps.ankiweb.net/" target="_blank" rel="noopener">https://apps.ankiweb.net/</a></p>

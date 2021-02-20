@@ -21,6 +21,16 @@ body {
     font-weight: bold;
 }
 
+.tutorial {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 10px;
+}
+
+.tutorial-video {
+    margin-left: 10px;
+}
+
 .tiny-tip {
     background-color: #007bff;
     color: #FFF;
