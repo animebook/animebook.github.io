@@ -251,14 +251,22 @@
                     <input class="col-5 form-control" v-model="settings.ankiServer" type="text" id="anki-server" >
                 </div>
                 <div class="form-group row">
-                    <div class="col-7 my-auto">What to show in anki browser after upload?</div>
+                    <div class="col-7 my-auto">What to show in Anki browser after upload?</div>
                     <select class="form-control col-5" v-model="settings.ankiBrowserFinalDisplay">
-                        <option value="currentDeck">Cards from updated anki deck</option>
+                        <option value="currentDeck">Cards from updated Anki deck</option>
                         <option value="customQuery">Custom browser query</option>
+                        <option value="none">Do not update Anki browser</option>
                     </select>
 
                 </div>
-                <div style="min-height: 50px;">
+                <div style="min-height: 70px;">
+                    <div class="alert alert-warning anki-no-update-warning" v-if="settings.ankiBrowserFinalDisplay === 'none'">
+                        <div class="tiny-warning">!</div> 
+                        <div>
+                            By choosing <span class="mono-text">Do not update Anki browser</span>, Animebook will silently fail to update your Anki cards if you have them selected in the Anki browser. 
+                            To prevent this from happening, keep your most recently added card deselected while creating Anki cards.
+                        </div>
+                    </div>
                     <div v-if="settings.ankiBrowserFinalDisplay === 'customQuery'" class="form-group row">
                         <label class="col-7 my-auto" for="anki-custom-query">Custom query</label>
                         <input class="col-5 form-control" v-model.number="settings.ankiBrowserFinalQuery" id="anki-custom-query" >

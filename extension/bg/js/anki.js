@@ -39,7 +39,7 @@ class AnkiConnect {
     }
 
     async showNoCardsInGui() {
-        return await this._invoke('guiBrowse', {query: "deck:1 && deck:2"})
+        return await this._invoke('guiBrowse', {query: "nid:1 nid:2"})
     }
 
     async showCurrentDeckInGui() {

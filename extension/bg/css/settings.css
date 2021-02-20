@@ -34,10 +34,37 @@ body {
     margin-left: 4px;
 }
 
+.tiny-warning {
+    background-color: #DD3355;
+    color: #FFF;
+    border-radius: 50%;
+    width: 20px;
+    min-width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.anki-no-update-warning {
+    display: flex;
+    flex-direction: row;
+}
+
+.mono-text, .ffmpeg-command {
+    font-family: consolas, "Liberation Mono", courier, monospace;
+}
+
+.mono-text {
+    padding: 2px;
+    color: #555;
+    background-color: #EED;
+}
+
 .ffmpeg-command {
     background-color: #555;
     color: #FFF;
-    font-family: consolas, "Liberation Mono", courier, monospace;
     padding: 2px;
     overflow-x: auto;
 }

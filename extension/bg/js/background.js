@@ -144,17 +144,22 @@ async function recordFlashcard(text, start, end, currentVideoTime, audioTrack) {
     if (Object.keys(fieldMap).length === 0)
         throw new UserFacingError("Nothing updated. Please fill out the fields section on the Animebook extension's settings page.");
 
-    await anki.showNoCardsInGui();
+    const shouldSearchAnkiBrowser = settings.ankiBrowserFinalDisplay !== 'none';
+    if (shouldSearchAnkiBrowser)
+        await anki.showNoCardsInGui();
+
     await anki.updateNoteFields({
       id: latestId,
       fields: fieldMap,
     });
 
-    await anki.showNoteInGui(latestId);
-    if (settings.ankiBrowserFinalDisplay === 'currentDeck')
-        await anki.showCurrentDeckInGui();
-    else if (settings.ankiBrowserFinalDisplay === 'customQuery')
-        await anki.runCustomBrowserQuery(settings.ankiBrowserFinalQuery);
+    if (shouldSearchAnkiBrowser) {
+        await anki.showNoteInGui(latestId);
+        if (settings.ankiBrowserFinalDisplay === 'currentDeck')
+            await anki.showCurrentDeckInGui();
+        else if (settings.ankiBrowserFinalDisplay === 'customQuery')
+            await anki.runCustomBrowserQuery(settings.ankiBrowserFinalQuery);
+    }
 
     var audioList = [];
     if (settings.forvoAudioPlayback === 'autoPlay' && wordBlobToPlay)
