@@ -4,6 +4,11 @@ class CardCreator {
         this.abIcons = abIcons;
         this.captionUtils = captionUtils;
         this.isRunning = false;
+        this.videoFileName = null;
+    }
+
+    setVideoFileName(name) {
+        this.videoFileName = name;
     }
 
     addCard(captionId) {
@@ -69,14 +74,15 @@ class CardCreator {
             start: Number.parseFloat(startTime), 
             end: Number.parseFloat(endTime),
             currentVideoTime: currentVideoTime,
-            audioTrack: audioTrack
+            audioTrack: audioTrack,
+            videoFileName: this.videoFileName
         };
-    
+
         this.abIcons.setSpinner(captionId);
         this.abIcons.disableAll();
         this.isRunning = true;
         try {
-            chrome.runtime.sendMessage(message, {}, response => {
+            chrome.runtime.sendMessage(message, response => {
                 this.isRunning = false;
                 this.abIcons.reEnableAll();
                 if (!response || !response.type) {

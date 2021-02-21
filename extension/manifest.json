@@ -31,6 +31,7 @@
             "matches": ["file://*/*", "*://*.animebook.github.io/*", "*://*/animebook.*", "*://*/animebook"],
             "js": [
                 "bg/js/lib/vue.min.js", 
+                "fg/event_channel.js", 
                 "fg/toast.js", 
                 "fg/caption_utils.js", 
                 "fg/icons.js",

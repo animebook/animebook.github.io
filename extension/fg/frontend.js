@@ -3,15 +3,16 @@ function main() {
     if (!dropWrapper)
         return;
 
-    loadIFrame();
     injectStyles(chrome.extension.getURL('fg/frontend.css'));
 
     const toaster = CREATE_TOAST_VUE_INSTANCE();
     const abIcons = new AbIcons();
     const captionUtils = new CaptionUtils();
+    const eventChannel = new EventChannel();
+    eventChannel.loadFrameAndFlush();
     const cardCreator = new CardCreator(toaster, abIcons, captionUtils);
 
-    dropWrapper.addEventListener("drop", e => onDropEvent(e, abIcons));
+    dropWrapper.addEventListener("drop", e => onDropEvent(e, abIcons, eventChannel, cardCreator, toaster));
     var observer = new MutationObserver((mutationsList, observer) => onHTMLMutation(mutationsList, cardCreator));
     var config = { childList: true, subtree: true };
     observer.observe(dropWrapper, config);
@@ -21,17 +22,6 @@ function main() {
     document.addEventListener('keydown', e => handleKeyDown(e, cardCreator));
 }
 
-function loadIFrame() {
-    proxyFrameReady = false;
-    proxyFrame = document.createElement('iframe');
-    proxyFrame.id = 'background-animebook-iframe';
-    proxyFrame.src = chrome.runtime.getURL('/bg/background.html');
-    proxyFrame.onload = function() {
-        console.log("IFrame loaded!")
-    };
-    (document.body || document.documentElement).appendChild(proxyFrame);
-}
-
 function injectStyles(url) {
     var elem = document.createElement('link');
     elem.rel = 'stylesheet';
@@ -39,16 +29,23 @@ function injectStyles(url) {
     document.body.appendChild(elem);
 }
 
-function onDropEvent (e, abIcons) {
+function onDropEvent (e, abIcons, eventChannel, cardCreator, toaster) {
     for (var i = 0; i < e.dataTransfer.files.length; i++) {
         var file = e.dataTransfer.files[i];
         if (isCaptions(file)) { 
             abIcons.clearExportIcons();
         } else {
-            var iframe = document.querySelector('#background-animebook-iframe');
-            if (!iframe)
-                return;
-            iframe.contentWindow.postMessage(file, '*')
+            eventChannel.sendMessage({action: 'file', file: file}, event => {
+                const response = event.data;
+                if (response.type === 'error') {
+                    toaster.$emit('add-error', { 
+                        message: 'Failed to prepare video for anki export: ' + response.message,
+                        isUserFacing: response.isUserFacing 
+                    });
+                } else {
+                    cardCreator.setVideoFileName(file.name);
+                }
+            });
         }
     }
 }

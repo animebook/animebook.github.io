@@ -31,21 +31,6 @@ function updateVideoFile(newVideoFile) {
     })
 }
 
-window.onmessage = e => {
-    if (e.data.name)
-        updateVideoFile(e.data);
-};
-
-window.addEventListener("drop", (e) => {
-    e.preventDefault();
-    for (var i = 0; i < e.dataTransfer.files.length; i++) {
-        var file = e.dataTransfer.files[i];
-        if (!isCaptions(file)) {
-            updateVideoFile(file);
-        }
-    }
-});
-
 async function createPlayingAudioElement(audioBlob) {
     const audio = document.createElement("audio");
     audio.id = "audio-element";
@@ -184,16 +169,36 @@ async function recordFlashcard(lines, start, end, currentVideoTime, audioTrack) 
 
 }
 
+async function handleMessage(request) {
+    try {
+        if (request.action === 'file') {
+            updateVideoFile(request.file);
+            return { type: 'file-loading', message: 'File is being loaded by ffmpeg'};
+        }
+        else if (request.action === 'record') {
+            return await recordFlashcard(request.lines, request.start, request.end, request.currentVideoTime, request.audioTrack || 0, request.videoFileName)
+        } else {
+            return { type: 'bad-request', message: 'Bad request' };
+        }
+    } catch (error) {
+        return serializeError(error);
+    }
+}
+
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-        if (request.action !== 'record')
-            return false;
+        if (request.action === 'record' && videoFile && videoFile.name !== request.videoFileName)
+            return false; // Ignore. A background tab is being asked to record a flashcard.
 
-        recordFlashcard(request.lines, request.start, request.end, request.currentVideoTime, request.audioTrack || 0)
-            .then(val => sendResponse(val))
-            .catch(error => {
-                sendResponse(serializeError(error))
-            });
+        handleMessage(request).then(response => {
+            sendResponse(response);
+        })
         return true;
     }
-);
+)
+
+window.onmessage = e => {
+    handleMessage(e.data).then(response => {
+        e.ports[0].postMessage(response);
+    });
+};
