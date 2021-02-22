@@ -95,16 +95,16 @@ class FFmpegClient {
     }
 
     createShortName(fileName) {
+        var wordLimit = 3;
+        var characterLimit = 20;
         try {
-            var wordLimit = 3;
-            var characterLimit = 18;
             const noNoiseName = fileName.replace(/(\[.*?\]|\d+)/g, '').replace(/\.[a-zA-Z]{0,4}$/g, '').trim();
             var name = (noNoiseName || fileName)
             var allWords = this.splitUpWords(name).filter(word => word);
             var lessWords = [];
             for (var i = 0, length = 0; i < allWords.length && i < wordLimit; i++) {
-                if (length + allWords[i].length < characterLimit) {
-                    length += allWords[i].length;
+                if ((length + allWords[i].length + 1) < characterLimit) {
+                    length += allWords[i].length + 1;
                     lessWords.push(allWords[i]);
                 }
                 else
@@ -113,9 +113,10 @@ class FFmpegClient {
             var shortName = lessWords.join('-');
             if (!shortName)
                 return this.truncateText(name, characterLimit);
+            return shortName;
         }
         catch (e) {
-            return this.truncateText(fileName);
+            return this.truncateText(fileName, characterLimit);
         }
     }
 
