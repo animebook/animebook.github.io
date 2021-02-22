@@ -75,11 +75,11 @@ class FFmpegClient {
             .split(" ")
             .filter(function (numText) { return numText && numText.indexOf("a") === -1});
 
-      var episodeNumber = null;
-      if (matches && !matches.every(numText => { return videoFileName.startsWith(numText); })) {
-        episodeNumber = parseInt(matches[0]) + "";
-      }
-      return episodeNumber;
+        var episodeNumber = null;
+        if (matches && !matches.every(numText => { return videoFileName.startsWith(numText); })) {
+            episodeNumber = parseInt(matches[0]) + "";
+        }
+        return episodeNumber;
     }
 
     displayAsVideoTime(seconds) {
