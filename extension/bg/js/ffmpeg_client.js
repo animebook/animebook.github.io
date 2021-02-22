@@ -86,25 +86,42 @@ class FFmpegClient {
         return new Date(seconds * 1000).toISOString().substr(11, 8).replace(/^00:/g, '').replace(/:/g, '-');
     }
 
-    createName(...times) {
-        var wordLimit = 3;
-        var characterLimit = 18;
-        const episodeNumber = this.guessEpisodeNumber(this.videoFile.name)
-        const noNoiseName = this.videoFile.name.replace(/(\[.*?\]|\d+)/g, '').replace(/\.[a-zA-Z]{0,4}$/g, '').trim();
-        var name = (noNoiseName || this.videoFile.name)
-        var allWords = name.split(/\W/g).filter(word => word);
-        var lessWords = [];
-        for (var i = 0, length = 0; i < allWords.length && i < wordLimit; i++) {
-            if (length + allWords[i].length < characterLimit) {
-                length += allWords[i].length;
-                lessWords.push(allWords[i]);
+    splitUpWords(name) {
+        return name.split(/(?:[\x00-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F]+|\W+)/g);
+    }
+
+    truncateText(text, charLimit) {
+        return (text <= charLimit) ? text : text.substring(0, charLimit);
+    }
+
+    createShortName(fileName) {
+        try {
+            var wordLimit = 3;
+            var characterLimit = 18;
+            const noNoiseName = fileName.replace(/(\[.*?\]|\d+)/g, '').replace(/\.[a-zA-Z]{0,4}$/g, '').trim();
+            var name = (noNoiseName || fileName)
+            var allWords = this.splitUpWords(name).filter(word => word);
+            var lessWords = [];
+            for (var i = 0, length = 0; i < allWords.length && i < wordLimit; i++) {
+                if (length + allWords[i].length < characterLimit) {
+                    length += allWords[i].length;
+                    lessWords.push(allWords[i]);
+                }
+                else
+                    break;
             }
-            else
-                break;
+            var shortName = lessWords.join('-');
+            if (!shortName)
+                return this.truncateText(name, characterLimit);
         }
-        var shortName = lessWords.join('-');
-        if (!shortName)
-            shortName = (allWords[0] <= characterLimit) ? allWords[0] : allWords[0].substring(0, characterLimit)
+        catch (e) {
+            return this.truncateText(fileName);
+        }
+    }
+
+    createName(...times) {
+        const shortName = this.createShortName(this.videoFile.name);
+        const episodeNumber = this.guessEpisodeNumber(this.videoFile.name)
         const timeStr = new TimeFormatter().createDateTimeString();
         const videoTimeStr = times.map(this.displayAsVideoTime).join('_');
         const episodeNumberStr = episodeNumber ? ('_' + episodeNumber) : '';
