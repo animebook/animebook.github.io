@@ -187,7 +187,7 @@ async function handleMessage(request) {
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-        if (request.action === 'record' && videoFile && videoFile.name !== request.videoFileName)
+        if (request.action === 'record' && videoFile && request.videoFileName && videoFile.name !== request.videoFileName)
             return false; // Ignore. A background tab is being asked to record a flashcard.
 
         handleMessage(request).then(response => {
