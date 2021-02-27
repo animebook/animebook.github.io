@@ -35,6 +35,7 @@ function onDropEvent (e, abIcons, eventChannel, cardCreator, toaster) {
         if (isCaptions(file)) { 
             abIcons.clearExportIcons();
         } else {
+            cardCreator.setVideoFileName(file.name);
             eventChannel.sendMessage({action: 'file', file: file}, event => {
                 const response = event.data;
                 if (response.type === 'error') {
@@ -42,8 +43,6 @@ function onDropEvent (e, abIcons, eventChannel, cardCreator, toaster) {
                         message: 'Failed to prepare video for anki export: ' + response.message,
                         isUserFacing: response.isUserFacing 
                     });
-                } else {
-                    cardCreator.setVideoFileName(file.name);
                 }
             });
         }

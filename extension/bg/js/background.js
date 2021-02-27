@@ -187,8 +187,10 @@ async function handleMessage(request) {
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-        if (request.action === 'record' && videoFile && request.videoFileName && videoFile.name !== request.videoFileName)
-            return false; // Ignore. A background tab is being asked to record a flashcard.
+        if (request.action === 'record' && videoFile && request.videoFileName && videoFile.name !== request.videoFileName) {
+            console.warn('Requested to record "' + request.videoFileName + '" but found video "' + videoFile.name + '" instead. Animebook may be open in multiple tabs.');
+            return false; // Ignore. A separate tab is trying to record a flashcard in this tab.
+        }
 
         handleMessage(request).then(response => {
             sendResponse(response);
