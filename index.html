@@ -761,10 +761,10 @@
               />
             </video>
 
-            <span class="current-caption" :key="shownCaptionsKey" v-html="displayedHtml"></span>
+            <span class="current-caption" :key="shownCaptionsKey" lang="ja" v-html="displayedHtml"></span>
           </div>
           <span id="ab-meta-data" :data-audio-track="selectedAudioTrack || 0"></span>
-          <div id="resize-bar-wrapper" class="resize-bar-wrapper">
+          <div id="resize-bar-wrapper" class="resize-bar-wrapper" lang="ja">
             <div id="ab-extension-popup-wrapper">
             </div>
             <div 
@@ -775,7 +775,7 @@
           </div>
           <div id="sidebar-captions" class="sidebar-captions" v-if="captionsUrl">
             <div class="captions-container">
-              <div class="captions-list">
+              <div class="captions-list" lang="ja">
                 <span v-for="(caption, index) in captions" class="caption-controls">
                   <div v-if="caption.customOffset !== null" :class="'caption-custom-offset' + (offsetTooNegative(caption) ? ' error' : '')">
                     <input 
