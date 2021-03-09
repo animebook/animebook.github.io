@@ -1,14 +1,29 @@
-const AB_INTERNAL_FFMPEG = FFmpeg.createFFmpeg({ log: true, corePath: "/bg/js/ffmpeg/ffmpeg-core.js" });
+const AB_INTERNAL_FFMPEG = FFmpeg.createFFmpeg({ 
+    logger: ({ type, message }) => {
+        if (type !== 'info') {
+            console.log(message);
+        }
+    },
+    corePath: "/bg/js/ffmpeg/ffmpeg-core.js" 
+});
 
 const AB_FFMPEG_WRITE_FILE = async (videoFile) => {
-    try {
-        return await AB_INTERNAL_FFMPEG.FS('writeFile', new FFmpegCommands(null).makeFileNameSafe(videoFile.name), await FFmpeg.fetchFile(videoFile));
-    } catch (e) {
-        if (e.message === 'File could not be read! Code=0')
-            throw new UserFacingError('Video file could not be read! File size may be too large for ffmpeg.wasm.');
-        throw e;
-    }
+    const FS = AB_INTERNAL_FFMPEG.FS;
+    const fileName = new FFmpegCommands(null).makeFileNameSafe(videoFile.name);
+    const openFlags = "w";
+
+    var position = 0;
+    var stream = FS('open', fileName, openFlags);
+    return await videoFile.stream().pipeTo(new WritableStream({
+        write (data) {
+            FS('write', stream, data, 0, data.byteLength, position)
+            position += data.length;
+        }
+    }))
+    .catch(error => console.error(error.message))
+    .finally(() => FS('close', stream));
 }
+
 const AB_FFMPEG_UNLINK_FILE = async (videoFile) => {
     return await AB_INTERNAL_FFMPEG.FS('unlink', new FFmpegCommands(null).makeFileNameSafe(videoFile.name));
 }
