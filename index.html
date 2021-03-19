@@ -1144,22 +1144,23 @@
                 stopEvent(e);
                 self.playPause();
                 break;
-              case 'Enter':
+              case 's':
+              case 'S':
                 stopEvent(e);
                 self.replayCaption();
                 break;
-              case 'ArrowLeft':
-              case 'ArrowUp':
+              case 'a':
+              case 'A':
                 stopEvent(e);
                 self.previousCaption();
                 break;
-              case 'ArrowDown':
-              case 'ArrowRight':
+              case 'd':
+              case 'D':
                 stopEvent(e);
                 self.nextCaption();
                 break;
-              case 'a':
-              case 'A':
+              case 'n':
+              case 'N':
                 if (e.ctrlKey || e.altKey || e.metaKey)
                   return;
                 stopEvent(e);
@@ -1187,8 +1188,8 @@
                 stopEvent(e);
                 self.seekScreenshot(0, !e.shiftKey);
                 break;
-              case 's':
-              case 'S':
+              case 'x':
+              case 'X':
                 if (e.ctrlKey || e.altKey || e.metaKey)
                   return;
                 stopEvent(e);
@@ -1200,7 +1201,7 @@
                 stopEvent(e);
                 self.copySubtitle();
                 break;
-              case 'D':
+              case 'F':
                 if (e.ctrlKey || e.altKey || e.metaKey)
                   return;
                 stopEvent(e);
@@ -1238,8 +1239,8 @@
                   self.shouldShowHelpPopup = false;
                 }
                 break;
-              case '\\':
-              case '|':
+              case 'q':
+              case 'Q':
                 if (self.isAutoPauseMode && self.isPlaying) {
                   stopEvent(e);
                   self.skipNextAutoPause = true;
