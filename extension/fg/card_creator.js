@@ -1,14 +1,10 @@
 class CardCreator {
-    constructor(toaster, abIcons, captionUtils) {
+    constructor(toaster, abIcons, captionUtils, token) {
         this.toaster = toaster;
         this.abIcons = abIcons;
         this.captionUtils = captionUtils;
         this.isRunning = false;
-        this.videoFileName = null;
-    }
-
-    setVideoFileName(name) {
-        this.videoFileName = name;
+        this.token = token;
     }
 
     addCard(captionId) {
@@ -75,7 +71,7 @@ class CardCreator {
             end: Number.parseFloat(endTime),
             currentVideoTime: currentVideoTime,
             audioTrack: audioTrack,
-            videoFileName: this.videoFileName
+            token: this.token
         };
 
         this.abIcons.setSpinner(captionId);

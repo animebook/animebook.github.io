@@ -5,6 +5,10 @@ class EventChannel {
         this.proxyFrameMessageQueue = [];
     }
 
+    initializeIFrame(token) {
+        this.sendMessage({action: 'token', token: token});
+    }
+
     sendMessage(message, callback) {
         var channel = new MessageChannel();
         channel.port1.onmessage = callback;

@@ -1,34 +1,28 @@
-var videoFile = null;
-
+const ffmpegWorker = new PromiseWorker('/bg/js/ffmpeg_worker.js');
 var updateFilePromise = Promise.resolve();
 var loadFFmpegPromise = null;
-
-function isCaptions(file) {
-    return /\.(vtt|srt|ass|ssa)$/i.test(file.name);
-}
+var videoFile = null;
+var iframeToken = null;
 
 async function loadFFmpeg() {
     if (loadFFmpegPromise)
         return loadFFmpegPromise;
 
-    loadFFmpegPromise = new FFmpegClient().load();
+    loadFFmpegPromise = ffmpegWorker.sendMessage({type: 'load'});
     return loadFFmpegPromise;
 }
 
 async function overwriteVideoFile(newVideoFile) {
     await loadFFmpeg();
-
-    if (videoFile)
-        await AB_FFMPEG_UNLINK_FILE(videoFile);
-
+    await ffmpegWorker.sendMessage({ type: 'updateFile', file: newVideoFile });
     videoFile = newVideoFile;
-    await AB_FFMPEG_WRITE_FILE(videoFile);
 }
 
-function updateVideoFile(newVideoFile) {
+async function updateVideoFile(newVideoFile) {
     updateFilePromise = updateFilePromise.then(() => {
         return overwriteVideoFile(newVideoFile);
     })
+    return updateFilePromise;
 }
 
 async function createPlayingAudioElement(audioBlob) {
@@ -68,7 +62,6 @@ async function recordFlashcard(lines, start, end, currentVideoTime, audioTrack) 
     const templateCompiler = new TemplateCompiler(settings);
 
     await updateFilePromise;
-    const ffmpegClient = new FFmpegClient(videoFile, settings);
 
     const recentNoteIds = await anki.findRecentNoteIds();
     const latestId = recentNoteIds.result.reduce((a,b) => Math.max(a,b), -1);
@@ -91,7 +84,7 @@ async function recordFlashcard(lines, start, end, currentVideoTime, audioTrack) 
         expression = latestNote.fields[settings.ankiVocabField].value;
 
     if (neededExpressions.has('forvo-word-audio') && expression) {
-        const forvoFetch = new ForvoFetch(ffmpegClient);
+        const forvoFetch = new ForvoFetch(ffmpegWorker, settings);
         const wordAudioObj = await forvoFetch.fetchWordAudio(expression)
         if (wordAudioObj) {
             const [wordAudioFilename, wordBlob, wordAudioBase64] = wordAudioObj;
@@ -106,14 +99,14 @@ async function recordFlashcard(lines, start, end, currentVideoTime, audioTrack) 
     }
 
     if (neededExpressions.has('sentence-audio')) {
-        const [audioFilename, audioBlob, audioBase64] = await ffmpegClient.getAudioData(start, end, audioTrack);
+        const [audioFilename, audioBlob, audioBase64] = await ffmpegWorker.sendMessage({ type: 'getAudioData', start: start, end: end, audioTrack: audioTrack, settings: settings })
         promises.push(anki.storeMediaFile(audioFilename, audioBase64));
         expressionLookup['sentence-audio'] = `[sound:${audioFilename}]`;
         sentenceBlobToPlay = audioBlob;
     }
 
     if (neededExpressions.has('screenshot')) {
-        const [imageFileName, imageBase64] = await ffmpegClient.getImage(start, end, currentVideoTime);
+        const [imageFileName, imageBase64] = await ffmpegWorker.sendMessage({ type: 'getImage', start: start, end: end, time: currentVideoTime, settings: settings });
         promises.push(anki.storeMediaFile(imageFileName, imageBase64));
         expressionLookup['screenshot'] = `<img src="${imageFileName}">`;
         screenshotToSendBack = imageBase64;
@@ -170,14 +163,20 @@ async function recordFlashcard(lines, start, end, currentVideoTime, audioTrack) 
 }
 
 async function handleMessage(request) {
+    if (crossOriginIsolated)
+        console.log('Can use SharedArrayBuffer from background')
     try {
         if (request.action === 'file') {
-            updateVideoFile(request.file);
-            return { type: 'file-loading', message: 'File is being loaded by ffmpeg'};
+            await updateVideoFile(request.file);
+            return { type: 'file-loading', message: 'Loaded file into ffmpeg'};
         }
         else if (request.action === 'record') {
             return await recordFlashcard(request.lines, request.start, request.end, request.currentVideoTime, request.audioTrack || 0, request.videoFileName)
-        } else {
+        } else if (request.action === 'token') {
+            iframeToken = request.token;
+            return { type: 'token', message: 'Updated token'};
+        }
+        else {
             return { type: 'bad-request', message: 'Bad request' };
         }
     } catch (error) {
@@ -187,9 +186,9 @@ async function handleMessage(request) {
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-        if (request.action === 'record' && videoFile && request.videoFileName && videoFile.name !== request.videoFileName) {
-            console.warn('Requested to record "' + request.videoFileName + '" but found video "' + videoFile.name + '" instead. Animebook may be open in multiple tabs.');
-            return false; // Ignore. A separate tab is trying to record a flashcard in this tab.
+        if (iframeToken && request.token && iframeToken !== request.token) {
+            console.warn('A separate tab is trying to record a flashcard in this tab. Ignoring request...')
+            return false; 
         }
 
         handleMessage(request).then(response => {
@@ -201,6 +200,7 @@ chrome.runtime.onMessage.addListener(
 
 window.onmessage = e => {
     handleMessage(e.data).then(response => {
-        e.ports[0].postMessage(response);
+        if (e.ports[0])
+            e.ports[0].postMessage(response);
     });
 };

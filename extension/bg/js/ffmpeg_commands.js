@@ -26,10 +26,9 @@ class FFmpegCommands {
         return {
             outputFileName: fileName,
             commandArgs: [
-                `-y`,
                 `-ss`, `${(start).toFixed(3)}`,
                 `-to`, `${(end).toFixed(3)}`,
-                `-i`, `${this.makeFileNameSafe(videoFileName)}`,
+                `-i`, `${videoFileName}`,
                 `-map`, `0:a:${audioTrack}`,
                 ...effectFlags,
                 this.settings.audioFfmpegFlags,
@@ -60,9 +59,8 @@ class FFmpegCommands {
         return {
             outputFileName: fileName,
             commandArgs: [
-                `-y`,
                 `-ss`, `${time.toFixed(3)}`,
-                `-i`, `${this.makeFileNameSafe(videoFileName)}`,
+                `-i`, `${videoFileName}`,
                 `-vframes:v`, `1`,
                 `-qscale:v`, `2`,
                 ...vfCommand,
@@ -87,17 +85,10 @@ class FFmpegCommands {
         return {
             outputFileName: fileName,
             commandArgs: [
-                `-y`,
-                `-i`, `${this.makeFileNameSafe(audioFile.name)}`,
+                `-i`, `${audioFile.name}`,
                 ...effectFlags,
                 fileName
             ].filter(arg => arg)
         }
-    }
-
-    makeFileNameSafe(fileName) {
-        // Unicode filenames don't work with ffmpeg.wasm :(
-        var noUnicodeFileName = fileName.replace(/[^\x00-\x7F]+/g, '');
-        return "'" + noUnicodeFileName.replace(/'/g, "'\\''") + "'"
     }
 }

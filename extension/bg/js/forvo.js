@@ -1,6 +1,7 @@
 class ForvoFetch {
-    constructor(ffmpegClient) {
-        this.ffmpegClient = ffmpegClient;
+    constructor(ffmpegWorker, settings) {
+        this.ffmpegWorker = ffmpegWorker;
+        this.settings = settings;
     }
 
     replaceNonAlphaNumericAscii(text, replacer) {
@@ -35,7 +36,7 @@ class ForvoFetch {
 
             const audioResp = await fetch(audioUrl);
             const audioData = await audioResp.arrayBuffer();
-            const cleanAudioBlob = await this.ffmpegClient.cleanAudio(audioData);
+            const cleanAudioBlob = await this.ffmpegWorker.sendMessage({ type: 'cleanAudio', audioData: audioData, settings: this.settings });
             const audioBase64 = await new BlobUtils().blobToBase64(cleanAudioBlob);
             const audioFileName = 'ab_' + this.replaceNonAlphaNumericAscii(word, '_') + '_' + (new TimeFormatter().createDateTimeString()) + '.mp3';
 

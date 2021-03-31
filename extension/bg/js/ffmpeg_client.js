@@ -1,52 +1,13 @@
-const AB_INTERNAL_FFMPEG = FFmpeg.createFFmpeg({ 
-    logger: ({ type, message }) => {
-        if (type !== 'info') {
-            console.log(message);
-        }
-    },
-    corePath: "/bg/js/ffmpeg/ffmpeg-core.js" 
-});
-
-const AB_FFMPEG_WRITE_FILE = async (videoFile) => {
-    const FS = AB_INTERNAL_FFMPEG.FS;
-    const fileName = new FFmpegCommands(null).makeFileNameSafe(videoFile.name);
-    const openFlags = "w";
-
-    var position = 0;
-    var stream = FS('open', fileName, openFlags);
-    return await videoFile.stream().pipeTo(new WritableStream({
-        write (data) {
-            FS('write', stream, data, 0, data.byteLength, position)
-            position += data.length;
-        }
-    }))
-    .catch(error => console.error(error.message))
-    .finally(() => FS('close', stream));
-}
-
-const AB_FFMPEG_UNLINK_FILE = async (videoFile) => {
-    return await AB_INTERNAL_FFMPEG.FS('unlink', new FFmpegCommands(null).makeFileNameSafe(videoFile.name));
-}
 class FFmpegClient {
-    constructor(videoFile, settings) {
-        this.ffmpeg = AB_INTERNAL_FFMPEG;
-        this.videoFile = videoFile;
+    constructor(ffmpeg, settings) {
+        this.ffmpeg = ffmpeg;
+        this.videoFile = ffmpeg.videoFile;
         this.settings = settings;
         this.ffmpegCommands = new FFmpegCommands(settings);
     }
 
-    async load() {
-        if (!this.ffmpeg.isLoaded()) {
-            await this.ffmpeg.load();
-            return "Loaded ffmpeg";
-        }
-        else {
-            return "ffmpeg is already loaded";
-        }
-    }
-
     async recordAudio(start, end, audioTrack) {
-        var command = this.ffmpegCommands.createAudioFFmpegCommand(this.videoFile.name, start, end, audioTrack);
+        var command = this.ffmpegCommands.createAudioFFmpegCommand('/input/tmpfile', start, end, audioTrack);
         await this.ffmpeg.run(...command.commandArgs);
         const data = this.ffmpeg.FS('readFile', command.outputFileName);
         this.ffmpeg.FS('unlink', command.outputFileName);
@@ -54,7 +15,7 @@ class FFmpegClient {
     }
 
     async takeScreenshot(time) {
-        var command = this.ffmpegCommands.createImageFFmpegCommand(this.videoFile.name, time)
+        var command = this.ffmpegCommands.createImageFFmpegCommand('/input/tmpfile', time)
         await this.ffmpeg.run(...command.commandArgs);
         const data = this.ffmpeg.FS('readFile', command.outputFileName);
         this.ffmpeg.FS('unlink', command.outputFileName);
@@ -81,7 +42,7 @@ class FFmpegClient {
     async cleanAudio(audioBuffer) {
         const audioBlob = new Blob([audioBuffer]);
         const file = new File([audioBlob], "animebook_clean_audio.mp3")
-        await AB_INTERNAL_FFMPEG.FS('writeFile', this.ffmpegCommands.makeFileNameSafe(file.name), new Uint8Array(audioBuffer));
+        this.ffmpeg.FS('writeFile', file.name, new Uint8Array(audioBuffer));
         const command = this.ffmpegCommands.createCleanAudioCommand(file);
         await this.ffmpeg.run(...command.commandArgs);
         const audioData = this.ffmpeg.FS('readFile', command.outputFileName);
