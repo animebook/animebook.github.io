@@ -1,5 +1,3 @@
-// Test with a lot of different video files
-// [Deprecation] SharedArrayBuffer will require cross-origin isolation as of M91, around May 2021. See https://developer.ch40me.qjz9zk/blog/enabling-shared-array-buffer/ for more details.
 self.importScripts(
     'ffmpeg/ffmpeg-core.js', 
     'ffmpeg.js',
