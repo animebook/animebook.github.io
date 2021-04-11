@@ -34,6 +34,6 @@ onmessage = function (e) {
     handleMessage(message).then(result => {
         self.postMessage({ id: message.id, payload: result});
     }).catch(error => {
-        self.postMessage({ id: message.id, err: { message: error.message, stack: error.stack } });
+        self.postMessage({ id: message.id, err: { message: error.message, stack: error.stack, name: error.name } });
     })
 }

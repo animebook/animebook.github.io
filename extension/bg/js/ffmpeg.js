@@ -30,20 +30,27 @@ class FFmpeg {
     }
 
     async createCore() {
-        return await createFFmpegCore({ 
-            mainScriptUrlOrBlob: '/bg/js/ffmpeg/ffmpeg-core.js',
-            printErr: message => this.log(message),
-            print: message => this.log(message),
-            locateFile: (path, prefix) => {
-                if (path.endsWith('ffmpeg-core.wasm')) {
-                    return '/bg/js/ffmpeg/ffmpeg-core.wasm';
+        try {
+            return await createFFmpegCore({
+                mainScriptUrlOrBlob: '/bg/js/ffmpeg/ffmpeg-core.js',
+                printErr: message => this.log(message),
+                print: message => this.log(message),
+                locateFile: (path, prefix) => {
+                    if (path.endsWith('ffmpeg-core.wasm')) {
+                        return '/bg/js/ffmpeg/ffmpeg-core.wasm';
+                    }
+                    if (path.endsWith('ffmpeg-core.worker.js')) {
+                        return '/bg/js/ffmpeg/ffmpeg-core.worker.js';
+                    }
+                    return prefix + path;
                 }
-                if (path.endsWith('ffmpeg-core.worker.js')) {
-                    return '/bg/js/ffmpeg/ffmpeg-core.worker.js';
-                }
-                return prefix + path;
+            });
+        } catch (e) {
+            if (e.message === 'bad memory') {
+                throw new UserFacingError(`ffmpeg didn't start. #enable-webassembly-threads may not be enabled in chrome://flags. Open chrome console for more info.`)
             }
-        });
+            throw new Error(`ffmpeg didn't start: ` + e.message);
+        }
     }
 
     async load() {
