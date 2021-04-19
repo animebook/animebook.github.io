@@ -11,8 +11,6 @@ self.importScripts(
 var ffmpeg = new FFmpeg();
 
 handleMessage = async (message) => {
-    if (crossOriginIsolated)
-        console.log('Can use SharedArrayBuffer from ffmpeg_worker')
     const ffmpegClient = new FFmpegClient(ffmpeg, message.settings);
     switch (message.type) {
         case 'load':
