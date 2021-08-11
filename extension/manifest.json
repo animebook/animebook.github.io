@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Animebook Anki Export",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Anki integration for animebook.github.io",
     "author": "Animebook",
     "icons": {
