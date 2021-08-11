@@ -39,20 +39,28 @@ class AnkiConnect {
     }
 
     async showNoCardsInGui() {
-        return await this._invoke('guiBrowse', {query: "nid:1 nid:2"})
+        return await this.guiBrowse({query: "nid:1 nid:2"})
     }
 
     async showCurrentDeckInGui() {
         var deck = this._settings.ankiDeck || "current";
-        return await this._invoke('guiBrowse', {query: `"deck:${deck}"`})
+        return await this.guiBrowse({query: `"deck:${deck}"`})
     }
 
     async runCustomBrowserQuery(query) {
-        return await this._invoke('guiBrowse', {query: query})
+        return await this.guiBrowse({query: query})
     }
 
     async showNoteInGui(noteId) {
-        return await this._invoke('guiBrowse', {query: "nid:" + noteId})
+        return await this.guiBrowse({query: "nid:" + noteId})
+    }
+
+    async guiBrowse(params) {
+        try {
+            return await this._invoke('guiBrowse', params)
+        } catch (e) {
+            console.warn("Ignoring error from Anki: " + e.message);
+        }
     }
 
     async _invoke(action, params) {
