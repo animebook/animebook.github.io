@@ -57,6 +57,8 @@ Woolyss Chromium installation instructions:
 Note: I used to recommend Microsoft Edge with HEVC Video Extensions to watch HEVC video on animebook, but as of October 2020 the Microsoft store started
 charging money for HEVC support, so I removed it from the browser list.
 
-## Credits
-- https://github.com/katspaugh/videobook, which animebook was originally based on.
-- [Anacreon's mpv script](http://anacreondjt.gitlab.io), which the Anki export extension was based on.
+## Similar Software
+- https://github.com/killergerbah/asbplayer - Web based player like animebook but with a ton of neat features and regular updates
+- https://github.com/ripose-jp/Memento - Desktop video player with Japanese support, based on mpv
+- [Anacreon's mpv script](https://anacreondjt.gitlab.io/docs/mpvscript/) - Lets you mine using mpv and a texthooker
+- https://github.com/katspaugh/videobook - Not currently maintained, but the original idea for animebook comes from this web player
