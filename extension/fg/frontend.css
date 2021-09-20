@@ -24,7 +24,7 @@
     width: 250px;
     padding: 8px;
     color: #C0C0C0;
-    background-color: #375B61;
+    background-color: #405C61;
 }
 
 #ab-card-screenshot img {
@@ -200,6 +200,7 @@
 .export-to-recent {
     grid-area: exportButton;
     background-color: #161616;
+    transition: background-color 100ms ease-out;
     cursor: pointer;
 }
 
@@ -215,13 +216,39 @@
     grid-area: alert;
 }
 
-.caption-parent:hover .export-to-recent,
+.caption-parent:hover .export-to-recent {
+    background-color: #59757d;
+}
+
 .anki-export.please-click .export-to-recent {
-    background-color: #386B62;
+    background-color: #E8F1DB;
+}
+
+.anki-export.please-click:hover .export-to-recent:hover {
+    background-color: #FDFFFD;
+}
+
+.caption p::selection {
+    background-color: #E8F1DB;
+    color: #000;
 }
 
 .caption-parent:hover .export-to-recent:hover {
-    background-color: #7fac95;
+    background-color: #769F95;
+}
+
+.caption:hover .anki-export.highlight::after {
+    background-color: #59757d;
+}
+
+.anki-export.highlight::after {
+    content: '';
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    height: 100%;
+    background-color: #E8F1DB;
+    width: 3px;
 }
 
 .plus-icon {
@@ -236,6 +263,21 @@
 
 .caption-parent:hover .export-to-recent:hover .plus-icon {
     fill: #0a0e22;
+}
+
+.success-icon {
+    width: 90%;
+    height: 90%;
+    fill: #161616;
+}
+
+.caption-parent:hover .success-icon {
+    transition: fill 100ms ease-out;
+    fill: #59757d;
+}
+
+.anki-export.please-click .success-icon {
+    fill: #E8F1DB;
 }
 
 .spinner-icon {
@@ -256,34 +298,10 @@
     }
 }
 
-.success-icon {
-    width: 90%;
-    height: 90%;
-    fill: #161616;
-}
-
-.caption-parent:hover .success-icon {
-    fill: #739b98;
-}
-
 .alert-icon {
     width: 90%;
     height: 90%;
     fill: #6d0a0a;
-}
-
-.caption:hover .anki-export.highlight::after {
-    background-color: #386B62;
-}
-
-.anki-export.highlight::after {
-    content: '';
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    height: 100%;
-    background-color: #386B62;
-    width: 3px;
 }
 
 .anki-export.disabled .export-to-recent {
