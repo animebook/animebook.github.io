@@ -516,12 +516,12 @@
         line-height: 1.5;
         font-weight: normal;
         position: absolute;
-        top: 20%;
+        top: 25%;
         left: 50%;
         transform: translate(-50%, -50%);
         width: 90%;
         max-width: 600px;
-        text-align: center;
+        text-align: left;
       }
 
       .current-caption p {
@@ -705,8 +705,7 @@
       >
         <div class="app-container" :style="calcAppStyle()" v-cloak>
           <div class="video-subtitles-missing hint" v-show="!videoUrl && !captionsUrl">
-            Drag-and-drop a video file and the corresponding subtitles file to
-            this page
+            Drag-and-drop a video file and subtitle file to this page
           </div>
           <div class="video-missing" v-show="!videoUrl && captionsUrl && !shouldShowVideoError">
             <div class="hint">
@@ -720,8 +719,15 @@
           </div>
           <div class="video-error" v-show="shouldShowVideoError">
             <div class="hint">
-              There was an error loading the video file {{videoFileName}}. Try a different file. Note that your browser may not support certain file formats like HEVC/H.265 video or AC3 audio.
-              See <a href="#" @click="toggleHelp(); enableHelpMode('tips')" class="monospace unselectable">Tips</a>.
+              <div>
+                There was an error loading the video file {{videoFileName}}.
+                Try a different file. Note that your browser may not support certain file formats like HEVC/H.265 video or AC3 audio.
+                See <a href="#" @click="toggleHelp(); enableHelpMode('tips')" class="monospace unselectable">Tips</a>.
+              </div>
+              <br>
+              <div style="font-size: 14px;" v-if="videoErrorMessage">
+                Browser error message: <span class="monospace">{{videoErrorMessage}}</span>
+              </div>
             </div>
           </div>
           <div class="subtitles-error" v-show="shouldShowSubtitlesError">
@@ -939,6 +945,7 @@
           activeCaptionIds: [],
           currentTime: 0.0,
           shouldShowVideoError: false,
+          videoErrorMessage: null,
           shouldShowSubtitlesError: false,
           subtitlesError: null,
           isDraggingSidebar: false,
@@ -1491,11 +1498,13 @@
 
             this.videoUrl = URL.createObjectURL(file);
             this.shouldShowVideoError = false;
+            this.videoErrorMessage = null;
             this.videoFileName = file.name;
           },
 
           onVideoError: function (event) {
             this.shouldShowVideoError = true;
+            this.videoErrorMessage = event.target.error.message;
           },
 
           onVideoFocus: function (event) {
