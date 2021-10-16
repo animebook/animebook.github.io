@@ -42,20 +42,21 @@ If you find your video can't play, or that your video will play but there's no a
 
 | Browser | Support |
 |---|---|
-|[Woolyss **all-codecs+** builds of Chromium](https://chromium.woolyss.com/)|Will play almost any video file.|
+|[Woolyss all-codecs builds of Chromium](https://chromium.woolyss.com/)|Will play almost any file that doesn't use AC3 audio*|
 | Chrome and other Chromium based browsers (except Vivaldi/Opera)|Will play almost any file that doesn't use HEVC video or AC3 audio|
 |Vivaldi and Opera|Will play few video codecs (these browsers deviate from Chrome by rolling their own implementation of HTML video)|
 |Firefox|Will play few video codecs|
 |Everything else|Probably not a good option|
 
-So, if you want animebook to play almost all files, the Woolyss all-codecs+ builds of chromium are your best bet, and you can install Yomichan on it (instructions below). Otherwise your best bet is Chrome, and you'll need to avoid using HEVC video or AC3 audio with it.
+So, if you want animebook to play the most video files, the Woolyss all-codecs builds of chromium are your best bet, and you can install Yomichan on it (instructions below). Otherwise your best bet is Chrome, and you'll need to avoid using HEVC video or AC3 audio with it. And in my experience, while a lot of anime uses HEVC video, AC3 audio is relatively rare, so I've been able to get by with just using Woolyss and occasionally having to avoid releases with AC3.
 
 Woolyss Chromium installation instructions:
-1. Find and install an all-codecs+ (**WITH the plus sign**) build of Chromium on https://chromium.woolyss.com/
-1. Enable the Chrome web store, by manually installing https://github.com/NeverDecaf/chromium-web-store into Chromium (this is required because the Chromium build is ungoogled)
+1. Find and install an all-codecs build of Chromium on https://chromium.woolyss.com/
+2. Navigate to the flag chrome://flags/#enable-clear-hevc-for-testing by entering it in your url bar and enable it
+3. Enable the Chrome web store, by manually installing https://github.com/NeverDecaf/chromium-web-store into Chromium (this is required because the Chromium build is ungoogled)
 
 Note: I used to recommend Microsoft Edge with HEVC Video Extensions to watch HEVC video on animebook, but as of October 2020 the Microsoft store started
-charging money for HEVC support, so I removed it from the browser list.
+charging money for HEVC support, so I removed it from the browser list. It technically does support AC3 audio though, unlike Ungoogled Chromium.
 
 ## Similar Software
 - https://github.com/killergerbah/asbplayer - Web based player like animebook but with a ton of neat features and regular updates
