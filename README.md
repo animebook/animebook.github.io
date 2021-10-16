@@ -52,7 +52,7 @@ So, if you want animebook to play the most video files, the Woolyss all-codecs b
 
 Woolyss Chromium installation instructions:
 1. Find and install an all-codecs build of Chromium on https://chromium.woolyss.com/
-2. Navigate to the flag chrome://flags/#enable-clear-hevc-for-testing by entering it in your url bar and enable it
+2. Enter the browser flag `chrome://flags/#enable-clear-hevc-for-testing` into your url bar and enable it in the page that shows up
 3. Enable the Chrome web store, by manually installing https://github.com/NeverDecaf/chromium-web-store into Chromium (this is required because the Chromium build is ungoogled)
 
 Note: I used to recommend Microsoft Edge with HEVC Video Extensions to watch HEVC video on animebook, but as of October 2020 the Microsoft store started
