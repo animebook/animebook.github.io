@@ -42,7 +42,7 @@ If you find your video can't play, or that your video will play but there's no a
 
 | Browser | Support |
 |---|---|
-|[Woolyss all-codecs builds of Chromium](https://chromium.woolyss.com/)|Will play almost any file that doesn't use AC3 audio*|
+|[Woolyss all-codecs builds of Chromium](https://chromium.woolyss.com/)|Will play almost any file that doesn't use AC3 audio|
 | Chrome and other Chromium based browsers (except Vivaldi/Opera)|Will play almost any file that doesn't use HEVC video or AC3 audio|
 |Vivaldi and Opera|Will play few video codecs (these browsers deviate from Chrome by rolling their own implementation of HTML video)|
 |Firefox|Will play few video codecs|
