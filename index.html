@@ -881,27 +881,28 @@
               </div>
             </div>
             <div v-if="helpMode === 'tips'" class="help-inner">
-              <h3>Video format support (last update January 2020)</h3>
+              <h3>Video format support (last update October 2021)</h3>
               <p>
                 If you find your video can't play, or that your video will play but there's no audio, it's almost always because your browser can't play the file's video or audio codec. This is the case with HEVC/H.265 video and AC3 audio, which almost all browsers can't support due to licensing issues. Current state of browser support:
               </p>
               <div class="table">
-                <div class="table-row"><div class="table-cell"><a target="_blank" href="https://chromium.woolyss.com">Woolyss <span class="monospace">all-codecs+</span> builds of Chromium</a></div><div class="table-cell">Will play almost any video file.</div></div>
+                <div class="table-row"><div class="table-cell"><a target="_blank" href="https://chromium.woolyss.com">Marmaduke all-codecs builds of Chromium</a></div><div class="table-cell">Will play almost any file that doesn't use AC3 audio.</div></div>
                 <div class="table-row"><div class="table-cell">Chrome and other Chromium based browsers (except Vivaldi/Opera)</div><div class="table-cell">Will play almost any file that doesn't use HEVC video or AC3 audio</div></div>
                 <div class="table-row"><div class="table-cell">Vivaldi and Opera</div><div class="table-cell">Will play few video formats (these browsers deviate from Chrome by rolling their own implementation of HTML video)</div></div>
                 <div class="table-row"><div class="table-cell">Firefox</div><div class="table-cell">Will play few video formats</div></div>
                 <div class="table-row"><div class="table-cell">Everything else</div><div class="table-cell">Probably not a good option</div></div>
               </div>
               <p>
-                So, if you want animebook to play almost all files, the Woolyss all-codecs+ builds of chromium are your best bet, and you can install Yomichan on it (instructions below). Otherwise your best bet is Chrome, and you'll need to avoid using HEVC video or AC3 audio with it.
+                So, if you want animebook to play the most video files, the Marmaduke all-codecs builds of chromium are your best bet, and you can install Yomichan on it (instructions below). Otherwise your best bet is Chrome, and you'll need to avoid using HEVC video or AC3 audio with it. And in my experience, while a lot of anime uses HEVC video, AC3 audio is relatively rare, so I've been able to get by with just using Marmaduke and occasionally having to avoid releases with AC3.
               </p>
               <p>
-                Woolyss Chromium installation instructions:
+                Marmaduke Chromium installation instructions:
                 <ol>
-                  <li>Find and install an <span class="monospace">all-codecs+</span> (<b>WITH the plus sign</b>) build of Chromium on <a target="_blank" href="https://chromium.woolyss.com">https://chromium.woolyss.com</a></li>
+                  <li>Find and install a Marmaduke all-codecs build of Chromium on <a target="_blank" href="https://chromium.woolyss.com">https://chromium.woolyss.com</a>. Make sure both the tags "Marmaduke" and "all-codecs" are tagged on the release.</li>
+                  <li>Enter the browser flag <span class="monospace">chrome://flags/#enable-clear-hevc-for-testing</span> into your url bar and enable it in the page that shows up.</li>
                   <li>Enable the Chrome web store, by manually installing <a target="_blank" href="https://github.com/NeverDecaf/chromium-web-store">https://github.com/NeverDecaf/chromium-web-store</a> into Chromium (this is required because the Chromium build is ungoogled)</li>
                 </ol>
-                Note: I used to recommend Microsoft Edge with HEVC Video Extensions to watch HEVC video on animebook, but as of October 2020 the Microsoft store started charging money for HEVC support, so I removed it from the browser list.
+                Note: I used to recommend Microsoft Edge with HEVC Video Extensions to watch HEVC video on animebook, but as of October 2020 the Microsoft store started charging money for HEVC support, so I removed it from the browser list. It technically does support AC3 audio though, unlike Ungoogled Chromium.
               </p>
             </div>
             <div v-if="helpMode === 'anki-automatic-export'" class="help-inner">
