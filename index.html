@@ -204,7 +204,7 @@
         color: #000;
       }
 
-      .help-inner a {
+      .hint a, .help-inner a {
         color: #a5d2f6
       }
 
@@ -520,7 +520,7 @@
         left: 50%;
         transform: translate(-50%, -50%);
         width: 90%;
-        max-width: 600px;
+        max-width: 750px;
         text-align: left;
       }
 
@@ -704,17 +704,25 @@
         @drop.stop.prevent="onFileDrop"
       >
         <div class="app-container" :style="calcAppStyle()" v-cloak>
+          <input
+            id="ab-file-browse-input"
+            @change="onFileInputChange"
+            type="file"
+            accept=".srt,.ass,.vtt,.mp3,.m4a,.aac,.flac,.ogg,.wav,.opus,.mkv,.mp4,.avi"
+            multiple
+            hidden
+          />
           <div class="video-subtitles-missing hint" v-show="!videoUrl && !captionsUrl">
-            Drag-and-drop a video file and subtitle file to this page
+            Drag-and-drop a video file and subtitle file to this page, or <a href="#" @click="onFileBrowse">browse</a>
           </div>
           <div class="video-missing" v-show="!videoUrl && captionsUrl && !shouldShowVideoError">
             <div class="hint">
-              Drag-and-drop a video file
+              Drag-and-drop a video file, or <a href="#" @click="onFileBrowse">browse</a>
             </div>
           </div>
           <div class="subtitles-missing" v-show="videoUrl && !captionsUrl && !shouldShowSubtitlesError">
             <div class="hint">
-            Drag-and-drop a subtitles file<br />(vtt, srt or ass)
+            Drag-and-drop a subtitles file (vtt, srt or ass), or <a href="#" @click="onFileBrowse">browse</a>
             </div>
           </div>
           <div class="video-error" v-show="shouldShowVideoError">
@@ -1473,12 +1481,28 @@
 
           onFileDrop: function (e) {
             this.isDraggingFile = false;
-            for (var i = 0; i < e.dataTransfer.files.length; i++) {
-              var file = e.dataTransfer.files[i];
+            this.handleDroppedFiles(e.dataTransfer.files);
+          },
+
+          handleDroppedFiles: function (files) {
+            for (var i = 0; i < files.length; i++) {
+              var file = files[i];
               this.isCaptions(file)
                 ? this.loadCaptions(file)
                 : this.loadVideo(file);
             }
+          },
+
+          onFileBrowse: function (e) {
+            const input = document.getElementById('ab-file-browse-input');
+            input.click();
+          },
+
+          onFileInputChange: function (e) {
+            const input = document.getElementById('ab-file-browse-input');
+            const files = input.files;
+            if (files && files.length > 0)
+              this.handleDroppedFiles(files);
           },
 
           onInputKeyDown: function (event) {
