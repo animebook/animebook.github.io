@@ -13,7 +13,7 @@ function main() {
     eventChannel.initializeIFrame(token);
     const cardCreator = new CardCreator(toaster, abIcons, captionUtils, token);
 
-    dropWrapper.addEventListener("drop", e => onDropEvent(e, abIcons, eventChannel, cardCreator, toaster));
+    dropWrapper.addEventListener("drop", e => onNewFileEvent(e.dataTransfer.files, abIcons, eventChannel, cardCreator, toaster));
     var observer = new MutationObserver((mutationsList, observer) => onHTMLMutation(mutationsList, cardCreator));
     var config = { childList: true, subtree: true };
     observer.observe(dropWrapper, config);
@@ -21,6 +21,14 @@ function main() {
     const selectionHighlighter = new SelectionHighlighter(captionUtils);
     document.addEventListener('selectionchange', e => selectionHighlighter.onSelectionChange());
     document.addEventListener('keydown', e => handleKeyDown(e, cardCreator));
+
+    const fileInput = document.getElementById("ab-file-browse-input")
+    if (fileInput) {
+        fileInput.addEventListener("change", e => {
+            const files = fileInput.files;
+            onNewFileEvent(files, abIcons, eventChannel, cardCreator, toaster);
+        })
+    }
 }
 
 function generateIFrameToken() {
@@ -40,9 +48,9 @@ function injectStyles(url) {
     document.body.appendChild(elem);
 }
 
-function onDropEvent (e, abIcons, eventChannel, cardCreator, toaster) {
-    for (var i = 0; i < e.dataTransfer.files.length; i++) {
-        var file = e.dataTransfer.files[i];
+function onNewFileEvent(files, abIcons, eventChannel, cardCreator, toaster) {
+    for (var i = 0; i < files.length; i++) {
+        var file = files[i];
         if (isCaptions(file)) { 
             abIcons.clearExportIcons();
         } else {
