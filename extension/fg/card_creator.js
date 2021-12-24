@@ -1,6 +1,8 @@
 class CardCreator {
-    constructor(toaster, abIcons, captionUtils, token) {
+    constructor(eventChannel, toaster, audioPlayer, abIcons, captionUtils, token) {
+        this.eventChannel = eventChannel;
         this.toaster = toaster;
+        this.audioPlayer = audioPlayer;
         this.abIcons = abIcons;
         this.captionUtils = captionUtils;
         this.isRunning = false;
@@ -78,7 +80,8 @@ class CardCreator {
         this.abIcons.disableAll();
         this.isRunning = true;
         try {
-            chrome.runtime.sendMessage(message, response => {
+            this.eventChannel.sendMessage(message, event => {
+                const response = event.data;
                 this.isRunning = false;
                 this.abIcons.reEnableAll();
                 if (!response || !response.type) {
@@ -87,6 +90,7 @@ class CardCreator {
                 } else if (response.type === 'card-created') {
                     this.toaster.$emit('set-card', response);
                     this.abIcons.setSuccess(captionId);
+                    this.audioPlayer.playAudio(response.audioList)
                 } 
                 else {
                     this.toaster.$emit('add-error', response);

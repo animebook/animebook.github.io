@@ -6,12 +6,13 @@ function main() {
     injectStyles(chrome.extension.getURL('fg/frontend.css'));
 
     const toaster = CREATE_TOAST_VUE_INSTANCE();
+    const audioPlayer = new AudioPlayer();
     const abIcons = new AbIcons();
     const captionUtils = new CaptionUtils();
     const eventChannel = new EventChannel();
     const token = generateIFrameToken();
     eventChannel.initializeIFrame(token);
-    const cardCreator = new CardCreator(toaster, abIcons, captionUtils, token);
+    const cardCreator = new CardCreator(eventChannel, toaster, audioPlayer, abIcons, captionUtils, token);
 
     dropWrapper.addEventListener("drop", e => onNewFileEvent(e.dataTransfer.files, abIcons, eventChannel, cardCreator, toaster));
     var observer = new MutationObserver((mutationsList, observer) => onHTMLMutation(mutationsList, cardCreator));

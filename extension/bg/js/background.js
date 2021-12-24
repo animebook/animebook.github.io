@@ -25,27 +25,6 @@ async function updateVideoFile(newVideoFile) {
     return updateFilePromise;
 }
 
-async function createPlayingAudioElement(audioBlob) {
-    const audio = document.createElement("audio");
-    audio.id = "audio-element";
-    audio.controls = true;
-    audio.src = URL.createObjectURL(audioBlob);
-    const existingElement = document.getElementById(audio.id);
-    if (existingElement)
-        existingElement.remove();
-    document.body.appendChild(audio);
-    await audio.play();
-    return audio;
-}
-
-async function playAudio(audioList) {
-    if (audioList.length == 0)
-        return;
-
-    const audio = await createPlayingAudioElement(audioList[0])
-    audio.onended = () => playAudio(audioList.slice(1))
-}
-
 async function recordFlashcard(lines, start, end, currentVideoTime, audioTrack) {
     if (!videoFile)
         throw new UserFacingError("No video file found");
@@ -146,8 +125,6 @@ async function recordFlashcard(lines, start, end, currentVideoTime, audioTrack) 
     if (settings.audioPlayback === 'autoPlay' && sentenceBlobToPlay)
         audioList.push(sentenceBlobToPlay);
     
-    playAudio(audioList);
-
     var message = "Updated card!";
     if (expression)
         message = "Updated " + expression + "!";
@@ -157,7 +134,8 @@ async function recordFlashcard(lines, start, end, currentVideoTime, audioTrack) 
         message: message,
         sentence: regexOnlyText,
         image: screenshotToSendBack,
-        imageFormat: settings.imageFormat
+        imageFormat: settings.imageFormat,
+        audioList: audioList
     };
 
 }

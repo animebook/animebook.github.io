@@ -33,6 +33,7 @@
                 "bg/js/lib/vue.min.js", 
                 "fg/event_channel.js", 
                 "fg/toast.js", 
+                "fg/audio_player.js",
                 "fg/caption_utils.js", 
                 "fg/icons.js",
                 "fg/selection_highlighter.js",
