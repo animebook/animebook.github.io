@@ -1,9 +1,16 @@
+/**
+ * TODO:
+ * Fix Web_Accessible_Resources to make the extension work on at least all file::// urls and animebook
+ * See if it's possible to not do all this stuff via iframe, but idk if that's even useful since we still have the problem of loading css on the fly, which will require Web_Accessible_Resources
+ * (I think I need an iframe because objects can't be send over message passing to service workers, but we'll see I guess?)
+ * 
+ */
 function main() {
     const dropWrapper = document.getElementById("animebook-drop-wrapper");
     if (!dropWrapper)
         return;
 
-    injectStyles(chrome.extension.getURL('fg/frontend.css'));
+    injectStyles(chrome.runtime.getURL('fg/frontend.css'));
 
     const toaster = CREATE_TOAST_VUE_INSTANCE();
     const abIcons = new AbIcons();
