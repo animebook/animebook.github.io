@@ -58,7 +58,7 @@ class FFmpeg {
             return 'ffmpeg already loaded';
 
         this.ffmpegCore = await this.createCore();
-        this.ffmpegMain = this.ffmpegCore.cwrap('proxy_main', 'number', ['number', 'number']);
+        this.ffmpegMain = this.ffmpegCore.cwrap('emscripten_proxy_main', 'number', ['number', 'number']);
         return 'Loaded ffmpeg';
     }
 
