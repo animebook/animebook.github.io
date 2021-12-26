@@ -11,22 +11,38 @@ class SelectionHighlighter {
         const captions = document.getElementsByClassName('anki-export');
         if (ids.length === 0) {
             Array.from(captions).forEach(el => {
+                el.classList.remove('first');
+                el.classList.remove('last');
                 el.classList.remove('disabled');
                 el.classList.remove('highlight');
                 el.classList.remove('please-click');
+                el.classList.remove('hidden');
             });
             return;
         }
 
         Array.from(captions).forEach(el => {
             const elementId = this.getCaptionId(el)
-            const shouldHighlight = ids.indexOf(elementId) !== -1
-            const shouldDisable = ids[0] !== elementId;
+            const selected = ids.indexOf(elementId) !== -1
+            const firstSelected = ids[0] === elementId;
+            const lastSelected = ids[ids.length - 1] == elementId
+            const shouldDisable = !firstSelected;
+            const shouldHide = ids.length > 1 && ids.indexOf(elementId) > 0;
 
-            if (shouldHighlight) 
+            if (selected) 
                 el.classList.add('highlight');
             else
                 el.classList.remove('highlight');
+
+            if (firstSelected && ids.length > 1)
+                el.classList.add('first');
+            else
+                el.classList.remove('first');
+
+            if (lastSelected && ids.length > 1)
+                el.classList.add('last');
+            else
+                el.classList.remove('last');
 
             if (shouldDisable) {
                 el.classList.add('disabled');
@@ -36,7 +52,11 @@ class SelectionHighlighter {
                 el.classList.remove('disabled');
                 el.classList.add('please-click');
             }
-                
+
+            if (shouldHide)
+                el.classList.add('hidden');
+            else
+                el.classList.remove('hidden');
         })
     }
 

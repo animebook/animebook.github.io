@@ -251,6 +251,26 @@
     width: 3px;
 }
 
+.anki-export.first::before {
+    content: '';
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    background-color: #E8F1DB;
+    height: 3px;
+}
+
+.anki-export.last::before {
+    content: '';
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    width: 100%;
+    background-color: #E8F1DB;
+    height: 3px;
+}
+
 .plus-icon {
     width: 20px;
     height: 20px;
@@ -313,7 +333,10 @@
 .anki-export.disabled .plus-icon,
 .anki-export.disabled .success-icon {
     fill: #0a0e22;
+}
 
+.anki-export.hidden .export-to-recent {
+    visibility: hidden;
 }
 
 .running {
