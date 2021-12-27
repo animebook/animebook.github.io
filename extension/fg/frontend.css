@@ -248,7 +248,7 @@
     top: 0px;
     height: 100%;
     background-color: #E8F1DB;
-    width: 3px;
+    width: 2px;
 }
 
 .anki-export.first::before {
@@ -258,7 +258,7 @@
     top: 0px;
     width: 100%;
     background-color: #E8F1DB;
-    height: 3px;
+    height: 2px;
 }
 
 .anki-export.last::before {
@@ -268,7 +268,7 @@
     bottom: 0px;
     width: 100%;
     background-color: #E8F1DB;
-    height: 3px;
+    height: 2px;
 }
 
 .plus-icon {
