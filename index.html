@@ -799,7 +799,7 @@
           <div id="sidebar-captions" class="sidebar-captions" v-if="captionsUrl">
             <div class="captions-container">
               <div class="captions-list" lang="ja">
-                <span v-for="(caption, index) in captions" class="caption-controls">
+                <span v-for="(caption, index) in captions" class="caption-controls" :key="caption.id">
                   <div v-if="caption.customOffset !== null" :class="'caption-custom-offset' + (offsetTooNegative(caption) ? ' error' : '')">
                     <input 
                       form="novalidatedform" 
@@ -832,7 +832,7 @@
                     <span v-if="isOffsetMode" class='set-custom-offset-button unselectable' @click="setCustomOffset(caption)" data-pseudo-content="Only offset this line and lines after">
                       <span v-if="isOffsetMode" class='custom-time-offset' v-html="displayCaptionOffset(caption)"></span>
                     </span>
-                    <span :data-caption-id="caption.id" :id="'anki-export-' + caption.id" class="anki-export unselectable">
+                    <span v-once :data-caption-id="caption.id" :id="'anki-export-' + caption.id" class="anki-export unselectable">
                       <span :data-caption-id="caption.id" class="export-to-recent">
                         <svg class="plus-icon" viewBox="0 0 11 14">
                           <use href="#plus-svg"/>
