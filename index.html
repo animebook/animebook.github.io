@@ -796,69 +796,15 @@
               @mousedown.stop.prevent="onResizeBarMouseDown">
             </div>
           </div>
-          <div id="sidebar-captions" class="sidebar-captions" v-if="captionsUrl">
-            <div class="captions-container">
-              <div class="captions-list" lang="ja">
-                <span v-for="(caption, index) in captions" class="caption-controls" :key="caption.id">
-                  <div v-if="caption.customOffset !== null" :class="'caption-custom-offset' + (offsetTooNegative(caption) ? ' error' : '')">
-                    <input 
-                      form="novalidatedform" 
-                      type="number" 
-                      step="0.1" 
-                      @keydown="onInputKeyDown"
-                      :id="'custom_offset_' + caption.id"
-                      class="custom-offset-input" 
-                      v-model="customOffsets[caption.id]"></input>
-                    <div class="delete-custom-offset unselectable" @click="deleteCustomOffset(caption)">X</div>
-                    <div class="custom-offset-too-negative" v-if="offsetTooNegative(caption)">
-                      Offset too small. Using minimum offset {{caption.minCustomOffset.toFixed(2)}}s instead.
-                    </div>
-                  </div>
-                  <span class="caption-parent">
-                    <span
-                      :class="captionStyle(caption)"
-                      :data-caption-id="caption.id"
-                      @click="selectCaption(caption)">
-                      <span class="caption-text"
-                        :id="caption.id"
-                        :data-caption-id="caption.id"
-                        :data-start="caption.startTime"
-                        :data-end="caption.endTime"
-                        v-html="displaySidebarCaption(caption.text)">
-                      </span>
-                      <span v-if="isOffsetMode" class='caption-time-offset unselectable' v-html="displayCaptionOffset(caption)"></span>
-                    </span>
-                    <span v-html="'\n'"></span>
-                    <span v-if="isOffsetMode" class='set-custom-offset-button unselectable' @click="setCustomOffset(caption)" data-pseudo-content="Only offset this line and lines after">
-                      <span v-if="isOffsetMode" class='custom-time-offset' v-html="displayCaptionOffset(caption)"></span>
-                    </span>
-                    <span v-once :data-caption-id="caption.id" :id="'anki-export-' + caption.id" class="anki-export unselectable">
-                      <span :data-caption-id="caption.id" class="export-to-recent">
-                        <svg class="plus-icon" viewBox="0 0 11 14">
-                          <use href="#plus-svg"/>
-                        </svg>
-                      </span>
-                      <span class="export-spinner">
-                        <svg class="spinner-icon" viewBox="0 0 1792 1792">
-                          <use href="#spinner-svg"/>
-                        </svg>
-                      </span>
-                      <span class="export-success">
-                        <svg class="success-icon" viewBox="0 0 1792 1792">
-                          <use href="#success-svg"/>
-                        </svg>
-                      </span>
-                      <span class="export-alert">
-                        <svg class="alert-icon" viewBox="0 0 1792 1792">
-                          <use href="#alert-svg"/>
-                        </svg>
-                      </span>
-                    </span>
-                  </span>
-                </span>
-              </div>
-            </div>
-          </div>
+          <caption-bar
+            @select-caption="selectCaption" 
+            :captions="captions" 
+            :custom-offsets="customOffsets"
+            :is-auto-pause-mode="isAutoPauseMode"
+            :is-offset-mode="isOffsetMode"
+            :current-time="currentTime"
+            v-if="captionsUrl"
+          ></caption-bar>
           <div v-if="captionsUrl && isOffsetMode" class="offset-hint unselectable">Select the subtitle that ends where the video currently is: {{displayAsVideoTime(currentTime)}}</div>
           <div v-if="captionsUrl && !isOffsetMode" :class="controlsExpandClass" @click="toggleControls()"></div>
           <div class="auto-pause-text unselectable" v-if="isAutoPauseMode">Auto Pause <span style="display: inline-block;">:</span><span v-html="autoPauseIcon"></span></div>
@@ -951,7 +897,137 @@
 
     <script>
     function createApp() {
-      new Vue({
+      var Utils = {
+          parseInputNum: function (num) {
+            var value = parseFloat(num);
+            return value ? value : 0.0;
+          },
+          wrapInP: function (text) {
+            return "<p>" + text + "</p>";
+          }
+      }
+      Vue.component('caption-bar', {
+        props: ['captions', 'customOffsets', 'isAutoPauseMode', 'isOffsetMode', 'currentTime'],
+        methods: {
+          offsetTooNegative: function (caption) {
+            var inputOffset = Utils.parseInputNum(this.customOffsets[caption.id]);
+            return caption.minCustomOffset && inputOffset < caption.minCustomOffset;
+          },
+          onInputKeyDown: function (event) {
+            switch (event.key) {
+              case 'ArrowLeft':
+              case 'ArrowUp':
+              case 'ArrowDown':
+              case 'ArrowRight':
+              case '.':
+                event.stopPropagation();
+            }
+          },
+          deleteCustomOffset: function (caption) {
+            this.customOffsets[caption.id] = null;
+            delete this.customOffsets[caption.id];
+          },
+          captionStyle: function (caption) {
+            return 'caption' +
+              (caption.isActive ? ' active' : '') +
+              (this.isAutoPauseMode ? ' auto-pause' : '');
+          },
+          selectCaption: function (caption) {
+            this.$emit('select-caption', caption, this.calcCaptionOffset(caption))
+          },
+          displaySidebarCaption: function (text) {
+            return "\n" + text.split("\n").map(Utils.wrapInP).join("");
+          },
+          displayCaptionOffset: function (caption) {
+            var offset = this.calcCaptionOffset(caption);
+            return '<span data-pseudo-content="' + (offset > 0 ? '+' : '') + this.calcCaptionOffset(caption).toFixed(2) + "s" + '"></span>';
+          },
+          setCustomOffset: function (caption) {
+            var currentOffset = caption.customOffset || 0.0;
+            var newOffset = (currentOffset + this.calcCaptionOffset(caption)).toFixed(2);
+            this.$set(this.customOffsets, caption.id, newOffset);
+            this.isOffsetMode = false;
+            setTimeout(function () {
+              var el = document.getElementById("custom_offset_" + caption.id);
+              if (el)
+                el.focus();
+            }, 0);
+          },
+          calcCaptionOffset: function (caption) {
+            return this.currentTime - caption.endTime;
+          },
+          newline: function () {
+            return "\n"
+          }
+        },
+        template: `
+        <div id="sidebar-captions" class="sidebar-captions">
+          <div class="captions-container">
+            <div class="captions-list" lang="ja">
+              <span v-for="(caption, index) in captions" class="caption-controls" :key="caption.id">
+                <div v-if="caption.customOffset !== null" :class="'caption-custom-offset' + (offsetTooNegative(caption) ? ' error' : '')">
+                  <input 
+                    form="novalidatedform" 
+                    type="number" 
+                    step="0.1" 
+                    @keydown="onInputKeyDown"
+                    :id="'custom_offset_' + caption.id"
+                    class="custom-offset-input" 
+                    v-model="customOffsets[caption.id]"></input>
+                  <div class="delete-custom-offset unselectable" @click="deleteCustomOffset(caption)">X</div>
+                  <div class="custom-offset-too-negative" v-if="offsetTooNegative(caption)">
+                    Offset too small. Using minimum offset {{caption.minCustomOffset.toFixed(2)}}s instead.
+                  </div>
+                </div>
+                <span class="caption-parent">
+                  <span
+                    :class="captionStyle(caption)"
+                    :data-caption-id="caption.id"
+                    @click="selectCaption(caption)">
+                    <span class="caption-text"
+                      :id="caption.id"
+                      :data-caption-id="caption.id"
+                      :data-start="caption.startTime"
+                      :data-end="caption.endTime"
+                      v-html="displaySidebarCaption(caption.text)">
+                    </span>
+                    <span v-if="isOffsetMode" class='caption-time-offset unselectable' v-html="displayCaptionOffset(caption)"></span>
+                  </span>
+                  <span v-html="newline()"></span>
+                  <span v-if="isOffsetMode" class='set-custom-offset-button unselectable' @click="setCustomOffset(caption)" data-pseudo-content="Only offset this line and lines after">
+                    <span v-if="isOffsetMode" class='custom-time-offset' v-html="displayCaptionOffset(caption)"></span>
+                  </span>
+                  <span v-once :data-caption-id="caption.id" :id="'anki-export-' + caption.id" class="anki-export unselectable">
+                    <span :data-caption-id="caption.id" class="export-to-recent">
+                      <svg class="plus-icon" viewBox="0 0 11 14">
+                        <use href="#plus-svg"/>
+                      </svg>
+                    </span>
+                    <span class="export-spinner">
+                      <svg class="spinner-icon" viewBox="0 0 1792 1792">
+                        <use href="#spinner-svg"/>
+                      </svg>
+                    </span>
+                    <span class="export-success">
+                      <svg class="success-icon" viewBox="0 0 1792 1792">
+                        <use href="#success-svg"/>
+                      </svg>
+                    </span>
+                    <span class="export-alert">
+                      <svg class="alert-icon" viewBox="0 0 1792 1792">
+                        <use href="#alert-svg"/>
+                      </svg>
+                    </span>
+                  </span>
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+        `
+      });
+
+      var vm = new Vue({
         el: "#app",
         data: {
           videoUrl: null,
@@ -1007,7 +1083,7 @@
             return this.isDraggingFile ? "dragging-file" : "";
           },
           subtitlesOffsetSeconds: function () {
-            return this.parseInputNum(this.subtitlesOffsetInput);
+            return Utils.parseInputNum(this.subtitlesOffsetInput);
           },
           captionsUrl: function () {
             if (!this.subtitlesFileContent)
@@ -1082,7 +1158,7 @@
           displayedHtml: function () {
             if (!this.displayedLines)
               return "";
-            return this.displayedLines.map(this.wrapInP).join("");
+            return this.displayedLines.map(Utils.wrapInP).join("");
           },
           shownCaptionsKey: function () {
             if (!this.shownCaptions || this.shownCaptions.length === 0)
@@ -1834,68 +1910,18 @@
             }, 1000);
           },
 
-          captionStyle: function (caption) {
-            return 'caption' +
-              (caption.isActive ? ' active' : '') +
-              (this.isAutoPauseMode ? ' auto-pause' : '');
-          },
-
-          displaySidebarCaption: function (text) {
-            return "\n" + text.split("\n").map(this.wrapInP).join("");
-          },
-
-          wrapInP: function (text) {
-            return "<p>" + text + "</p>";
-          },
-
-          displayCaptionOffset: function (caption) {
-            var offset = this.calcCaptionOffset(caption);
-            return '<span data-pseudo-content="' + (offset > 0 ? '+' : '') + this.calcCaptionOffset(caption).toFixed(2) + "s" + '"></span>';
-          },
-
           displayAsVideoTime: function (seconds) {
             return new Date(seconds * 1000).toISOString().substr(11, 8).replace(/^00:/g, '');
           },
-
-          calcCaptionOffset: function (caption) {
-            return this.currentTime - caption.endTime;
-          },
-
-          setCustomOffset: function (caption) {
-            var currentOffset = caption.customOffset || 0.0;
-            var newOffset = (currentOffset + this.calcCaptionOffset(caption)).toFixed(2);
-            this.$set(this.customOffsets, caption.id, newOffset);
-            this.isOffsetMode = false;
-            setTimeout(function () {
-              var el = document.getElementById("custom_offset_" + caption.id);
-              if (el)
-                el.focus();
-            }, 0);
-          },
-
-          deleteCustomOffset: function (caption) {
-            this.customOffsets[caption.id] = null;
-            delete this.customOffsets[caption.id];
-          },
-
-          offsetTooNegative: function (caption) {
-            var inputOffset = this.parseInputNum(this.customOffsets[caption.id]);
-            return caption.minCustomOffset && inputOffset < caption.minCustomOffset;
-          },
-
-          parseInputNum: function (num) {
-            var value = parseFloat(num);
-            return value ? value : 0.0;
-          },
           
-          selectCaption: function (caption) {
+          selectCaption: function (caption, offset) {
             var previousTextSelection = this.textSelection;
             this.textSelection = window.getSelection().toString();
             if (this.textSelection.length > 0 && this.textSelection !== previousTextSelection)
               return;
 
             if (this.isOffsetMode) {
-              this.subtitlesOffsetInput = (this.subtitlesOffsetSeconds + this.calcCaptionOffset(caption)).toFixed(2);
+              this.subtitlesOffsetInput = (this.subtitlesOffsetSeconds + offset).toFixed(2);
               this.isOffsetMode = false;
             } else {
               this.setCurrentTime(caption.startTime + 0.0001, true);
@@ -2288,7 +2314,7 @@
               var caption = parsed[i]
               caption.id = "id_" + i;
               if (customOffsets.hasOwnProperty(caption.id)) {
-                caption.customOffset = this.parseInputNum(customOffsets[caption.id]);
+                caption.customOffset = Utils.parseInputNum(customOffsets[caption.id]);
                 if (i > 0) {
                   var guaranteedGapBetweenLines = 0.002
                   var minCustomOffset = parsed[i - 1].startTime - caption.startTime - currentOffset + guaranteedGapBetweenLines;
