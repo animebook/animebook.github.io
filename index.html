@@ -798,6 +798,7 @@
           </div>
           <caption-bar
             @select-caption="selectCaption" 
+            @set-custom-offset="setCustomOffset" 
             :captions="captions" 
             :custom-offsets="customOffsets"
             :is-auto-pause-mode="isAutoPauseMode"
@@ -906,8 +907,8 @@
             return "<p>" + text + "</p>";
           }
       }
-      Vue.component('caption-bar', {
-        props: ['captions', 'customOffsets', 'isAutoPauseMode', 'isOffsetMode', 'currentTime'],
+      Vue.component('caption-item', {
+        props: ['caption', 'customOffsets', 'isAutoPauseMode', 'isOffsetMode', 'currentTime'],
         methods: {
           offsetTooNegative: function (caption) {
             var inputOffset = Utils.parseInputNum(this.customOffsets[caption.id]);
@@ -943,15 +944,7 @@
             return '<span data-pseudo-content="' + (offset > 0 ? '+' : '') + this.calcCaptionOffset(caption).toFixed(2) + "s" + '"></span>';
           },
           setCustomOffset: function (caption) {
-            var currentOffset = caption.customOffset || 0.0;
-            var newOffset = (currentOffset + this.calcCaptionOffset(caption)).toFixed(2);
-            this.$set(this.customOffsets, caption.id, newOffset);
-            this.isOffsetMode = false;
-            setTimeout(function () {
-              var el = document.getElementById("custom_offset_" + caption.id);
-              if (el)
-                el.focus();
-            }, 0);
+            this.$emit('set-custom-offset', caption, this.calcCaptionOffset(caption))
           },
           calcCaptionOffset: function (caption) {
             return this.currentTime - caption.endTime;
@@ -961,10 +954,7 @@
           }
         },
         template: `
-        <div id="sidebar-captions" class="sidebar-captions">
-          <div class="captions-container">
-            <div class="captions-list" lang="ja">
-              <span v-for="(caption, index) in captions" class="caption-controls" :key="caption.id">
+              <span>
                 <div v-if="caption.customOffset !== null" :class="'caption-custom-offset' + (offsetTooNegative(caption) ? ' error' : '')">
                   <input 
                     form="novalidatedform" 
@@ -1020,6 +1010,47 @@
                     </span>
                   </span>
                 </span>
+              </span>
+              `
+      })
+
+      Vue.component('caption-bar', {
+        props: ['captions', 'customOffsets', 'isAutoPauseMode', 'isOffsetMode', 'currentTime'],
+        methods: {
+          selectCaption: function (caption, offset) {
+            this.$emit('select-caption', caption, offset)
+          },
+          setCustomOffset: function (caption, offset) {
+            this.$emit('set-custom-offset', caption, offset)
+          }
+        },
+        data: function () {
+          return {
+            bufferTime: 0
+          }
+        },
+        created: function () {
+          var self = this;
+          self.$watch(function () { return { t: self.currentTime, i: self.isOffsetMode}; }, function () {
+            if (self.isOffsetMode) {
+              self.bufferTime = self.currentTime
+            }
+          }, { immediate: true})
+        },
+        template: `
+        <div id="sidebar-captions" class="sidebar-captions">
+          <div class="captions-container">
+            <div class="captions-list" lang="ja">
+              <span v-for="(caption, index) in captions" class="caption-controls" :key="caption.id">
+                <caption-item 
+                @select-caption="selectCaption"
+                @set-custom-offset="setCustomOffset"
+                :caption="caption" 
+                :custom-offsets="customOffsets"
+                :isAutoPauseMode="isAutoPauseMode"
+                :isOffsetMode="isOffsetMode"
+                :currentTime="bufferTime"
+                ></caption-item>
               </span>
             </div>
           </div>
@@ -1926,6 +1957,18 @@
             } else {
               this.setCurrentTime(caption.startTime + 0.0001, true);
             }
+          },
+
+          setCustomOffset: function (caption, offset) {
+            var currentOffset = caption.customOffset || 0.0;
+            var newOffset = (currentOffset + offset).toFixed(2);
+            this.$set(this.customOffsets, caption.id, newOffset);
+            this.isOffsetMode = false;
+            setTimeout(function () {
+              var el = document.getElementById("custom_offset_" + caption.id);
+              if (el)
+                el.focus();
+            }, 0);
           },
 
           getTrack: function () {
