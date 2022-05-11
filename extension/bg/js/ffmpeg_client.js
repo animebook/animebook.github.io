@@ -14,8 +14,8 @@ class FFmpegClient {
         return data;
     }
 
-    async takeScreenshot(time) {
-        var command = this.ffmpegCommands.createImageFFmpegCommand('/input/tmpfile', time)
+    async takeScreenshot(screenshotTime, start, end) {
+        var command = this.ffmpegCommands.createImageFFmpegCommand('/input/tmpfile', screenshotTime, start, end)
         await this.ffmpeg.run(...command.commandArgs);
         const data = this.ffmpeg.FS('readFile', command.outputFileName);
         this.ffmpeg.FS('unlink', command.outputFileName);
@@ -32,7 +32,7 @@ class FFmpegClient {
 
     async getImage(start, end, currentVideoTime) {
         const screenshotTime = (this.settings.imageTiming === 'currentFrame') ? currentVideoTime : ((start + end) / 2);
-        const imageData = await this.takeScreenshot(screenshotTime);
+        const imageData = await this.takeScreenshot(screenshotTime, start, end);
         const imageBlob = new Blob([imageData.buffer]);
         const imageBase64 = await (new BlobUtils().blobToBase64(imageBlob));
         const imageFileName = this.createName(screenshotTime) + '.' + this.settings['imageFormat'];

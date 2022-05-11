@@ -10,6 +10,7 @@ const AB_DEFAULT_OPTIONS = {
     imageResizeSelection: "height",
     imageResizeHeight: 720,
     imageResizeWidth: 1280,
+    gifFPS: 6,
     imageFormat: "jpg",
     imageTiming: "middle",
     imageFfmpegFlags: "",

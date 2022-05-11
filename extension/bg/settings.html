@@ -183,15 +183,21 @@
                     <select class="form-control col-5" v-model="settings.imageFormat">
                         <option value="png">PNG</option>
                         <option value="jpg">JPEG</option>
+                        <option value="gif">GIF</option>
                     </select>
                 </div>
 
-                <div class="form-group row">
+                <div v-if="settings.imageFormat !== 'gif'" class="form-group row">
                     <div class="col-5 my-auto">Take screenshots at the</div>
                     <select class="form-control col-7" v-model="settings.imageTiming">
                         <option value="middle">Time point in the middle of the selected captions</option>
                         <option value="currentFrame">Current frame the video's playing at</option>
                     </select>
+                </div>
+
+                <div v-if="settings.imageFormat == 'gif'" class="form-group row">
+                    <label class="col-7 my-auto" for="frames-per-second">Frames per second</label>
+                    <input class="col-5 form-control" v-model.number="settings.gifFPS" id="frames-per-second" type="number" min="1" max="24">
                 </div>
 
                 <label for="image-ffmpeg-flags">Custom ffmpeg flags when taking screenshots:</label>

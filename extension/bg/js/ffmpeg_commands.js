@@ -37,11 +37,21 @@ class FFmpegCommands {
         }
     }
 
-    createImageFFmpegCommand(videoFileName, time) {
+    createImageFFmpegCommand(videoFileName, screenshotTime, start, end) {
         var vfArgs = [];
         if (this.settings['imageFormat'] === 'png')
             vfArgs.push(`format=rgb24`);
-        
+
+        var startTime = screenshotTime.toFixed(3);
+        var endTimeArgs = [];
+        var vframesArgs = [`-vframes:v`, `1`];
+        if (this.settings['imageFormat'] === 'gif') {
+            startTime = start.toFixed(3);
+            endTimeArgs.push('-to', end.toFixed(3));
+            vframesArgs = [];
+            vfArgs.push(`fps=${this.settings['gifFPS']}`);
+        }
+
         if (this.settings['imageResizeSelection'] === 'height') {
             vfArgs.push(`scale=-2:${this.settings['imageResizeHeight']}`)
         }
@@ -59,9 +69,10 @@ class FFmpegCommands {
         return {
             outputFileName: fileName,
             commandArgs: [
-                `-ss`, `${time.toFixed(3)}`,
+                `-ss`, `${startTime}`,
+                ...endTimeArgs,
                 `-i`, `${videoFileName}`,
-                `-vframes:v`, `1`,
+                ...vframesArgs,
                 `-qscale:v`, `2`,
                 ...vfCommand,
                 this.settings.imageFfmpegFlags,
