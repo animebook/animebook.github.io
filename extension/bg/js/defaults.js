@@ -28,7 +28,8 @@ const AB_TEMPLATE_EXPRESSIONS = [
     "sentence",
     "sentence-audio",
     "screenshot",
-    "forvo-word-audio"
+    "forvo-word-audio",
+    "filename"
 ]
 
 const AB_SANITIZE_SETTINGS = function (settings) {

@@ -91,6 +91,10 @@ async function recordFlashcard(lines, start, end, currentVideoTime, audioTrack) 
         screenshotToSendBack = imageBase64;
     }
 
+    if(neededExpressions.has('filename')) {
+        expressionLookup['filename'] = videoFile.name;
+    }
+
     await Promise.all(promises);
 
     const replacer = new SentenceFormatter(settings)
@@ -149,7 +153,7 @@ async function handleMessage(request) {
             return { type: 'file-loading', message: 'Loaded file into ffmpeg'};
         }
         else if (request.action === 'record') {
-            return await recordFlashcard(request.lines, request.start, request.end, request.currentVideoTime, request.audioTrack || 0, request.videoFileName)
+            return await recordFlashcard(request.lines, request.start, request.end, request.currentVideoTime, request.audioTrack || 0)
         } else if (request.action === 'token') {
             iframeToken = request.token;
             return { type: 'token', message: 'Updated token'};
