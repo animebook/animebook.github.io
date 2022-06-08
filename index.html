@@ -2196,6 +2196,11 @@
               );
             };
 
+            var strip = function (html) {
+              var doc = new DOMParser().parseFromString(html, 'text/html');
+              return doc.body.textContent || "";
+            }
+
             var entries = text.split(/\n[\n]+(?=[0-9]+\n)/g);
             var captions = entries
               .map(function (entry) {
@@ -2204,11 +2209,12 @@
                   return null;
                 }
                 var timestamps = lines[1].split(/\s*-->\s*/);
+                var text = strip(lines.slice(2).join("\n").replace(/\{\\an[0-9]{1,2}\}/g, ''));
                 return {
                   id: lines[0],
                   startTime: getSeconds(timestamps[0]),
                   endTime: getSeconds(timestamps[1]),
-                  text: lines.slice(2).join("\n").replace(/\{\\an[0-9]{1,2}\}/g, ''),
+                  text: text,
                 };
               })
               .filter(function (caption) {
