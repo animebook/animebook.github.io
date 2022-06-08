@@ -29,7 +29,7 @@ new Vue({
             return "ffmpeg " + command.commandArgs.join(' ');
         },
         imageCommand: function () {
-            const command = new FFmpegCommands(this.settings).createImageFFmpegCommand("input.mp4", 10);
+            const command = new FFmpegCommands(this.settings).createImageFFmpegCommand("input.mp4", 10, 0, 20);
             return "ffmpeg " + command.commandArgs.join(' ');
         },
         notFilledOut: function () {
