@@ -306,7 +306,6 @@
     fill: #555;
     transform-origin: center center;
     transform-box: fill-box;
-    animation: rotate 1s infinite 0s steps(8); 
 }
 
 @keyframes rotate  {
