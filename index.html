@@ -2146,7 +2146,7 @@
               "i"
             );
             var reTime = /(\d+):(\d\d):(\d\d).(\d\d)/;
-            var reStyle = /\{[^}]+\}/g;
+            var reStyle = /\{([^}]+)\}/g;
 
             var getSeconds = function (timeStr) {
               var match = timeStr.match(reTime);
@@ -2160,6 +2160,32 @@
               );
             };
 
+            var removeStyle = function (line) {
+              var parts = line.split(reStyle);
+              var isDrawingMode = false;
+              var spokenText = "";
+              for (var i = 0; i < parts.length; i++) {
+                if (i % 2 == 0) {
+                  if (!isDrawingMode) {
+                    spokenText += parts[i];
+                  }
+                } else {
+                  // \p1 starts drawing mode, \p0 ends it
+                  // But, \p2,\p3,\p4,\p5,... also start drawing mode (with different resolutions)
+                  // so you have to account for those too.
+                  var found = parts[i].match(/\\p\d/g);
+                  if (found) {
+                    if (found[0] == '\p0') {
+                      isDrawingMode = false;
+                    } else {
+                      isDrawingMode = true;
+                    }
+                  }
+                }
+              }
+              return spokenText.replace(/\\N/gi, "\n").trim();
+            }
+
             var lines = text.split(/[\n\r]+/g);
             var captions = lines
               .map(function (line, index) {
@@ -2171,7 +2197,7 @@
                   id: index + 1,
                   startTime: getSeconds(match[1]),
                   endTime: getSeconds(match[2]),
-                  text: self.stripHtml(match[5].replace(reStyle, "").replace(/\\N/gi, "\n").trim()),
+                  text: self.stripHtml(removeStyle(match[5])),
                   voice: match[3] && match[4] ? match[3] + " " + match[4] : "",
                 };
               })
