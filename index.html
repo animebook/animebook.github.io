@@ -834,6 +834,7 @@
                 <div class="table-row"><div class="table-cell">v</div><div class="table-cell">Toggle subtitle visibility on/off</div></div>
                 <div class="table-row"><div class="table-cell">c</div><div class="table-cell">Copy current subtitle text to clipboard</div></div>
                 <div class="table-row"><div class="table-cell">s</div><div class="table-cell">Copy screenshot of video to clipboard</div></div>
+                <div class="table-row"><div class="table-cell">[</div><div class="table-cell">Toggle visibility of parenthesis and text within parenthesis</div></div>
                 <div class="table-row"><div class="table-cell">/</div><div class="table-cell">Move video to the middle of the current caption and take a screenshot. Hold 'Shift' to move only.</div></div>
                 <div class="table-row"><div class="table-cell">,</div><div class="table-cell">Move video to the middle of the previous caption and take a screenshot. Hold 'Shift' to move only.</div></div>
                 <div class="table-row"><div class="table-cell">.</div><div class="table-cell">Move video to the middle of the next caption and take a screenshot. Hold 'Shift' to move only.</div></div>
@@ -1326,6 +1327,10 @@
                 stopEvent(e);
                 self.copyImage();
                 break;
+              case '[':
+                stopEvent(e);
+                self.hideParenthesis();
+                break;
               case 'c':
                 if (e.ctrlKey || e.altKey || e.metaKey)
                   return;
@@ -1711,6 +1716,20 @@
               window.getSelection().removeAllRanges();
             else if (document.selection)
               document.selection.empty();
+          },
+
+          hideParenthesis: function () {
+            let captions = this.fileToCaptions(this.subtitlesFileContent, this.subtitlesOffsetSeconds, this.customOffsets);
+
+            if (this.hideParenthesisToggle === !true || this.hideParenthesisToggle === undefined) {
+              for (let index = 0; index < captions.length; index++) {
+                this.captions[index].text = captions[index].text.replace(/[(]([^)]*)[)]/g, '');
+              }
+              this.hideParenthesisToggle = true;
+            } else {
+              this.captions = captions;
+              this.hideParenthesisToggle = false;
+            }
           },
 
           playPause: function (e) {
