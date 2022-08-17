@@ -42,17 +42,8 @@
         background-color: #000;
       }
 
-      .controls-expand.open {
-        background-color: #0A0A0A;
-      }
-
-      .controls-expand.closed {
-        background-color: #000;
-      }
-
       .caption:hover, 
       .offset-button.off:hover, 
-      .controls-expand:hover,
       .help:hover,
       .audio-track:hover {
         background-color: #91aab1;
@@ -71,7 +62,6 @@
 
       .caption.auto-pause:hover, 
       .offset-button.auto-pause:hover, 
-      .controls-expand.auto-pause:hover,
       .help.auto-pause:hover,
       .audio-track.auto-pause:hover {
         background-color: #90939C;
@@ -476,7 +466,7 @@
       }
 
       .offset-hint {
-        grid-area: controlsExpand;
+        grid-area: offsetHint;
       }
 
       .auto-pause-text {
@@ -498,16 +488,6 @@
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
-      }
-
-      .controls-expand {
-        grid-area: controlsExpand;
-        box-sizing: border-box;
-        cursor: pointer;
-        text-align: center;
-        position: relative;
-        transition: background-color 100ms linear;
-        width: 100%;
       }
 
       .hint {
@@ -807,7 +787,6 @@
             v-if="captionsUrl"
           ></caption-bar>
           <div v-if="captionsUrl && isOffsetMode" class="offset-hint unselectable">Select the subtitle that ends where the video currently is: {{displayAsVideoTime(currentTime)}}</div>
-          <div v-if="captionsUrl && !isOffsetMode" :class="controlsExpandClass" @click="toggleControls()"></div>
           <div class="auto-pause-text unselectable" v-if="isAutoPauseMode">Auto Pause <span style="display: inline-block;">:</span><span v-html="autoPauseIcon"></span></div>
           <div v-if="captionsUrl" class="controls" :style="controlsStyle">
             <a tabindex="1" :class="offsetButtonClass" @click="toggleOffsetMode()"><span>{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span></a>
@@ -1080,7 +1059,6 @@
           previousSideBarX: 0.87,
           captions: [],
           isDraggingFile: false,
-          isControlsExpanded: true,
           isOffsetMode: false,
           resizeBarClick: null,
           videoKey: 1,
@@ -1205,29 +1183,21 @@
           controlsStyle: function () {
             if (this.selectedAudioTrack !== null && this.audioTracks && this.audioTracks.length > 1)
               return "grid-template-areas: \"button input audioTrack help\";" +
-                     "grid-template-columns: 48% 32% 13% 7%;";
+                     "grid-template-columns: 47% 31% 12% 10%;";
             else
               return "grid-template-areas: \"button input help\";" +
-                     "grid-template-columns: 50% 43% 7%;";
-          },
-          controlsExpandClass: function () {
-            return 'controls-expand' + 
-              (this.isControlsExpanded ? ' open' : ' closed') +
-              (this.isAutoPauseMode ? ' auto-pause' : '') +
-              ' unselectable';
+                     "grid-template-columns: 50% 40% 10%;";
           },
           notifyTextClass: function () {
             return 'notify-text' + (this.notifyCount > 0 ? ' on' : ' off');
           },
           audioTrackClass: function () {
             return 'audio-track' +
-              (this.isControlsExpanded ? ' on' : ' off') +
               (this.isAutoPauseMode ? ' auto-pause' : '') +
               ' unselectable';
           },
           helpClass: function () {
             return 'help' + 
-              (this.isControlsExpanded ? ' on' : ' off') +
               (this.isAutoPauseMode ? ' auto-pause' : '') +
               ' unselectable';
           },
@@ -1450,21 +1420,12 @@
               ";";
             }
 
-            if (this.isControlsExpanded) {
-              return "grid-template-areas: " +
-              "'video resizeBar captions' " +
-              "'video resizeBar controlsExpand' " +
-              "'video resizeBar " + (this.isAutoPauseMode ? "autoPause" : "controls") + "' " +
-              "'video resizeBar controls' " +
-              ";";
-            } else {
-              return "grid-template-areas: " +
-              "'video resizeBar captions' " +
-              "'video resizeBar captions' " +
-              "'video resizeBar controlsExpand' " +
-              "'video resizeBar controlsExpand' " +
-              ";";
-            }
+            return "grid-template-areas: " +
+            "'video resizeBar captions' " +
+            "'video resizeBar offsetHint' " +
+            "'video resizeBar " + (this.isAutoPauseMode ? "autoPause" : "controls") + "' " +
+            "'video resizeBar controls' " +
+            ";";
           },
 
           calcGridTemplateColumns: function () {
@@ -1478,18 +1439,12 @@
           calcGridTemplateRows: function () {
             if (this.isOffsetMode)
               return 'grid-template-rows: 89.4% 7.0% 0.0% 3.6%;';
-            else if (this.isControlsExpanded) {
+            else {
               if (this.isAutoPauseMode)
-                return 'grid-template-rows: 91.8% 1.0% 3.6% 3.6%;';
+                return 'grid-template-rows: 91.5% 0.0% 4.0% 4.5%;';
               else
-                return 'grid-template-rows: 95.4% 1.0% 3.6% 0.0%;';
+                return 'grid-template-rows: 95.5% 0.0% 4.5% 0.0%;';
             }
-            else
-              return 'grid-template-rows: 95.4% 3.6% 1.0% 0.0%;';
-          },
-
-          toggleControls: function () {
-            this.isControlsExpanded = !this.isControlsExpanded;
           },
 
           toggleOffsetMode: function () {
