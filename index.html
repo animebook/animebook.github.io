@@ -3,6 +3,10 @@
   <head>
     <title>Animebook</title>
     <style>
+      * {
+        box-sizing: border-box;
+      }
+
       html,
       body,
       #app,
@@ -327,9 +331,6 @@
         width: max-content;
         max-width: 82%;
         z-index: 2;
-        -moz-box-sizing: border-box;
-        -webkit-box-sizing: border-box;
-        box-sizing: border-box;
       }
 
       .resize-bar-wrapper {
@@ -361,7 +362,6 @@
         font-size: 1.5vh;
         text-align: left;
         width: 100%;
-        box-sizing: border-box;
         grid-area: input;
         position: relative;
       }
@@ -369,7 +369,7 @@
       .offset-button,
       .help,
       .audio-track {
-        padding: .2rem;
+        padding: .2em;
         font-size: 1.5vh;
         display: flex;
         justify-content: center;
@@ -377,7 +377,6 @@
         text-align: center;
         cursor: pointer;
         transition: background-color 100ms linear;
-        box-sizing: border-box;
         overflow: hidden;
         cursor: pointer;
         outline: 0;
@@ -408,7 +407,6 @@
         width: 135px;
         top: 0;
         height: 100%;
-        box-sizing: border-box;
         opacity: 0;
         z-index: 2;
         padding: 3px;
@@ -442,7 +440,6 @@
         text-align: center;
         width: 100%;
         min-height: 40px;
-        box-sizing: border-box;
         position: relative;
       }
 
@@ -549,7 +546,6 @@
         width: max-content;
         max-height: 90%;
         padding: 5px;
-        box-sizing: border-box;
         z-index: 3;
       }
 
@@ -622,9 +618,22 @@
         text-align: center;
         cursor: pointer;
         transition: background-color 100ms linear;
-        box-sizing: border-box;
         overflow: hidden;
         outline: 0;
+      }
+
+      .offset-icon {
+        margin: 0 0.2em;
+        font-size: 1.7em;
+        font-weight: bold;
+      }
+
+      .offset-text {
+        width: min-content;
+      }
+
+      .help {
+        font-weight: bold;
       }
 
       input[type=number]
@@ -789,7 +798,12 @@
           <div v-if="captionsUrl && isOffsetMode" class="offset-hint unselectable">Select the subtitle that ends where the video currently is: {{displayAsVideoTime(currentTime)}}</div>
           <div class="auto-pause-text unselectable" v-if="isAutoPauseMode">Auto Pause <span style="display: inline-block;">:</span><span v-html="autoPauseIcon"></span></div>
           <div v-if="captionsUrl" class="controls" :style="controlsStyle">
-            <a tabindex="1" :class="offsetButtonClass" @click="toggleOffsetMode()"><span>{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span></a>
+            <a tabindex="1" :class="offsetButtonClass" @click="toggleOffsetMode()">
+              <span v-if="!isOffsetMode" class="offset-icon">
+                +
+              </span>
+              <span class="offset-text">{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span>
+            </a>
             <input form="novalidatedform" type="number" step="0.1" tabindex="2" @keydown="onInputKeyDown" class="offset-input" v-model="subtitlesOffsetInput"></input>
             <a v-if="audioTracks && audioTracks.length > 1" tabindex="3" :class="audioTrackClass" @click="cycleAudioTrack()"><span>{{selectedAudioTrack + 1}}/{{audioTracks.length}}</span></a>
             <a tabindex="4" :class="helpClass" @click="toggleHelp(); enableHelpMode('hotkeys')"><span>?</span></a>
@@ -1056,8 +1070,8 @@
           isDraggingSidebar: false,
           sideBarDragStartX: 0,
           sideBarDragDx: 0,
-          sideBarX: 0.87,
-          previousSideBarX: 0.87,
+          sideBarX: 0.86,
+          previousSideBarX: 0.86,
           captions: [],
           isDraggingFile: false,
           isOffsetMode: false,
@@ -1439,7 +1453,7 @@
 
           calcGridTemplateRows: function () {
             if (this.isOffsetMode)
-              return 'grid-template-rows: 89.4% 7.0% 0.0% 3.6%;';
+              return 'grid-template-rows: 88.5% 7.0% 0.0% 4.5%;';
             else {
               if (this.isAutoPauseMode)
                 return 'grid-template-rows: 91.5% 0.0% 4.0% 4.5%;';
