@@ -484,7 +484,7 @@
         overflow: hidden;
       }
 
-      .unselectable {
+      .unselectable, label {
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
@@ -546,8 +546,7 @@
         top: 3%;
         left: 50%;
         transform: translate(-50%, 0%);
-        max-width: 60%;
-        width: max-content;
+        width: 55%;
         max-height: 90%;
         padding: 5px;
         z-index: 3;
@@ -744,7 +743,7 @@
               @error="onVideoError"
               @timeupdate="onTimeUpdate"
               crossorigin="anonymous"
-              controls
+              :controls="savedSettings.showVideoControls"
               disablePictureInPicture
               disabled
               tabIndex="-1"
@@ -836,6 +835,8 @@
               <label for="video-middle">Center video in middle</label><br>
               <input type="radio" id="video-top" value="top" v-model="savedSettings.videoLayout">
               <label for="video-top">Place video at the top</label><br>
+              <input type="checkbox" id="show-video-controls" v-model="savedSettings.showVideoControls">
+              <label for="show-video-controls">Show video controls on page open (play, pause, volume control, etc.)</label>
             </div>
             <div v-if="helpMode === 'tips'" class="help-inner">
               <h3>Video format support (last update October 2021)</h3>
@@ -1101,7 +1102,8 @@
           helpMode: 'hotkeys',
           bigJumpSeconds: 87,
           savedSettings: {
-            videoLayout: 'middle'
+            videoLayout: 'middle',
+            showVideoControls: true
           }
         },
         computed: {
