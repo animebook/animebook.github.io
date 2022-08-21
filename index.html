@@ -240,6 +240,7 @@
 
       .app-container {
         display: grid;
+        grid-template-rows: 100%;
         position: relative;
         z-index: 1;
       }
@@ -491,7 +492,7 @@
       }
 
       .hint {
-        font-size: 22px;
+        font-size: 2em;
         letter-spacing: 1.1px;
         word-spacing: 0.05em;
         line-height: 1.5;
@@ -702,16 +703,16 @@
             </svg>
           </div>
           <div class="video-subtitles-missing hint" v-show="!videoUrl && !captionsUrl">
-            Drag-and-drop a video file and subtitle file to this page, or <a href="#" @click="onFileBrowse">browse</a>
+            <p>Drag-and-drop a video file and subtitle file to this page, or <a href="#" @click="onFileBrowse">browse</a></p>
           </div>
           <div class="video-missing" v-show="!videoUrl && captionsUrl && !shouldShowVideoError">
             <div class="hint">
-              Drag-and-drop a video file, or <a href="#" @click="onFileBrowse">browse</a>
+              <p>Drag-and-drop a video file, or <a href="#" @click="onFileBrowse">browse</a></p>
             </div>
           </div>
           <div class="subtitles-missing" v-show="videoUrl && !captionsUrl && !shouldShowSubtitlesError">
             <div class="hint">
-            Drag-and-drop a subtitles file (vtt, srt or ass), or <a href="#" @click="onFileBrowse">browse</a>
+              <p>Drag-and-drop a subtitles file (vtt, srt or ass), or <a href="#" @click="onFileBrowse">browse</a></p>
             </div>
           </div>
           <div class="video-error" v-show="shouldShowVideoError">
@@ -722,7 +723,7 @@
                 See <a href="#" @click="toggleHelp(); enableHelpMode('tips')" class="monospace unselectable">Tips</a>.
               </div>
               <br>
-              <div style="font-size: 14px;" v-if="videoErrorMessage">
+              <div style="font-size: 1.5rem;" v-if="videoErrorMessage">
                 Browser error message: <span class="monospace">{{videoErrorMessage}}</span>
               </div>
             </div>
