@@ -256,7 +256,7 @@
       }
 
       .subtitles-missing, .subtitles-error {
-        grid-area: captions;
+        grid-area: sidebar;
         position: relative;
         z-index: 1;
       }
@@ -281,9 +281,15 @@
         width: 100%;
       }
 
+      .sidebar {
+        grid-area: sidebar;
+        display: flex;
+        flex-direction: column;
+      }
+
       .sidebar-captions {
-        grid-area: captions;
         position: relative;
+        height: 100%;
       }
 
       .captions-container {
@@ -360,19 +366,21 @@
       }
 
       .controls {
-        grid-area: controls;
-        display: grid;
+        display: flex;
         width: 100%;
-        height: 100%;
+        height: min-content;
+        flex-wrap: wrap-reverse;
+        flex-direction: row-reverse
       }
 
       .offset-input {
-        padding: 0 0 0 8%;
+        padding: 0 0 0 2%;
         font-size: 1.5vh;
         text-align: left;
-        width: 100%;
-        grid-area: input;
         position: relative;
+        width: 3em;
+        min-width: 0;
+        flex-grow: 3;
       }
 
       .offset-button,
@@ -389,18 +397,12 @@
         overflow: hidden;
         cursor: pointer;
         outline: 0;
+        height: 3em;
       }
 
       .offset-button {
-        grid-area: button;
-      }
-
-      .help {
-        grid-area: help;
-      }
-
-      .audio-track {
-        grid-area: audioTrack;
+        flex-grow: 1;
+        width: 4em;
       }
 
       .caption-time-offset, .custom-time-offset {
@@ -443,7 +445,6 @@
       }
 
       .custom-offset-input {
-        grid-area: customInput;
         padding: 0;
         font-size: 16px;
         text-align: center;
@@ -460,7 +461,6 @@
       }
 
       .delete-custom-offset {
-        grid-area: delete;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -469,14 +469,6 @@
         overflow: hidden;
         padding: 2px;
         transition: background-color 100ms ease-out;
-      }
-
-      .offset-hint {
-        grid-area: offsetHint;
-      }
-
-      .auto-pause-text {
-        grid-area: autoPause;
       }
 
       .offset-hint, .auto-pause-text {
@@ -662,12 +654,6 @@
         right: 0;
       }
 
-      .offset-input::-webkit-inner-spin-button,
-      .offset-input::-webkit-outer-spin-button 
-      {
-        left: 72%;
-      }
-
       .caption-parent {
         display: grid;
         grid-template-areas: "subtitleLine ankiControls";
@@ -784,7 +770,7 @@
 
             <span class="current-caption" :key="shownCaptionsKey" lang="ja" v-html="displayedHtml"></span>
           </div>
-          <span id="ab-meta-data" :data-audio-track="selectedAudioTrack || 0"></span>
+          <span id="ab-meta-data" style="display: none;" :data-audio-track="selectedAudioTrack || 0"></span>
           <div id="resize-bar-wrapper" class="resize-bar-wrapper" lang="ja">
             <div id="ab-extension-popup-wrapper">
             </div>
@@ -794,28 +780,27 @@
               @mousedown.stop.prevent="onResizeBarMouseDown">
             </div>
           </div>
-          <caption-bar
-            @select-caption="selectCaption" 
-            @set-custom-offset="setCustomOffset" 
-            :captions="captions" 
-            :custom-offsets="customOffsets"
-            :is-auto-pause-mode="isAutoPauseMode"
-            :is-offset-mode="isOffsetMode"
-            :current-time="currentTime"
-            v-if="captionsUrl"
-          ></caption-bar>
-          <div v-if="captionsUrl && isOffsetMode" class="offset-hint unselectable">Select the subtitle that ends where the video currently is: {{displayAsVideoTime(currentTime)}}</div>
-          <div class="auto-pause-text unselectable" v-if="isAutoPauseMode">Auto Pause <span style="display: inline-block;">:</span><span v-html="autoPauseIcon"></span></div>
-          <div v-if="captionsUrl" class="controls" :style="controlsStyle">
-            <a tabindex="1" :class="offsetButtonClass" @click="toggleOffsetMode()">
-              <span v-if="!isOffsetMode" class="offset-icon">
-                +
-              </span>
-              <span class="offset-text">{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span>
-            </a>
-            <input form="novalidatedform" type="number" step="0.1" tabindex="2" @keydown="onInputKeyDown" class="offset-input" v-model="subtitlesOffsetInput"></input>
-            <a v-if="audioTracks && audioTracks.length > 1" tabindex="3" :class="audioTrackClass" @click="cycleAudioTrack()"><span>{{selectedAudioTrack + 1}}/{{audioTracks.length}}</span></a>
-            <a tabindex="4" :class="helpClass" @click="toggleHelp(); enableHelpMode('hotkeys')"><span>?</span></a>
+          <div class="sidebar">
+            <caption-bar
+              @select-caption="selectCaption"
+              @set-custom-offset="setCustomOffset"
+              :captions="captions"
+              :custom-offsets="customOffsets"
+              :is-auto-pause-mode="isAutoPauseMode"
+              :is-offset-mode="isOffsetMode"
+              :current-time="currentTime"
+              v-if="captionsUrl"
+            ></caption-bar>
+            <div v-if="captionsUrl && isOffsetMode" class="offset-hint unselectable">Select the subtitle that ends where the video currently is: {{displayAsVideoTime(currentTime)}}</div>
+            <div class="auto-pause-text unselectable" v-if="isAutoPauseMode">Auto Pause <span style="display: inline-block;">:</span><span v-html="autoPauseIcon"></span></div>
+            <div v-if="captionsUrl" class="controls">
+              <a tabindex="4" :class="helpClass" @click="toggleHelp(); enableHelpMode('hotkeys')"><span>?</span></a>
+              <a v-if="audioTracks && audioTracks.length > 1" tabindex="3" :class="audioTrackClass" @click="cycleAudioTrack()"><span>{{selectedAudioTrack + 1}}/{{audioTracks.length}}</span></a>
+              <input form="novalidatedform" type="number" step="0.1" tabindex="2" @keydown="onInputKeyDown" class="offset-input" v-model="subtitlesOffsetInput"></input>
+              <a tabindex="1" :class="offsetButtonClass" @click="toggleOffsetMode()">
+                <span class="offset-text">{{this.isOffsetMode ? 'Cancel' : 'Offset Subtitles'}}</span>
+              </a>
+            </div>
           </div>
           <div v-if="shouldShowHelpPopup" class="help-popup">
             <div class="exit-popup unselectable" @click="toggleHelp()">&times;</div>
@@ -1215,14 +1200,6 @@
               (this.isAutoPauseMode ? ' auto-pause' : '') +
               ' unselectable';
           },
-          controlsStyle: function () {
-            if (this.selectedAudioTrack !== null && this.audioTracks && this.audioTracks.length > 1)
-              return "grid-template-areas: \"button input audioTrack help\";" +
-                     "grid-template-columns: 47% 31% 12% 10%;";
-            else
-              return "grid-template-areas: \"button input help\";" +
-                     "grid-template-columns: 50% 40% 10%;";
-          },
           notifyTextClass: function () {
             return 'notify-text' + (this.notifyCount > 0 ? ' on' : ' off');
           },
@@ -1445,24 +1422,18 @@
         },
         methods: {
           calcAppStyle: function () {
-            return this.calcGridTemplateAreas() + this.calcGridTemplateColumns() + this.calcGridTemplateRows();
+            return this.calcGridTemplateAreas() + this.calcGridTemplateColumns(); // + this.calcGridTemplateRows();
           },
           
           calcGridTemplateAreas: function () {
             if (!this.videoUrl && !this.captionsUrl && !this.shouldShowSubtitlesError) {
               return "grid-template-areas: " +
               "'video video video' " +
-              "'video video video' " +
-              "'video video video' " +
-              "'video video video' " +
               ";";
             }
 
             return "grid-template-areas: " +
-            "'video resizeBar captions' " +
-            "'video resizeBar offsetHint' " +
-            "'video resizeBar " + (this.isAutoPauseMode ? "autoPause" : "controls") + "' " +
-            "'video resizeBar controls' " +
+            "'video resizeBar sidebar' " +
             ";";
           },
 
@@ -1472,17 +1443,6 @@
             var rightWidth = (1 - leftWidth);
             var widths = [leftWidth, middleWidth, rightWidth]
             return "grid-template-columns: " + widths.map(function (x) { return x * 100 + "%"; }).join(" ") + ";"
-          },
-
-          calcGridTemplateRows: function () {
-            if (this.isOffsetMode)
-              return 'grid-template-rows: 88.5% 7.0% 0.0% 4.5%;';
-            else {
-              if (this.isAutoPauseMode)
-                return 'grid-template-rows: 91.5% 0.0% 4.0% 4.5%;';
-              else
-                return 'grid-template-rows: 95.5% 0.0% 4.5% 0.0%;';
-            }
           },
 
           toggleOffsetMode: function () {
@@ -1983,7 +1943,7 @@
 
             this.audioTracks = video.audioTracks;
             this.audioTrackCount = video.audioTracks.length;
-            this.selectedAudioTrack = -1; // force update of controlsStyle; it won't update if selectedAudioTrack doesn't change
+            this.selectedAudioTrack = -1; // force update of the audio track button; it won't update if selectedAudioTrack doesn't change
             if (previousSelectedAudioTrack && previousSelectedAudioTrack < this.audioTracks.length && areNewTracksSameCount)
               this.selectedAudioTrack = previousSelectedAudioTrack;
             else
