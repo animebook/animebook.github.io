@@ -265,10 +265,19 @@
         grid-area: video;
         position: relative;
         z-index: 1;
+        display: flex;
+      }
+
+      .video-container.middle {
+        align-items: center;
+      }
+
+      .video-container.top {
+        align-items: top;
       }
 
       .video-element {
-        max-height: 100vh;
+        height: min-content;
         width: 100%;
       }
 
@@ -743,7 +752,7 @@
             </div>
           </div>
           <div :class="notifyTextClass" v-if="notifyText" v-html="notifyText"></div>
-          <div class="video-container" v-show="videoUrl && !shouldShowVideoError">
+          <div :class="videoContainerClass" v-show="videoUrl && !shouldShowVideoError">
             <video
               id="ab-video-element"
               class="video-element"
@@ -813,6 +822,7 @@
             <div class="help-mode-button-container">
               <div :class="helpButtonClass('hotkeys')" @click="enableHelpMode('hotkeys')">Hotkeys</div>
               <div :class="helpButtonClass('tips')" @click="enableHelpMode('tips')">Tips</div>
+              <div :class="helpButtonClass('appearance')" @click="enableHelpMode('appearance')">Appearance</div>
               <div :class="helpButtonClass('anki-automatic-export')" @click="enableHelpMode('anki-automatic-export')">Anki Export</div>
             </div>
             <div v-if="helpMode === 'hotkeys'" class="help-inner">
@@ -837,6 +847,13 @@
                 <div class="table-row"><div class="table-cell">Shift D</div><div class="table-cell">Download retimed subs as an srt file</div></div>
                 <div class="table-row"><div class="table-cell">e</div><div class="table-cell">Add context to most recent anki card (requires the <a target="_blank" href="https://chrome.google.com/webstore/detail/animebook-anki-export/ohcbgkombhgcbjcikjlgdmjkpibafppa">Animebook Chrome extension</a> to be installed)</div></div>
               </div>
+            </div>
+            <div v-if="helpMode === 'appearance'" class="help-inner">
+              <h3>Video Layout</h3>
+              <input type="radio" id="video-middle" value="middle" v-model="savedSettings.videoLayout">
+              <label for="video-middle">Center video in middle</label><br>
+              <input type="radio" id="video-top" value="top" v-model="savedSettings.videoLayout">
+              <label for="video-top">Place video at the top</label><br>
             </div>
             <div v-if="helpMode === 'tips'" class="help-inner">
               <h3>Video format support (last update October 2021)</h3>
@@ -1100,7 +1117,10 @@
           mouseTimeout: null,
           cursorVisible: true,
           helpMode: 'hotkeys',
-          bigJumpSeconds: 87
+          bigJumpSeconds: 87,
+          savedSettings: {
+            videoLayout: 'middle'
+          }
         },
         computed: {
           dropWrapperClass: function () {
@@ -1205,6 +1225,9 @@
           },
           notifyTextClass: function () {
             return 'notify-text' + (this.notifyCount > 0 ? ' on' : ' off');
+          },
+          videoContainerClass: function () {
+            return 'video-container' + (this.savedSettings.videoLayout === 'middle' ? ' middle' : ' top');
           },
           audioTrackClass: function () {
             return 'audio-track' +
