@@ -766,7 +766,7 @@
               />
             </video>
 
-            <span class="current-caption" :style="'font-size: ' + savedSettings.subtitleFontSize + 'vmin;'" :key="shownCaptionsKey" lang="ja" v-html="displayedHtml"></span>
+            <span class="current-caption" :style="'font-size: ' + (4.5 * savedSettings.subtitleFontSize) + 'vmin;'" :key="shownCaptionsKey" lang="ja" v-html="displayedHtml"></span>
           </div>
           <span id="ab-meta-data" style="display: none;" :data-audio-track="selectedAudioTrack || 0"></span>
           <div id="resize-bar-wrapper" class="resize-bar-wrapper" lang="ja">
@@ -804,8 +804,8 @@
             <div class="exit-popup unselectable" @click="toggleHelp()">&times;</div>
             <div class="help-mode-button-container">
               <div :class="helpButtonClass('hotkeys')" @click="enableHelpMode('hotkeys')">Hotkeys</div>
-              <div :class="helpButtonClass('tips')" @click="enableHelpMode('tips')">Tips</div>
               <div :class="helpButtonClass('appearance')" @click="enableHelpMode('appearance')">Appearance</div>
+              <div :class="helpButtonClass('tips')" @click="enableHelpMode('tips')">Tips</div>
               <div :class="helpButtonClass('anki-automatic-export')" @click="enableHelpMode('anki-automatic-export')">Anki Export</div>
             </div>
             <div v-if="helpMode === 'hotkeys'" class="help-inner">
@@ -831,22 +831,26 @@
                 <div class="table-row"><div class="table-cell">e</div><div class="table-cell">Add context to most recent anki card (requires the <a target="_blank" href="https://chrome.google.com/webstore/detail/animebook-anki-export/ohcbgkombhgcbjcikjlgdmjkpibafppa">Animebook Chrome extension</a> to be installed)</div></div>
               </div>
             </div>
-            <div v-if="helpMode === 'appearance'" class="help-inner">
-              <h3>Video Layout</h3>
-              <p>
-                <input type="radio" id="video-middle" value="middle" v-model="savedSettings.videoLayout">
-                <label for="video-middle">Center video in middle</label>
-                <br>
+            <div v-if="helpMode === 'appearance'" class="help-inner" style="font-size: 1.2rem;">
+              <h3 class="monospace" style="color: #ED5C3A" v-if="!isLocalStorageAvailable">
+                Error: could not load appearance settings from local storage. Your browser may be blocking sites from storing data in your browser.
+              </h3>
+              <h3 style="margin-bottom: 0.2rem;">Video Alignment</h3>
+              <p style="margin-left: 1rem; margin-top: 0.2rem;">
                 <input type="radio" id="video-top" value="top" v-model="savedSettings.videoLayout">
-                <label for="video-top">Place video at the top</label>
+                <label for="video-top">Top</label>
+                <br>
+                <input type="radio" id="video-middle" value="middle" v-model="savedSettings.videoLayout">
+                <label for="video-middle">Middle</label>
               </p>
               <p>
                 <input type="checkbox" id="show-video-controls" v-model="savedSettings.showVideoControls">
                 <label for="show-video-controls">Show video controls on page open (play, pause, volume control, etc.)</label>
               </p>
               <p>
-                <input type="range" min="0.5" max="10" step="0.5" id="subtitle-font-size" v-model="savedSettings.subtitleFontSize">
-                <label for="subtitle-font-size">Subtitle font size</label>
+                <h3 style="margin-bottom: 0.1rem;">Subtitle font size</h3>
+                <input style="width: 30%;" type="range" min="0.1" max="2.5" step="0.1" id="subtitle-font-size" v-model.number="savedSettings.subtitleFontSize">
+                <label for="subtitle-font-size">{{(this.savedSettings.subtitleFontSize * 100).toFixed(0)}}%</label>
               </p>
             </div>
             <div v-if="helpMode === 'tips'" class="help-inner">
@@ -1112,10 +1116,11 @@
           cursorVisible: true,
           helpMode: 'hotkeys',
           bigJumpSeconds: 87,
+          isLocalStorageAvailable: true,
           savedSettings: {
             videoLayout: 'middle',
             showVideoControls: true,
-            subtitleFontSize: 4.5
+            subtitleFontSize: 1.0
           }
         },
         computed: {
@@ -1260,6 +1265,7 @@
         },
         created: function () {
           var self = this;
+          self.loadSavedSettings();
           window.addEventListener('keydown', function (e) {
             if (!self.videoUrl || !self.captionsUrl || self.shouldShowSubtitlesError || self.shouldShowVideoError)
               return;
@@ -1428,9 +1434,42 @@
             this.enableAudioTrack(newValue);
             // Video gets frozen after an audio track change, so update the time
             this.getVideoElement().currentTime = this.currentTime;
+          },
+          savedSettings: {
+            handler: function(newValue, oldValue) {
+              try {
+                window.localStorage.setItem('savedSettings', JSON.stringify(newValue));
+                this.isLocalStorageAvailable = true;
+              } catch (e) {
+                this.isLocalStorageAvailable = false;
+              }
+            },
+            deep: true
           }
         },
         methods: {
+          loadSavedSettings: function() {
+            var json = null;
+            try {
+              json = window.localStorage.getItem('savedSettings');
+            } catch (e) {
+              console.error(e);
+              this.isLocalStorageAvailable = false;
+              return;
+            }
+            if (!json)
+              return;
+
+            var settings = JSON.parse(json);
+            if (!settings)
+              return;
+
+            for (k in this.savedSettings) {
+              if (settings.hasOwnProperty(k))
+                this.savedSettings[k] = settings[k];
+            }
+          },
+
           calcAppStyle: function () {
             return this.calcGridTemplateAreas() + this.calcGridTemplateColumns(); // + this.calcGridTemplateRows();
           },
