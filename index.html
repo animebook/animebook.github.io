@@ -154,7 +154,7 @@
 
       .help-popup {
         color: #BFBFBF;
-        background-color: #111;
+        background-color: rgba(16, 16, 16, 0.85);
       }
 
       .exit-popup {
@@ -548,6 +548,7 @@
         left: 50%;
         transform: translate(-50%, 0%);
         width: 55%;
+        min-height: 45%;
         max-height: 90%;
         padding: 5px;
         z-index: 3;
@@ -765,7 +766,7 @@
               />
             </video>
 
-            <span class="current-caption" :key="shownCaptionsKey" lang="ja" v-html="displayedHtml"></span>
+            <span class="current-caption" :style="'font-size: ' + savedSettings.subtitleFontSize + 'vmin;'" :key="shownCaptionsKey" lang="ja" v-html="displayedHtml"></span>
           </div>
           <span id="ab-meta-data" style="display: none;" :data-audio-track="selectedAudioTrack || 0"></span>
           <div id="resize-bar-wrapper" class="resize-bar-wrapper" lang="ja">
@@ -832,12 +833,21 @@
             </div>
             <div v-if="helpMode === 'appearance'" class="help-inner">
               <h3>Video Layout</h3>
-              <input type="radio" id="video-middle" value="middle" v-model="savedSettings.videoLayout">
-              <label for="video-middle">Center video in middle</label><br>
-              <input type="radio" id="video-top" value="top" v-model="savedSettings.videoLayout">
-              <label for="video-top">Place video at the top</label><br>
-              <input type="checkbox" id="show-video-controls" v-model="savedSettings.showVideoControls">
-              <label for="show-video-controls">Show video controls on page open (play, pause, volume control, etc.)</label>
+              <p>
+                <input type="radio" id="video-middle" value="middle" v-model="savedSettings.videoLayout">
+                <label for="video-middle">Center video in middle</label>
+                <br>
+                <input type="radio" id="video-top" value="top" v-model="savedSettings.videoLayout">
+                <label for="video-top">Place video at the top</label>
+              </p>
+              <p>
+                <input type="checkbox" id="show-video-controls" v-model="savedSettings.showVideoControls">
+                <label for="show-video-controls">Show video controls on page open (play, pause, volume control, etc.)</label>
+              </p>
+              <p>
+                <input type="range" min="0.5" max="10" step="0.5" id="subtitle-font-size" v-model="savedSettings.subtitleFontSize">
+                <label for="subtitle-font-size">Subtitle font size</label>
+              </p>
             </div>
             <div v-if="helpMode === 'tips'" class="help-inner">
               <h3>Video format support (last update October 2021)</h3>
@@ -1104,7 +1114,8 @@
           bigJumpSeconds: 87,
           savedSettings: {
             videoLayout: 'middle',
-            showVideoControls: true
+            showVideoControls: true,
+            subtitleFontSize: 4.5
           }
         },
         computed: {
