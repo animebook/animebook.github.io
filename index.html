@@ -2172,11 +2172,15 @@
           hideRegexMatches: function (captions) {
             var replacements = this.savedSettings.regexReplacements;
             for (var i = 0; i < replacements.length; i++) {
-              var regex = new RegExp(replacements[i].regex, 'g');
-              var replaceText = replacements[i].replaceText;
-              captions.forEach(function (caption) {
-                caption.text = caption.text.replace(regex, replaceText);
-              });
+              try {
+                var regex = new RegExp(replacements[i].regex, 'g');
+                var replaceText = replacements[i].replaceText;
+                captions.forEach(function (caption) {
+                  caption.text = caption.text.replace(regex, replaceText);
+                });
+              } catch (e) {
+                continue;
+              }
             }
           },
 
