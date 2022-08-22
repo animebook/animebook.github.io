@@ -1264,133 +1264,8 @@
           }
         },
         created: function () {
-          var self = this;
-          self.loadSavedSettings();
-          window.addEventListener('keydown', function (e) {
-            if (!self.videoUrl || !self.captionsUrl || self.shouldShowSubtitlesError || self.shouldShowVideoError)
-              return;
-            var stopEvent = function () {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            switch (e.key) {
-              case ' ':
-                stopEvent(e);
-                self.playPause();
-                break;
-              case 'Enter':
-                stopEvent(e);
-                self.replayCaption();
-                break;
-              case 'ArrowLeft':
-              case 'ArrowUp':
-                stopEvent(e);
-                self.previousCaption();
-                break;
-              case 'ArrowDown':
-              case 'ArrowRight':
-                stopEvent(e);
-                self.nextCaption();
-                break;
-              case 'a':
-              case 'A':
-                if (e.ctrlKey || e.altKey || e.metaKey)
-                  return;
-                stopEvent(e);
-                self.isAutoPauseMode = !self.isAutoPauseMode;
-                self.lastPauseTime = self.getCurrentTime();
-                break;
-              case '.':
-              case '>':
-                if (e.ctrlKey || e.altKey || e.metaKey)
-                  return;
-                stopEvent(e);
-                self.seekScreenshot(1, !e.shiftKey);
-                break;
-              case ',':
-              case '<':
-                if (e.ctrlKey || e.altKey || e.metaKey)
-                  return;
-                stopEvent(e);
-                self.seekScreenshot(-1, !e.shiftKey);
-                break;
-              case '?':
-                if (e.ctrlKey || e.altKey || e.metaKey)
-                  return;
-                stopEvent(e);
-                self.shouldShowHelpPopup = !self.shouldShowHelpPopup;
-                break;
-              case 's':
-              case 'S':
-                if (e.ctrlKey || e.altKey || e.metaKey)
-                  return;
-                stopEvent(e);
-                self.copyImage();
-                break;
-              case 'c':
-                if (e.ctrlKey || e.altKey || e.metaKey)
-                  return;
-                stopEvent(e);
-                self.copySubtitle();
-                break;
-              case 'D':
-                if (e.ctrlKey || e.altKey || e.metaKey)
-                  return;
-                stopEvent(e);
-                var newFileName = self.subtitlesFileName;
-                var dotIndex = newFileName.lastIndexOf('.');
-                if (dotIndex !== -1 && newFileName.length - dotIndex < 5)
-                  newFileName = self.subtitlesFileName.substring(0, dotIndex);
-                self.downloadString(self.formatSrt(self.captions), "srt", newFileName + ".srt");
-                break;
-              case 'v':
-              case 'V':
-                if (e.ctrlKey || e.altKey || e.metaKey)
-                  return;
-                stopEvent(e);
-                self.shouldShowMainCaption = !self.shouldShowMainCaption;
-                self.notify(self.shouldShowMainCaption ? "Subtitles shown" : "Subtitles hidden");
-                break;
-              case 'b':
-              case 'B':
-                if (e.ctrlKey || e.altKey || e.metaKey)
-                  return;
-                stopEvent(e);
-                self.toggleSidebar();
-                break;
-              case 't':
-              case 'T':
-                if (e.ctrlKey || e.altKey || e.metaKey)
-                  return;
-                stopEvent(e);
-                self.cycleAudioTrack();
-                break;
-              case 'Escape':
-                if (self.shouldShowHelpPopup) {
-                  stopEvent(e);
-                  self.shouldShowHelpPopup = false;
-                }
-                break;
-              case '\\':
-              case '|':
-                if (self.isAutoPauseMode && self.isPlaying) {
-                  stopEvent(e);
-                  self.skipNextAutoPause = true;
-                } else if (self.isAutoPauseMode && !self.isPlaying) {
-                  stopEvent(e);
-                  self.playPause();
-                }
-                break;
-              case 'PageDown':
-                stopEvent(e);
-                self.seekXSeconds(self.bigJumpSeconds);
-                break;
-              case 'PageUp':
-                stopEvent(e);
-                self.seekXSeconds(-self.bigJumpSeconds);
-                break;
-            }
-          })
+          this.loadSavedSettings();
+          this.setUpKeybindings();
         },
         watch: {
           activeCaptions: function (newValue, oldValue) {
@@ -1468,6 +1343,169 @@
               if (settings.hasOwnProperty(k))
                 this.savedSettings[k] = settings[k];
             }
+          },
+
+          setUpKeybindings: function() {
+            var self = this;
+            window.addEventListener('keydown', function (e) {
+              let videoNG = !self.videoUrl || self.shouldShowVideoError;
+              let sidebarNG = !self.captionsUrl || self.shouldShowSubtitlesError;
+              let eitherNG = videoNG || sidebarNG; 
+              var stopEvent = function () {
+                  e.preventDefault();
+                  e.stopPropagation();
+              }
+              switch (e.key) {
+                case ' ':
+                  if (videoNG)
+                    return;
+                  stopEvent(e);
+                  self.playPause();
+                  break;
+                case 'Enter':
+                  if (eitherNG)
+                    return;
+                  stopEvent(e);
+                  self.replayCaption();
+                  break;
+                case 'ArrowLeft':
+                case 'ArrowUp':
+                  if (eitherNG)
+                    return;
+                  stopEvent(e);
+                  self.previousCaption();
+                  break;
+                case 'ArrowDown':
+                case 'ArrowRight':
+                  if (eitherNG)
+                    return;
+                  stopEvent(e);
+                  self.nextCaption();
+                  break;
+                case 'a':
+                case 'A':
+                  if (sidebarNG)
+                    return;
+                  if (e.ctrlKey || e.altKey || e.metaKey)
+                    return;
+                  stopEvent(e);
+                  self.isAutoPauseMode = !self.isAutoPauseMode;
+                  self.lastPauseTime = self.getCurrentTime();
+                  break;
+                case '.':
+                case '>':
+                  if (eitherNG)
+                    return;
+                  if (e.ctrlKey || e.altKey || e.metaKey)
+                    return;
+                  stopEvent(e);
+                  self.seekScreenshot(1, !e.shiftKey);
+                  break;
+                case ',':
+                case '<':
+                  if (eitherNG)
+                    return;
+                  if (e.ctrlKey || e.altKey || e.metaKey)
+                    return;
+                  stopEvent(e);
+                  self.seekScreenshot(-1, !e.shiftKey);
+                  break;
+                case '?':
+                  if (e.ctrlKey || e.altKey || e.metaKey)
+                    return;
+                  stopEvent(e);
+                  self.shouldShowHelpPopup = !self.shouldShowHelpPopup;
+                  break;
+                case 's':
+                case 'S':
+                  if (videoNG)
+                    return;
+                  if (e.ctrlKey || e.altKey || e.metaKey)
+                    return;
+                  stopEvent(e);
+                  self.copyImage();
+                  break;
+                case 'c':
+                  if (eitherNG)
+                    return;
+                  if (e.ctrlKey || e.altKey || e.metaKey)
+                    return;
+                  stopEvent(e);
+                  self.copySubtitle();
+                  break;
+                case 'D':
+                  if (sidebarNG)
+                    return;
+                  if (e.ctrlKey || e.altKey || e.metaKey)
+                    return;
+                  stopEvent(e);
+                  var newFileName = self.subtitlesFileName;
+                  var dotIndex = newFileName.lastIndexOf('.');
+                  if (dotIndex !== -1 && newFileName.length - dotIndex < 5)
+                    newFileName = self.subtitlesFileName.substring(0, dotIndex);
+                  self.downloadString(self.formatSrt(self.captions), "srt", newFileName + ".srt");
+                  break;
+                case 'v':
+                case 'V':
+                  if (eitherNG)
+                    return;
+                  if (e.ctrlKey || e.altKey || e.metaKey)
+                    return;
+                  stopEvent(e);
+                  self.shouldShowMainCaption = !self.shouldShowMainCaption;
+                  self.notify(self.shouldShowMainCaption ? "Subtitles shown" : "Subtitles hidden");
+                  break;
+                case 'b':
+                case 'B':
+                  if (sidebarNG)
+                    return;
+                  if (e.ctrlKey || e.altKey || e.metaKey)
+                    return;
+                  stopEvent(e);
+                  self.toggleSidebar();
+                  break;
+                case 't':
+                case 'T':
+                  if (eitherNG)
+                    return;
+                  if (e.ctrlKey || e.altKey || e.metaKey)
+                    return;
+                  stopEvent(e);
+                  self.cycleAudioTrack();
+                  break;
+                case 'Escape':
+                  if (self.shouldShowHelpPopup) {
+                    stopEvent(e);
+                    self.shouldShowHelpPopup = false;
+                  }
+                  break;
+                case '\\':
+                case '|':
+                  if (eitherNG)
+                    return;
+                  if (self.isAutoPauseMode && self.isPlaying) {
+                    stopEvent(e);
+                    self.skipNextAutoPause = true;
+                  } else if (self.isAutoPauseMode && !self.isPlaying) {
+                    stopEvent(e);
+                    self.playPause();
+                  }
+                  break;
+                case 'PageDown':
+                  if (eitherNG)
+                    return;
+                  stopEvent(e);
+                  self.seekXSeconds(self.bigJumpSeconds);
+                  break;
+                case 'PageUp':
+                  if (eitherNG)
+                    return;
+                  stopEvent(e);
+                  self.seekXSeconds(-self.bigJumpSeconds);
+                  break;
+              }
+            });
+
           },
 
           calcAppStyle: function () {
