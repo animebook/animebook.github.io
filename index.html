@@ -269,7 +269,7 @@
         display: flex;
       }
 
-      .video-container.middle {
+      .video-container.center {
         align-items: center;
       }
 
@@ -836,11 +836,11 @@
               </h3>
               <h3 style="margin-bottom: 0.2rem;">Video Alignment</h3>
               <p style="margin-left: 1rem; margin-top: 0.2rem;">
-                <input type="radio" id="video-top" value="top" v-model="savedSettings.videoLayout">
+                <input type="radio" id="video-top" value="top" v-model="savedSettings.videoAlignment">
                 <label for="video-top">Top</label>
                 <br>
-                <input type="radio" id="video-middle" value="middle" v-model="savedSettings.videoLayout">
-                <label for="video-middle">Middle</label>
+                <input type="radio" id="video-center" value="center" v-model="savedSettings.videoAlignment">
+                <label for="video-center">Center</label>
               </p>
               <p>
                 <input type="checkbox" id="show-video-controls" v-model="savedSettings.showVideoControls">
@@ -1117,7 +1117,7 @@
           bigJumpSeconds: 87,
           isLocalStorageAvailable: true,
           savedSettings: {
-            videoLayout: 'top',
+            videoAlignment: 'top',
             showVideoControls: true,
             subtitleFontSize: 1.0
           }
@@ -1219,7 +1219,7 @@
             return 'notify-text' + (this.notifyCount > 0 ? ' on' : ' off');
           },
           videoContainerClass: function () {
-            return 'video-container' + (this.savedSettings.videoLayout === 'middle' ? ' middle' : ' top');
+            return 'video-container' + (this.savedSettings.videoAlignment === 'center' ? ' center' : ' top');
           },
           audioTrackClass: function () {
             return 'audio-track' +
