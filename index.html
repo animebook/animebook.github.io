@@ -176,7 +176,7 @@
         color: #933;
       }
 
-      .monospace {
+      .monospace, .footnote {
         background-color: #222;
         color: #FFF;
       }
@@ -705,6 +705,12 @@
         background-color: #d61414;
       }
 
+      .footnote {
+        padding: 0.2em;
+        margin-top: 2em;
+        font-size: 0.7em;
+      }
+
       .caption-parent {
         display: grid;
         grid-template-areas: "subtitleLine ankiControls";
@@ -926,6 +932,7 @@
                   <button @click="addRegexReplacement()" class="add-button unselectable">+ Add regex</button>
                 </div>
               </p>
+              <p class="footnote">*Settings are stored in the browser's local storage. For Ungoogled Chromium users, these settings may not stick across browser sessions, since the default setting is to "Clear cookies and site data when you close all windows".</p>
             </div>
             <div v-if="helpMode === 'tips'" class="help-inner">
               <h3>Video format support (last update October 2021)</h3>
