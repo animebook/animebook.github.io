@@ -29,6 +29,7 @@ Drag and drop your video file and your subtitle file (vtt, srt, or ass) onto the
 | , | Move video to the middle of the previous caption and take a screenshot. Hold 'Shift' to move only. |
 | . | Move video to the middle of the next caption and take a screenshot. Hold 'Shift' to move only. |
 | b (or double click sidebar edge) | Collapse/expand sidebar |
+| h | Hide content in parentheses (configurable in the 'Appearance' tab) |
 | ? | Open help menu |
 | t | Cycle through available audio tracks. Currently (as of July 2020), this only works in Chrome and other chromium-based browsers if ``enable-experimental-web-platform-features`` is enabled in chrome://flags. On Firefox, ``media.track.enabled`` must be set to true in about:config. |
 | Page Up/Page Down | OP Skip. Move backward/forward 87 seconds. |

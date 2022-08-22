@@ -93,7 +93,7 @@
         border: none;
       }
 
-      .offset-input, .custom-offset-input {
+      .offset-input, .custom-offset-input, .regex-input {
         border: 0;
         border-left: 0.2vh solid #000;
         border-right: 0.2vh solid #000;
@@ -651,6 +651,60 @@
         right: 0;
       }
 
+      .regex-table {
+        width: auto;
+      }
+
+      .regex-table .table-cell, .regex-table .table-head {
+        padding: 0.4em;
+        min-width: auto;
+      }
+
+      .regex-input {
+        height: 100%;
+        width: 100%;
+        border-radius: 0.2em;
+        padding: 0.2em;
+        background: #000;
+        color: #CFCFCF;
+      }
+
+      .add-button, .delete-button {
+        padding: .4em;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        cursor: pointer;
+        transition: background-color 100ms linear;
+        overflow: hidden;
+        cursor: pointer;
+        outline: 0;
+        border: none;
+        border-radius: 0.2em;
+      }
+
+      .add-button {
+        margin-top: 0.4em;
+        color: #DDDDDD;
+        background-color: #21891d;
+      }
+
+      .add-button:hover {
+        color: #FFF;
+        background-color: #2dc217;
+      }
+
+      .delete-button {
+        color: #DDDDDD;
+        background-color: #840c0c;
+      }
+
+      .delete-button:hover {
+        color: #FFF;
+        background-color: #d61414;
+      }
+
       .caption-parent {
         display: grid;
         grid-template-areas: "subtitleLine ankiControls";
@@ -822,6 +876,7 @@
                 <div class="table-row"><div class="table-cell">,</div><div class="table-cell">Move video to the middle of the previous caption and take a screenshot. Hold 'Shift' to move only.</div></div>
                 <div class="table-row"><div class="table-cell">.</div><div class="table-cell">Move video to the middle of the next caption and take a screenshot. Hold 'Shift' to move only.</div></div>
                 <div class="table-row"><div class="table-cell">b (or double click sidebar edge)</div><div class="table-cell">Collapse/expand sidebar</div></div>
+                <div class="table-row"><div class="table-cell">h</div><div class="table-cell">Hide content in parentheses (configurable in the 'Appearance' tab)</div></div>
                 <div class="table-row"><div class="table-cell">?</div><div class="table-cell">Open help menu</div></div>
                 <div class="table-row"><div class="table-cell">t</div><div class="table-cell">Cycle through available audio tracks. Currently (as of July 2020), this only works in Chrome and other chromium-based browsers if <span class="monospace">enable-experimental-web-platform-features</span> is enabled in chrome://flags. On Firefox, <span class="monospace">media.track.enabled</span> must be set to true in about:config.</div></div>
                 <div class="table-row"><div class="table-cell">Page Up/Page Down</div><div class="table-cell">OP Skip. Move backward/forward 87 seconds.</div></div>
@@ -834,7 +889,7 @@
               <h3 class="monospace" style="color: rgb(247, 52, 28);" v-if="!isLocalStorageAvailable">
                 Error: could not load appearance settings from local storage. Your browser may be blocking sites from storing data in your browser.
               </h3>
-              <h3 style="margin-bottom: 0.2rem;">Video Alignment</h3>
+              <h3 style="margin-bottom: 0.2rem;">Video alignment</h3>
               <p style="margin-left: 1rem; margin-top: 0.2rem;">
                 <input type="radio" id="video-top" value="top" v-model="savedSettings.videoAlignment">
                 <label for="video-top">Top</label>
@@ -850,6 +905,26 @@
                 <h3 style="margin-bottom: 0.1rem;">Subtitle font size</h3>
                 <input style="width: 30%;" type="range" min="0.1" max="2.5" step="0.1" id="subtitle-font-size" v-model.number="savedSettings.subtitleFontSize">
                 <label for="subtitle-font-size">{{(this.savedSettings.subtitleFontSize * 100).toFixed(0)}}%</label>
+              </p>
+              <p>
+                <h3 style="margin-bottom: 0.1rem;">Hide text matching regex</h4>
+                <div style="margin-left: 1rem;">
+                  <p>
+                    Whenever you hit the 'h' key, any text content matching these regexes will be hidden.
+                    Defaults to hiding parentheses.
+                  </p>
+                  <div class="regex-table table">
+                    <div class="table-row">
+                      <div class="table-head">Regex to hide</div>
+                      <div class="table-head"></div>
+                    </div>
+                    <div v-for="(replacement, index) in savedSettings.regexReplacements" class="table-row">
+                      <div class="table-cell"><input type="text" class="regex-input" v-model="replacement.regex"></div>
+                      <div class="table-cell"><button @click="removeRegexReplacement(index)" class="delete-button unselectable">Delete</button></div>
+                    </div>
+                  </div>
+                  <button @click="addRegexReplacement()" class="add-button unselectable">+ Add regex</button>
+                </div>
               </p>
             </div>
             <div v-if="helpMode === 'tips'" class="help-inner">
@@ -1116,10 +1191,15 @@
           helpMode: 'hotkeys',
           bigJumpSeconds: 87,
           isLocalStorageAvailable: true,
+          shouldHideRegexMatches: false,
           savedSettings: {
             videoAlignment: 'top',
             showVideoControls: true,
-            subtitleFontSize: 1.0
+            subtitleFontSize: 1.0,
+            regexReplacements: [
+              { regex: '\(.*?\)', replaceText: ''},
+              { regex: '（.*?）', replaceText: ''}
+            ]
           }
         },
         computed: {
@@ -1143,7 +1223,10 @@
               }
               this.captions = captions;
 
-              return "data:text/vtt;charset=utf-8," + encodeURIComponent(vtt);
+              var uri = "data:text/vtt;charset=utf-8," + encodeURIComponent(vtt)
+              this.shouldShowSubtitlesError = false;
+              this.subtitlesError = null;
+              return uri;
             } catch (error) {
               this.subtitlesError = error.message;
               this.shouldShowSubtitlesError = true;
@@ -1347,6 +1430,8 @@
           setUpKeybindings: function() {
             var self = this;
             window.addEventListener('keydown', function (e) {
+              if (/textarea|select/i.test(event.target.nodeName) || event.target.type === "text")
+                  return;
               let videoNG = !self.videoUrl || self.shouldShowVideoError;
               let sidebarNG = !self.captionsUrl || self.shouldShowSubtitlesError;
               let eitherNG = videoNG || sidebarNG; 
@@ -1501,6 +1586,22 @@
                     return;
                   stopEvent(e);
                   self.seekXSeconds(-self.bigJumpSeconds);
+                  break;
+                case 'h':
+                case 'H':
+                  if (sidebarNG) {
+                    self.shouldHideRegexMatches = false;
+                    return;
+                  }
+                  if (e.ctrlKey || e.altKey || e.metaKey)
+                    return;
+                  stopEvent(e);
+                  self.shouldHideRegexMatches = !self.shouldHideRegexMatches;
+                  if (self.shouldHideRegexMatches) {
+                    self.notify("Parentheses hidden");
+                  } else {
+                    self.notify("Parentheses shown")
+                  }
                   break;
               }
             });
@@ -2060,6 +2161,25 @@
               (newTrack.label ? " " + newTrack.label : ""))
           },
 
+          addRegexReplacement: function () {
+              this.savedSettings.regexReplacements.push({regex: "", replaceText: ""});
+          },
+
+          removeRegexReplacement: function (index) {
+              this.savedSettings.regexReplacements.splice(index, 1);
+          },
+
+          hideRegexMatches: function (captions) {
+            var replacements = this.savedSettings.regexReplacements;
+            for (var i = 0; i < replacements.length; i++) {
+              var regex = new RegExp(replacements[i].regex, 'g');
+              var replaceText = replacements[i].replaceText;
+              captions.forEach(function (caption) {
+                caption.text = caption.text.replace(regex, replaceText);
+              });
+            }
+          },
+
           onCaptionsLoad: function (e) {
             var track = this.getTrack();
             if (!track)
@@ -2452,6 +2572,8 @@
             }
 
             this.assignCaptionsToLanes(parsed);
+            if (this.shouldHideRegexMatches)
+              this.hideRegexMatches(parsed);
 
             return parsed;
           },
