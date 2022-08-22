@@ -1735,9 +1735,11 @@
           },
 
           copySubtitle: function () {
+            if (!this.activeCaptions)
+              return;
             var helpertextarea = document.createElement("textarea");
             document.body.appendChild(helpertextarea);
-            helpertextarea.value = this.displayedLines.map(function (l) { return l.trim(); }).join("\n");
+            helpertextarea.value = this.activeCaptions.map(function (c) { return c.text.trim(); }).join("\n");
             helpertextarea.select();
             document.execCommand("copy");
             this.clearSelection();
