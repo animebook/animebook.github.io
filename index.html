@@ -338,11 +338,10 @@
       }
 
       .current-caption {
-        font-size: 32px;
         text-align: center;
         position: absolute;
         bottom: 3.5%;
-        padding: 5px 25px;
+        padding: 0.4vmin 2vmin;
         left: 50%;
         transform: translate(-50%, 0%);
         width: max-content;
@@ -832,7 +831,7 @@
               </div>
             </div>
             <div v-if="helpMode === 'appearance'" class="help-inner" style="font-size: 1.2rem;">
-              <h3 class="monospace" style="color: #ED5C3A" v-if="!isLocalStorageAvailable">
+              <h3 class="monospace" style="color: rgb(247, 52, 28);" v-if="!isLocalStorageAvailable">
                 Error: could not load appearance settings from local storage. Your browser may be blocking sites from storing data in your browser.
               </h3>
               <h3 style="margin-bottom: 0.2rem;">Video Alignment</h3>
@@ -845,7 +844,7 @@
               </p>
               <p>
                 <input type="checkbox" id="show-video-controls" v-model="savedSettings.showVideoControls">
-                <label for="show-video-controls">Show video controls on page open (play, pause, volume control, etc.)</label>
+                <label for="show-video-controls">Show video controls on page open (play/pause, volume control, etc.)</label>
               </p>
               <p>
                 <h3 style="margin-bottom: 0.1rem;">Subtitle font size</h3>
@@ -1118,7 +1117,7 @@
           bigJumpSeconds: 87,
           isLocalStorageAvailable: true,
           savedSettings: {
-            videoLayout: 'middle',
+            videoLayout: 'top',
             showVideoControls: true,
             subtitleFontSize: 1.0
           }
