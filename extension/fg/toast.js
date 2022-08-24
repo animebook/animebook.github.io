@@ -1,3 +1,11 @@
+/* 
+Pure JS that generates a bunch of HTML for showing notifications 
+in the corner of the video player. Normally I'd use Vue for this,
+but Manifest V3 for extensions doesn't like Vue using unsafe-eval.
+You can get around that by creating an npm project and compiling
+the Vue apps instead which eliminates the unsafe-eval, but that seemed 
+overkill for these nofications, so this is the compromise I landed at.
+*/
 class Toaster {
     constructor() {
         this.errors = [];
