@@ -2,7 +2,7 @@ var path = require('path')
 var webpack = require('webpack')
 
 module.exports = {
-  entry: './js/settings.js',
+  entry: ['babel-polyfill', './js/settings.js'],
   output: {
     path: path.resolve(__dirname, './dist'),
     publicPath: '/dist/',
