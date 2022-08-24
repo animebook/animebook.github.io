@@ -3,9 +3,9 @@ function main() {
     if (!dropWrapper)
         return;
 
-    injectStyles(chrome.extension.getURL('fg/frontend.css'));
+    injectStyles(chrome.runtime.getURL('fg/frontend.css'));
 
-    const toaster = CREATE_TOAST_VUE_INSTANCE();
+    const toaster = new Toaster();
     const audioPlayer = new AudioPlayer();
     const abIcons = new AbIcons();
     const captionUtils = new CaptionUtils();
@@ -63,7 +63,7 @@ function onNewFileEvent(files, abIcons, eventChannel, cardCreator, toaster) {
             eventChannel.sendMessage({action: 'file', file: cloneFile}, event => {
                 const response = event.data;
                 if (response.type === 'error') {
-                    toaster.$emit('add-error', { 
+                    toaster.addError({ 
                         message: 'Failed to prepare video for anki export: ' + response.message,
                         stack: response.stack,
                         isUserFacing: response.isUserFacing

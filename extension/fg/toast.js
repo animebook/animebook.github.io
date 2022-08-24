@@ -1,79 +1,143 @@
-const CREATE_TOAST_VUE_INSTANCE = () => new Vue({
-    el: "#ab-extension-popup-wrapper",
-    template: `
-    <div id="ab-toasts">
-        <div v-if="errors.length > 0" id="ab-error" class="fade-in">
-            <div id="ab-error-message">
-                <div id="ab-error-alert">!</div>
-                <div id="ab-error-text">{{currentError.message}}</div>
-                <div @click="removeErrors" id="ab-error-close" class="clickable">&times;</div>
-            </div>
-            <textarea v-if="!currentError.isUserFacing" id="ab-stack-trace">{{currentError.stack}}</textarea>
-            <div v-if="errors.length > 1" id="ab-error-navigation">
-                <div @click="incrementError()" id="ab-error-increment" class="arrow arrow-right"></div>
-                <div @click="decrementError()" id="ab-error-decrement" class="arrow arrow-left"></div>
-                <div id="ab-error-index">{{currentErrorIndex + 1}}/{{errors.length}}</div>
-            </div>
-        </div>
-        <div v-if="card" id="ab-card" class="fade-in-out unselectable" :style="">
-            <div id="ab-card-message">{{card.message}}</div>
-            <div id="ab-card-screenshot"><img :src="imgSrc"></img></div>
-            <div id="ab-card-sentence">{{card.sentence}}</div>
-        </div>
-    </div>
-    `,
-    data: {
-        card: null,
-        cardTimeout: null,
-        cardOpacity: 1,
-        errors: [],
-        currentErrorIndex: 0
-    },
-    created: function () {
-        this.$on('add-error', this.addError);
-        this.$on('set-card', this.setCard);
-    },
-    mounted: function () {
-    },
-    computed: {
-        currentError: function () {
-            return this.errors[this.currentErrorIndex];
-        },
-        imgSrc: function () {
-            if (!this.card || !this.card.image)
-                return '';
-            return `data:image/${this.card.imageFormat};base64,${this.card.image}`
-        }
-    },
-    watch: {
-    },
-    methods: {
-        addError: function (error) {
-            this.errors.push(error);
-            this.currentErrorIndex = this.errors.length - 1;
-        },
-        removeErrors: function () {
+class Toaster {
+    constructor() {
+        this.errors = [];
+        this.card = null;
+        this.cardTimeout = null;
+        this.cardOpacity = 1;
+        this.errors = [];
+        this.currentErrorIndex = 0;
+
+        this.hook = document.getElementById("ab-extension-popup-wrapper");
+        this.abToasts = this.div('ab-toasts');
+        this.hook.replaceChildren(this.abToasts);
+
+        this.abCard = this.div('ab-card', null, ['fade-in-out unselectable']);
+
+        this.abCardMessage = this.div('ab-card-message');
+        this.abCardScreenshot = this.div('ab-card-screenshot');
+        this.abCardSentence = this.div('ab-card-sentence');
+
+        this.abCard.replaceChildren(this.abCardMessage, this.abCardScreenshot, this.abCardSentence);
+
+
+        this.abError = this.div('ab-error', null, ['fade-in']);
+
+        this.abErrorMessage = this.div('ab-error-message');
+        this.abErrorText = this.div('ab-error-text');
+        this.abErrorClose = this.div('ab-error-close', null, ['clickable']);
+        this.abErrorClose.innerHTML = '&times;';
+        this.abErrorClose.addEventListener('click', e => {
             this.errors = [];
             this.currentErrorIndex = 0;
-        },
-        setCard: function (card) {
-            this.card = card;
-            this.cardOpacity = 1;
-            if (this.cardTimeout)
-                clearTimeout(this.cardTimeoutToRemove);
-            this.cardTimeout = setTimeout(() => {
-                this.card = null;
-            }, 1500);
+            this.render()
+        });
+        this.abErrorMessage.replaceChildren(this.div('ab-error-alert', this.text('!')), this.abErrorText, this.abErrorClose);
 
-        },
-        incrementError: function () {
+        this.abStackTrace = this.el('textarea', 'ab-stack-trace');
+
+        this.abErrorNavigation = this.div('ab-error-navigation');
+        this.abErrorIncrement = this.div('ab-error-increment', null, ['arrow arrow-right']);
+        this.abErrorIncrement.addEventListener('click', e => {
             this.currentErrorIndex += 1;
             this.currentErrorIndex = this.currentErrorIndex % this.errors.length;
-        },
-        decrementError: function () {
+            this.render();
+        });
+        this.abErrorDecrement = this.div('ab-error-decrement', null, ['arrow arrow-left']);
+        this.abErrorDecrement.addEventListener('click', e => {
             this.currentErrorIndex -= 1;
             if (this.currentErrorIndex < 0)
                 this.currentErrorIndex = this.errors.length - 1;
-        }
+
+            this.render();
+        });
+        this.abErrorIndex = this.div('ab-error-index');
+
+        this.abErrorNavigation.replaceChildren(this.abErrorIncrement, this.abErrorDecrement, this.abErrorIndex);
+        this.abError.replaceChildren(this.abErrorMessage, this.abStackTrace, this.abErrorNavigation);
     }
-});
+
+    render() {
+        let children = [];
+        if (this.errors.length > 0) {
+            children.push(this.abError);
+            let err = this.currentError();
+            this.abErrorText.replaceChildren(this.text(err.message));
+
+            let errorChildren = []
+            errorChildren.push(this.abErrorMessage);
+            if (!err.isUserFacing) {
+                errorChildren.push(this.abStackTrace);
+                this.abStackTrace.replaceChildren(this.text(err.stack));
+            }
+            if (this.errors.length > 1) {
+                errorChildren.push(this.abErrorNavigation);
+                this.abErrorIndex.replaceChildren(this.text((this.currentErrorIndex + 1) + "/" + this.errors.length));
+            }
+
+            this.abError.replaceChildren(...errorChildren);
+        }
+
+        if (this.card) {
+            children.push(this.abCard);
+            this.abCardMessage.replaceChildren(this.card.message);
+            let img = this.el('img');
+            img.src = this.imgSrc();
+            this.abCardScreenshot.replaceChildren(img);
+            this.abCardSentence.replaceChildren(this.card.sentence);
+        }
+
+        if (this.allNodesEqual(children, this.abToasts.childNodes))
+            return;
+        this.abToasts.replaceChildren(...children);
+    }
+
+    allNodesEqual(a, b) {
+        return a.length === b.length && a.every((elem, i) => elem == b[i]);
+    }
+
+    div(id, child, classes) {
+        return this.el('div', id, child, classes);
+    }
+
+    text(s) {
+        return document.createTextNode(s);
+    }
+
+    el(elemName, id, child, classes) {
+        let el = document.createElement(elemName);
+        el.id = id;
+        if (child)
+            el.replaceChildren(child);
+        if (classes)
+            el.classList = classes;
+        return el;
+    }
+
+    currentError() {
+        return this.errors[this.currentErrorIndex];
+    }
+
+    imgSrc() {
+        if (!this.card || !this.card.image)
+            return '';
+        return `data:image/${this.card.imageFormat};base64,${this.card.image}`
+    }
+
+    addError(error) {
+        this.errors.push(error);
+        this.currentErrorIndex = this.errors.length - 1;
+        this.render();
+    }
+
+    setCard(card) {
+        this.card = card;
+        this.cardOpacity = 1;
+        if (this.cardTimeout)
+            clearTimeout(this.cardTimeoutToRemove);
+        this.cardTimeout = setTimeout(() => {
+            this.card = null;
+            this.render();
+        }, 1500);
+        this.render();
+    }
+}

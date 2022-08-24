@@ -1,5 +1,5 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name": "Animebook Anki Export",
     "version": "1.0.4",
     "description": "Anki integration for animebook.github.io",
@@ -13,7 +13,7 @@
         "64": "img/icon64.png",
         "128": "img/icon128.png"
     },
-    "browser_action": {
+    "action": {
         "default_icon": {
             "16": "img/icon16.png",
             "19": "img/icon19.png",
@@ -51,15 +51,34 @@
         "open_in_tab": true
     },
     "permissions": [
-        "<all_urls>",
         "storage"
+    ],
+    "host_permissions": [
+        "<all_urls>"
     ],
     "optional_permissions": [
     ],
     "commands": {},
     "web_accessible_resources": [
-        "bg/background.html",
-        "fg/frontend.css"
+        {
+            "resources": [
+                "bg/background.html",
+                "bg/js/ffmpeg/ffmpeg-core.js",
+                "bg/js/ffmpeg/ffmpeg-core.wasm",
+                "bg/js/ffmpeg/ffmpeg-core.worker.js",
+                "bg/js/lib/vue.min.js",
+                "fg/frontend.css"
+            ],
+            "matches": ["file://*/*", "https://*/*"]
+        }
     ],
-    "content_security_policy": "script-src 'self' 'unsafe-eval' blob:; object-src 'self'"
+    "content_security_policy": {
+        "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; connect-src http://127.0.0.1:8765/ https://*.forvo.com https://forvo.com; default-src 'self'"
+    },
+    "cross_origin_embedder_policy": {
+        "value": "require-corp"
+    },
+    "cross_origin_opener_policy": {
+        "value": "same-origin"
+    }
 }

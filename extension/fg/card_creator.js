@@ -85,22 +85,22 @@ class CardCreator {
                 this.isRunning = false;
                 this.abIcons.reEnableAll();
                 if (!response || !response.type) {
-                    this.toaster.$emit('add-error', { message: 'Failed to record flashcard. The Animebook extension may not be fully loaded yet.', isUserFacing: true })
+                    this.toaster.addError({ message: 'Failed to record flashcard. The Animebook extension may not be fully loaded yet.', isUserFacing: true })
                     this.abIcons.setAlert(captionId);
                 } else if (response.type === 'card-created') {
-                    this.toaster.$emit('set-card', response);
+                    this.toaster.setCard(response);
                     this.abIcons.setSuccess(captionId);
                     this.audioPlayer.playAudio(response.audioList)
                 } 
                 else {
-                    this.toaster.$emit('add-error', response);
+                    this.toaster.addError(response);
                     this.abIcons.setAlert(captionId);
                 } 
             })
         } catch (e) {
             this.isRunning = false;
             this.abIcons.reEnableAll();
-            this.toaster.$emit('add-error', { message: 'Failed to connect to extension: ' + e.message, isUserFacing: true })
+            this.toaster.addError({ message: 'Failed to connect to extension: ' + e.message, isUserFacing: true })
             this.abIcons.setAlert(captionId);
         }
     }

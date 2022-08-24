@@ -83,7 +83,7 @@
                         <tr>
                             <th>Field</th>
                             <th>Content to put in field</th>
-                            <th style="max-width: 140px;">When field already has content</th>
+                            <th class="handle-existing-text-column">When field already has content</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -103,7 +103,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td style="max-width: 140px;">
+                            <td class="handle-existing-text-column">
                                 <select :disabled="template.value.length === 0" class="form-control" v-model="template.behavior">
                                     <option value="replace">Replace existing content</option>
                                     <option value="insertIfEmpty">Only insert if already empty</option>
@@ -171,7 +171,7 @@
                     </select>
                 </div>
 
-                <div style="min-height: 50px;">
+                <div class='resize-settings'>
                     <div v-if="settings.imageResizeSelection == 'height'" class="form-group row">
                         <label class="col-7 my-auto" for="image-resize-height">Height to resize to (px)</label>
                         <input class="col-5 form-control" v-model.number="settings.imageResizeHeight" type="number" id="image-resize-height" >
@@ -279,7 +279,7 @@
                     </select>
 
                 </div>
-                <div style="min-height: 70px;">
+                <div class="anki-query-settings">
                     <div class="alert alert-warning anki-no-update-warning" v-if="settings.ankiBrowserFinalDisplay === 'none'">
                         <div class="tiny-warning">!</div> 
                         <div>
@@ -301,8 +301,8 @@
                 </p>
                 <div>
                     <button class="btn btn-info" id="settings-export" @click="onExportSettings">Export Settings</button>
-                    <input type="file" id="settings-import-hidden" @change="onImportSettings" name="files" style="display: none;" />
-                    <label style="margin: 0;" class="btn btn-info" for="settings-import-hidden" id="settings-import">
+                    <input type="file" id="settings-import-hidden" class="hidden" @change="onImportSettings" name="files" />
+                    <label class="btn btn-info margin-zero" for="settings-import-hidden" id="settings-import">
                         Import Settings
                     </label>
                     <button class="btn btn-danger" id="settings-reset" @click="" data-toggle="modal" data-target="#reset-modal">Reset Default Settings</button>
@@ -316,7 +316,7 @@
                                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                                 </div>
                                 <div class="modal-body">
-                                    <p style="color: #AA3939;">You are about to reset all Animebook settings back to their default values. <b>This action cannot be undone.</b></p>
+                                    <p class="reset-warning">You are about to reset all Animebook settings back to their default values. <b>This action cannot be undone.</b></p>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>

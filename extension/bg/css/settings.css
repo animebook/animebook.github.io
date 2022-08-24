@@ -79,3 +79,27 @@ body {
     padding: 2px;
     overflow-x: auto;
 }
+
+.resize-settings {
+    min-height: 50px;
+}
+
+.anki-query-settings {
+    min-height: 70px;
+}
+
+.hidden {
+    display: none;
+}
+
+.margin-zero {
+    margin: 0;
+}
+
+.reset-warning {
+    color: #AA3939;
+}
+
+.handle-existing-text-column {
+    max-width: 140px;
+}
