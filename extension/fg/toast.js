@@ -19,7 +19,7 @@ class Toaster {
         this.abToasts = this.div('ab-toasts');
         this.hook.replaceChildren(this.abToasts);
 
-        this.abCard = this.div('ab-card', null, ['fade-in-out unselectable']);
+        this.abCard = this.div('ab-card', null, ['fade-in-out', 'unselectable']);
 
         this.abCardMessage = this.div('ab-card-message');
         this.abCardScreenshot = this.div('ab-card-screenshot');
@@ -44,13 +44,13 @@ class Toaster {
         this.abStackTrace = this.el('textarea', 'ab-stack-trace');
 
         this.abErrorNavigation = this.div('ab-error-navigation');
-        this.abErrorIncrement = this.div('ab-error-increment', null, ['arrow arrow-right']);
+        this.abErrorIncrement = this.div('ab-error-increment', null, ['arrow', 'arrow-right']);
         this.abErrorIncrement.addEventListener('click', e => {
             this.currentErrorIndex += 1;
             this.currentErrorIndex = this.currentErrorIndex % this.errors.length;
             this.render();
         });
-        this.abErrorDecrement = this.div('ab-error-decrement', null, ['arrow arrow-left']);
+        this.abErrorDecrement = this.div('ab-error-decrement', null, ['arrow', 'arrow-left']);
         this.abErrorDecrement.addEventListener('click', e => {
             this.currentErrorIndex -= 1;
             if (this.currentErrorIndex < 0)
@@ -117,7 +117,8 @@ class Toaster {
         if (child)
             el.replaceChildren(child);
         if (classes)
-            el.classList = classes;
+            for (let c of classes)
+                el.classList.add(c);
         return el;
     }
 
