@@ -6,6 +6,7 @@ class FFmpeg {
         this.running = false;
         this.runResolve = null;
         this.fileCount = 0;
+        this.logger = console.log
         this.defaultArgs = [
             /* args[0] is always the binary path */
             './ffmpeg',
@@ -25,7 +26,7 @@ class FFmpeg {
     }
 
     log(message) {
-        console.log(message);
+        this.logger(message);
         this.detectCompletion(message);
     }
 
@@ -123,6 +124,19 @@ class FFmpeg {
                 this.runResolve = resolve;
                 this.ffmpegMain(...this.parseArgs(args));
             });
+        }
+    }
+
+    async runButReturnLog(...args) {
+        try {
+            let result = '';
+            this.logger = (s) => result += s + '\n';
+            await this.run(...args);
+            this.logger = console.log;
+            return result;
+        } catch (e) {
+            this.logger = console.log;
+            throw e;
         }
     }
 }

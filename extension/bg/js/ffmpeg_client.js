@@ -50,6 +50,10 @@ class FFmpegClient {
         return new Blob([audioData.buffer]);
     }
 
+    async getVideoInfo() {
+        return await this.ffmpeg.runButReturnLog('-i','/input/tmpfile');
+    }
+
     guessEpisodeNumber(videoFileName) {
         var matches = videoFileName
             .replace(/[a-uw-zA-UW-Z]/g, "a")

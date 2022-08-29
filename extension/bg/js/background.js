@@ -21,8 +21,50 @@ async function overwriteVideoFile(newVideoFile) {
 async function updateVideoFile(newVideoFile) {
     updateFilePromise = updateFilePromise.then(() => {
         return overwriteVideoFile(newVideoFile);
+    }).then(() => {
+        return extractSubtitles();
     })
     return updateFilePromise;
+}
+
+function formatToExtension(format) {
+    let ext = format.replaceAll(/\(.*?\)/g, '').trim()
+    if (ext === 'subrip')
+        return 'srt'
+    return ext;
+}
+
+function parseVideoInfo(text) {
+    let streams = text.split(/\s+(?=Stream #\d:\d+)/g)
+    return streams.map(s => {
+        let lines = s.split('\n')
+        let streamInfo = lines[0].match(/^Stream\ #(\d+:\d+)\S+: Subtitle: (.*?)$/i)
+        if (!streamInfo || streamInfo.length === 0)
+            return null;
+
+        let d = {}
+        d.stream = streamInfo[1];
+        d.format = streamInfo[2];
+        d.extension = formatToExtension(d.format);
+
+        for (let i = 1; i < lines.length; i++) {
+            let titleMatch = lines[i].match(/title\s+:\s+(.*?)$/i)
+            if (titleMatch) {
+                d.title = titleMatch[1]
+                break;
+            }
+        }
+        return d;
+    }).filter(stream => stream);
+}
+
+async function extractSubtitles() {
+    if (!videoFile)
+        throw new UserFacingError("No video file found");
+    let subtitleStreams = await ffmpegWorker.sendMessage({ type: 'videoInfo' });
+    
+    console.log(subtitleStreams)
+    console.log(parseVideoInfo(subtitleStreams));
 }
 
 async function recordFlashcard(lines, start, end, currentVideoTime, audioTrack) {
@@ -154,6 +196,8 @@ async function handleMessage(request) {
         }
         else if (request.action === 'record') {
             return await recordFlashcard(request.lines, request.start, request.end, request.currentVideoTime, request.audioTrack || 0)
+        } else if (request.action === 'subtitles') {
+            return await extractSubtitles();
         } else if (request.action === 'token') {
             iframeToken = request.token;
             return { type: 'token', message: 'Updated token'};

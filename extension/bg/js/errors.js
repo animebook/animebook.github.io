@@ -6,10 +6,18 @@ class UserFacingError extends Error {
 }
 
 function serializeError (error) {
+    if (typeof error === 'string') {
+        return {
+            type: 'error',
+            message: error,
+            isUserFacing: true
+        }
+    }
+
     return {
-        'type': 'error',
-        'message': error.message,
-        'stack': error.stack,
-        'isUserFacing': error.name === 'UserFacingError'
+        type: 'error',
+        message: error.message || error,
+        stack: error.stack,
+        isUserFacing: error.name === 'UserFacingError'
     }
 }

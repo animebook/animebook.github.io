@@ -24,6 +24,8 @@ handleMessage = async (message) => {
             return await ffmpegClient.getImage(message.start, message.end, message.time);
         case 'cleanAudio':
             return await ffmpegClient.cleanAudio(message.audioData);
+        case 'videoInfo':
+            return await ffmpegClient.getVideoInfo();
     }
 }
 
