@@ -54,11 +54,8 @@ class FFmpeg {
     }
 
     async load() {
-        if (this.ffmpegCore)
-            return 'ffmpeg already loaded';
-
         this.ffmpegCore = await this.createCore();
-        this.ffmpegMain = this.ffmpegCore.cwrap('emscripten_proxy_main', 'number', ['number', 'number']);
+        this.ffmpegMain = this.ffmpegCore.cwrap('proxy_main', 'number', ['number', 'number']);
         return 'Loaded ffmpeg';
     }
 
@@ -124,5 +121,18 @@ class FFmpeg {
                 this.ffmpegMain(...this.parseArgs(args));
             });
         }
+    }
+
+    async cleanup() {
+        if (this.ffmpegCore) {
+            try {
+                this.ffmpegCore.exit(0);
+            } catch (e) {
+                // no-op; this is expected
+            }
+            await this.load();
+            this.updateFile(this.videoFile);
+        }
+        return 'Exited ffmpeg';
     }
 }
