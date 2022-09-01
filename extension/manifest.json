@@ -43,7 +43,7 @@
             "all_frames": true
         }
     ],
-    "minimum_chrome_version": "57.0.0.0",
+    "minimum_chrome_version": "88.0.0.0",
     "options_page": "bg/settings.html",
     "options_ui": {
         "page": "bg/settings.html",
