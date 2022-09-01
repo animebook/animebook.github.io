@@ -133,10 +133,6 @@ async function recordFlashcard(lines, start, end, currentVideoTime, audioTrack) 
     if (expression)
         message = "Updated " + expression + "!";
 
-    updateFilePromise = updateFilePromise.then(() => {
-        return ffmpegWorker.sendMessage({ type: 'cleanup' });
-    })
-
     return { 
         type: "card-created", 
         message: message,
