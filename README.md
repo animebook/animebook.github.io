@@ -9,8 +9,7 @@ Animebook is designed to match the mining workflow described in https://www.anim
 - Ability to retime subtitles directly in the web player. Useful for the majority of subtitles on https://kitsunekko.net/ and https://itazuraneko.neocities.org/library/sub.html, which almost always need to be retimed to the video you're watching.
 - Fast flashcard creation using the [Animebook Chrome extension](https://chrome.google.com/webstore/detail/animebook-anki-export/ohcbgkombhgcbjcikjlgdmjkpibafppa). If you use Yomichan to add a word to Anki while watching a show, you can then use Animebook to add screenshots, audio, and subtitle lines automatically to your flashcard.
 - App is a single html page, making it easier to download and save locally. If you want this, download [here](https://raw.githubusercontent.com/animebook/animebook.github.io/master/index.html) by right clicking and hitting 'Save As...'.
-- Resizable sidebar
-- Built-in browser zoom can be used to adjust the player's font size
+- Optional auto-pause for when a caption is done playing, giving you time to scan any words or phrases you didn't catch.
 
 ## Usage
 Drag and drop your video file and your subtitle file (vtt, srt, or ass) onto the webpage and you should be good to go. You can also right click on the video and disable "Show controls" if you find the browser's built-in controls distracting. I typically do this and rely on the sidebar and hotkeys for navigation.
