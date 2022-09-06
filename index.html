@@ -885,6 +885,7 @@
                 <div class="table-row"><div class="table-cell">h</div><div class="table-cell">Hide content in parentheses (configurable in the 'Appearance' tab)</div></div>
                 <div class="table-row"><div class="table-cell">?</div><div class="table-cell">Open help menu</div></div>
                 <div class="table-row"><div class="table-cell">t</div><div class="table-cell">Cycle through available audio tracks. Currently (as of July 2020), this only works in Chrome and other chromium-based browsers if <span class="monospace">enable-experimental-web-platform-features</span> is enabled in chrome://flags. On Firefox, <span class="monospace">media.track.enabled</span> must be set to true in about:config.</div></div>
+                <div class="table-row"><div class="table-cell">-/=</div><div class="table-cell">Decrease/Increase subtitle font size</div></div>
                 <div class="table-row"><div class="table-cell">Page Up/Page Down</div><div class="table-cell">OP Skip. Move backward/forward 87 seconds.</div></div>
                 <div class="table-row"><div class="table-cell">F11</div><div class="table-cell">Full screen toggle. This is a browser shortcut.</div></div>
                 <div class="table-row"><div class="table-cell">Shift D</div><div class="table-cell">Download retimed subs as an srt file</div></div>
@@ -1609,6 +1610,18 @@
                   } else {
                     self.notify("Parentheses shown")
                   }
+                  break;
+                case '-':
+                  if (eitherNG)
+                    return;
+                  stopEvent(e);
+                  self.savedSettings.subtitleFontSize = Math.max(self.savedSettings.subtitleFontSize - 0.1, 0.1);
+                  break;
+                case '=':
+                  if (eitherNG)
+                    return;
+                  stopEvent(e);
+                  self.savedSettings.subtitleFontSize = Math.min(self.savedSettings.subtitleFontSize + 0.1, 2.5);
                   break;
               }
             });
