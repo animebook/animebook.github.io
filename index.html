@@ -1615,13 +1615,13 @@
                   if (eitherNG)
                     return;
                   stopEvent(e);
-                  self.savedSettings.subtitleFontSize = Math.max(self.savedSettings.subtitleFontSize - 0.1, 0.1);
+                  self.savedSettings.subtitleFontSize = Math.max(self.savedSettings.subtitleFontSize - 0.15, 0.1);
                   break;
                 case '=':
                   if (eitherNG)
                     return;
                   stopEvent(e);
-                  self.savedSettings.subtitleFontSize = Math.min(self.savedSettings.subtitleFontSize + 0.1, 2.5);
+                  self.savedSettings.subtitleFontSize = Math.min(self.savedSettings.subtitleFontSize + 0.15, 2.5);
                   break;
               }
             });
