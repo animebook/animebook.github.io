@@ -996,7 +996,16 @@
           },
           wrapInP: function (text) {
             return "<p>" + text + "</p>";
-          }
+          },
+          inputFocusKeys: [
+              'ArrowLeft',
+              'ArrowUp',
+              'ArrowDown',
+              'ArrowRight',
+              '.',
+              '-',
+              '='
+          ]
       }
       Vue.component('caption-item', {
         props: ['caption', 'customOffsets', 'isAutoPauseMode', 'isOffsetMode', 'currentTime'],
@@ -1006,14 +1015,8 @@
             return caption.minCustomOffset && inputOffset < caption.minCustomOffset;
           },
           onInputKeyDown: function (event) {
-            switch (event.key) {
-              case 'ArrowLeft':
-              case 'ArrowUp':
-              case 'ArrowDown':
-              case 'ArrowRight':
-              case '.':
-                event.stopPropagation();
-            }
+            if (Utils.inputFocusKeys.indexOf(event.key) !== -1)
+              event.stopPropagation();
           },
           deleteCustomOffset: function (caption) {
             this.customOffsets[caption.id] = null;
@@ -1793,14 +1796,8 @@
           },
 
           onInputKeyDown: function (event) {
-            switch (event.key) {
-              case 'ArrowLeft':
-              case 'ArrowUp':
-              case 'ArrowDown':
-              case 'ArrowRight':
-              case '.':
-                event.stopPropagation();
-            }
+            if (Utils.inputFocusKeys.indexOf(event.key) !== -1)
+              event.stopPropagation();
           },
 
           loadVideo: function (file) {
