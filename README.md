@@ -33,6 +33,7 @@ Drag and drop your video file and your subtitle file (vtt, srt, or ass) onto the
 | t | Cycle through available audio tracks. Currently (as of July 2020), this only works in Chrome and other chromium-based browsers if ``enable-experimental-web-platform-features`` is enabled in chrome://flags. On Firefox, ``media.track.enabled`` must be set to true in about:config. |
 | -/= | Decrease/Increase subtitle font size |
 | Page Up/Page Down | OP Skip. Move backward/forward 87 seconds. |
+| m/n | Increase/Decrease playback speed. |
 | F11 | Full screen toggle. This is a browser shortcut. |
 | Shift D | Download retimed subs as an srt file |
 | e | Add context to most recent anki card (requires the [Animebook Chrome extension](https://chrome.google.com/webstore/detail/animebook-anki-export/ohcbgkombhgcbjcikjlgdmjkpibafppa) to be installed) |
