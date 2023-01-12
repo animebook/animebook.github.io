@@ -45,7 +45,7 @@ async function recordFlashcard(lines, start, end, currentVideoTime, audioTrack) 
     const recentNoteIds = await anki.findRecentNoteIds();
     const latestId = recentNoteIds.result.reduce((a,b) => Math.max(a,b), -1);
     if (!latestId || latestId === -1)
-        throw new UserFacingError("No anki card to export to. Please add a card the following deck first: " + settings.ankiDeck);
+        throw new UserFacingError("No anki card to export to. Please add a card to the following deck first: " + settings.ankiDeck);
     const latestNotes = (await anki.findNoteInfoByIds([latestId])).result;
     if (!latestNotes || latestNotes.length === 0)
         throw new UserFacingError("No anki card to export to");
