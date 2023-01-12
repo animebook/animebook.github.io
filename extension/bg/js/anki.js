@@ -31,7 +31,7 @@ class AnkiConnect {
     }
 
     async findRecentNoteIds() {
-        return await this._invoke('findNotes', {query: `"deck:${this._settings.ankiDeck}" "note:${this._settings.ankiModel}" added:2`});
+        return await this._invoke('findNotes', {query: `"deck:${this._settings.ankiDeck}" "note:${this._settings.ankiModel}" added:2 is:new`});
     }
 
     async findNoteInfoByIds(noteIds) {
