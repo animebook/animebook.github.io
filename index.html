@@ -3,6 +3,107 @@
   <head>
     <title>Animebook</title>
     <style>
+      :root {
+        --bw-000: hsl(0, 0%, 0%);
+        --bw-050: hsl(0, 0%, 5%);
+        --bwa-100: hsla(0, 0%, 6%, 0.95);
+        --bw-150: hsl(0, 0%, 15%);
+        --bw-200: hsl(0, 0%, 20%);
+        --bw-300: hsl(0, 0%, 30%);
+        --bw-400: hsl(0, 0%, 40%);
+        --bw-700: hsl(0, 0%, 70%);
+        --bw-750: hsl(0, 0%, 75%);
+        --bw-850: hsl(0, 0%, 85%);
+        --bw-1000: hsl(0, 0%, 100%);
+        --green-400: hsl(118, 65%, 33%);
+        --green-500: hsl(112, 79%, 43%);
+        --pale-green-400: hsl(193, 17%, 42%);
+        --pale-green-500: hsl(193, 13%, 59%);
+        --pale-green-600: hsl(193, 17%, 63%);
+        --blue-200: hsl(240, 49%, 14%);
+        --blue-800: hsl(207, 82%, 81%);
+        --pale-blue-400: hsl(223, 7%, 47%);
+        --pale-blue-500: hsl(231, 10%, 59%);
+        --pale-blue-600: hsl(225, 6%, 59%);
+        --red-150: hsl(0, 100%, 7%);
+        --red-200: hsl(0, 100%, 10%);
+        --red-400: hsl(331, 47%, 19%);
+        --red-600: hsl(0, 83%, 23%);
+        --red-700: hsl(0, 83%, 28%);
+        --red-800: hsl(0, 20%, 33%);
+        --red-900: hsl(0, 50%, 40%);
+        --red-950: hsl(0, 83%, 46%);
+        --red-980: hsl(355, 100%, 63%);
+        --main-bg-color: var(--bw-000);
+        --main-fg-color: var(--bw-300);
+        --hint-fg-color: var(--bw-1000);
+        --subtitle-fg-color: var(--bw-850);
+        --subtitle-shadow-color: var(--bw-000);
+        --sidebar-fg-color: var(--bw-300);
+        --sidebar-bg-color: var(--bw-000);
+        --sidebar-hover-fg-color: var(--bw-000);
+        --sidebar-hover-bg-color: var(--pale-green-600);
+        --button-fg-color: var(--bw-300); /* TODO: Use these somewhere */
+        --button-bg-color: var(--bw-000); /* TODO: Use these somewhere */
+        --button-hover-fg-color: var(--bw-000);
+        --button-hover-bg-color: var(--pale-green-600);
+        --cancel-button-fg-color: var(--bw-300);
+        --cancel-button-bg-color: var(--red-200);
+        --cancel-button-hover-fg-color: var(--bw-000);
+        --cancel-button-hover-bg-color: var(--red-600);
+        --sidebar-active-fg-color: var(--bw-000);
+        --sidebar-active-bg-color: var(--pale-green-400);
+        --sidebar-hover-active-fg-color: var(--bw-000);
+        --sidebar-hover-active-bg-color: var(--pale-green-500);
+        --sidebar-ap-hover-bg-color: var(--pale-blue-600);
+        --sidebar-ap-active-bg-color: var(--pale-blue-400);
+        --sidebar-ap-hover-active-bg-color: var(--pale-blue-500);
+        --custom-offset-fg-color: var(--pale-blue-600);
+        --custom-offset-bg-color: var(--bw-000);
+        --custom-offset-hover-fg-color: var(--bw-000);
+        --custom-offset-hover-bg-color: var(--pale-blue-600);
+        --input-border-color: var(--bw-000);
+        --input-focus-outline-color: var(--bw-200);
+        --caption-time-hint-color: var(--red-800);
+        --caption-time-hint-hover-color: var(--red-150);
+        --custom-time-hint-color: var(--red-400);
+        --auto-pause-fg-color: var(--bw-400);
+        --auto-pause-bg-color: var(--blue-200);
+        --auto-pause-skip-bg-color: var(--red-400);
+        --help-fg-color: var(--bw-750);
+        --help-bg-color: var(--bwa-100);
+        --table-border-color: var(--bw-750);
+        --exit-button-fg-color: var(--bw-850);
+        --exit-button-bg-color: var(--bw-150);
+        --lowkey-delete-button-fg-color: var(--bw-400);
+        --lowkey-delete-button-bg-color: var(--bw-050);
+        --lowkey-delete-button-hover-fg-color: var(--bw-000);
+        --lowkey-delete-button-hover-bg-color: var(--red-600);
+        --error-fg-color: var(--red-900);
+        --monospace-fg-color: var(--bw-1000);
+        --monospace-bg-color: var(--bw-150);
+        --monospace-error-fg-color: var(--red-980);
+        --tab-fg-color: var(--bw-700);
+        --tab-bg-color: var(--bw-150);
+        --tab-active-fg-color: var(--bw-000);
+        --tab-active-bg-color: var(--bw-700);
+        --tab-hover-fg-color: var(--bw-000);
+        --tab-hover-bg-color: var(--bw-800);
+        --link-fg-color: var(--blue-800);
+        --scrollbar-gutter-color: var(--bw-050);
+        --scrollbar-thumb-color: var(--bw-300);
+        --regex-input-fg-color: var(--bw-800);
+        --regex-input-bg-color: var(--bw-000);
+        --add-button-fg-color: var(--bw-900);
+        --add-button-bg-color: var(--green-400);
+        --add-button-hover-fg-color: var(--bw-1000);
+        --add-button-hover-bg-color: var(--green-500);
+        --delete-button-fg-color: var(--bw-900);
+        --delete-button-bg-color: var(--red-700);
+        --delete-button-hover-fg-color: var(--bw-1000);
+        --delete-button-hover-bg-color: var(--red-950);
+      }
+
       * {
         box-sizing: border-box;
       }
@@ -14,114 +115,114 @@
       .app-container,
       .offset-input,
       .custom-offset-input {
-        color: #505050;
-        background-color: #060606;
+        color: var(--main-fg-color);
+        background-color: var(--main-bg-color);
       }
 
       .hint {
-        color: #FFF;
+        color: var(--hint-fg-color);
       }
 
       .video-container {
-        background-color: #000;
+        background-color: var(--main-bg-color);
       }
 
       .current-caption, .notify-text {
-        color: #DADADA;
+        color: var(--subtitle-fg-color);
         paint-order: stroke;
         -webkit-text-stroke: unset;
         text-shadow: 
-        0.04em 0 0.03em #000,
-        0 0.04em 0.03em #000,
-        -0.04em 0 0.03em #000,
-        0 -0.04em 0.03em #000,
-        -0.04em -0.04em 0.03em #000,
-        -0.04em 0.04em 0.03em #000,
-        0.04em -0.04em 0.03em #000,
-        0.04em 0.04em 0.03em #000;
+        0.04em 0 0.03em var(--subtitle-shadow-color),
+        0 0.04em 0.03em var(--subtitle-shadow-color),
+        -0.04em 0 0.03em var(--subtitle-shadow-color),
+        0 -0.04em 0.03em var(--subtitle-shadow-color),
+        -0.04em -0.04em 0.03em var(--subtitle-shadow-color),
+        -0.04em 0.04em 0.03em var(--subtitle-shadow-color),
+        0.04em -0.04em 0.03em var(--subtitle-shadow-color),
+        0.04em 0.04em 0.03em var(--subtitle-shadow-color);
       }
 
       .captions-list {
-        color: #4D4D4D;
-        background-color: #000;
+        color: var(--sidebar-fg-color);
+        background-color: var(--sidebar-bg-color);
       }
 
-      .caption:hover, 
+      .caption:hover {
+        color: var(--sidebar-hover-fg-color);
+        background-color: var(--sidebar-hover-bg-color);
+      }
+
       .offset-button.off:hover, 
       .help:hover,
       .audio-track:hover {
-        background-color: #91aab1;
-        color: #000;
+        color: var(--button-hover-fg-color);
+        background-color: var(--button-hover-bg-color);
       }
 
       .caption.active {
-        background-color: #59757d;
-        color: #000;
+        color: var(--sidebar-active-fg-color);
+        background-color: var(--sidebar-active-bg-color);
       }
 
       .caption.active:hover {
-        background-color: #899FA5;
-        color: #000;
+        color: var(--sidebar-hover-active-fg-color);
+        background-color: var(--sidebar-hover-active-bg-color);
       }
 
       .caption.auto-pause:hover, 
       .offset-button.auto-pause:hover, 
       .help.auto-pause:hover,
       .audio-track.auto-pause:hover {
-        background-color: #90939C;
+        background-color: var(--sidebar-ap-hover-bg-color);
       }
 
       .caption.auto-pause.active {
-        background-color: #707582;
+        background-color: var(--sidebar-ap-active-bg-color);
       }
 
       .caption.auto-pause.active:hover {
-        background-color: #8B8EA0;
+        background-color: var(--sidebar-ap-hover-active-bg-color);
       }
 
       .set-custom-offset-button {
-        color: #90939C;
-        background-color: #000;
-        border-left: 1px solid #90939C;
-        border-top: 1px solid #90939C;
-        border-bottom: 1px solid #90939C;
+        color: var(--custom-offset-fg-color);
+        background-color: var(--custom-offset-bg-color);
+        border-width: 0 1px 1px 1px;
+        border-color: var(--custom-offset-fg-color);
       }
 
       .set-custom-offset-button:hover {
-        background-color: #90939C;
-        color: #000;
+        background-color: var(--custom-offset-hover-bg-color);
+        color: var(--custom-offset-hover-fg-color);
         border: none;
       }
 
       .offset-input, .custom-offset-input, .regex-input {
         border: 0;
-        border-left: 0.2vh solid #000;
-        border-right: 0.2vh solid #000;
-      }
-
-      .audio-track {
-        border-right: 0.2vh solid #000;
+        border-width: 0 0.2vh;
+        border-color: var(--input-border-color);
       }
 
       .offset-input:focus, .custom-offset-input:focus {
-        outline: 0.2vh solid #333
+        outline: 0.2vh solid var(--input-focus-outline-color);
       }
 
       .offset-button.on {
-        background-color: #300;
+        color: var(--cancel-button-fg-color);
+        background-color: var(--cancel-button-bg-color);
       }
 
       .offset-button.on:hover {
-        background-color: #6d0a0a;
-        color: #000;
+        color: var(--cancel-button-hover-fg-color);
+        background-color: var(--cancel-button-hover-bg-color);
       }
 
       .caption-time-offset {
-        color: #644;
+        color: var(--caption-time-hint-color);
       }
 
       .caption-time-offset:hover {
-        color: #200;
+        color: var(--caption-time-hint-hover-color);
       }
 
       .custom-time-offset {
@@ -130,90 +231,91 @@
 
       .set-custom-offset-button:hover .custom-time-offset,
       .custom-time-offset:hover {
-        color: #522;
+        color: var(--custom-time-hint-color);
         opacity: 1;
       }
 
-      .auto-pause-text {
-        border-bottom: 0.2vh solid #000;
-      }
-
       .auto-pause-paused {
-        color: #666;
-        background-color: #121235;
+        color: var(--auto-pause-fg-color);
+        background-color: var(--auto-pause-bg-color);
       }
 
       .auto-pause-skipping {
-        color: #666;
-        background-color: #46192f;
+        color: var(--auto-pause-fg-color);
+        background-color: var(--auto-pause-skip-bg-color);
       }
 
       .table-cell, .table-head {
-        border:#bcbcbc 1px solid;
+        border: var(--table-border-color) 1px solid;
       }
 
       .help-popup {
-        color: #BFBFBF;
-        background-color: rgba(16, 16, 16, 0.95);
+        color: var(--help-fg-color);
+        background-color: var(--help-bg-color);
       }
 
       .exit-popup {
-        background-color: #252525;
+        color: var(--exit-button-fg-color);
+        background-color: var(--exit-button-bg-color);
       }
 
       .delete-custom-offset {
-        color: #555;
-        background-color: #141414;
+        color: var(--lowkey-delete-button-fg-color);
+        background-color: var(--lowkey-delete-button-bg-color);
       }
 
       .delete-custom-offset:hover {
-        color: #000;
-        background-color: #6d0a0a;
+        color: var(--lowkey-delete-button-hover-fg-color);
+        background-color: var(--lowkey-delete-button-hover-bg-color);
       }
 
       .error > .custom-offset-input,
       .error > .custom-offset-too-negative {
-        color: #933;
+        color: var(--error-fg-color);
       }
 
       .monospace, .footnote {
-        background-color: #222;
-        color: #FFF;
+        color: var(--monospace-fg-color);
+        background-color: var(--monospace-bg-color);
+      }
+
+      .monospace.error {
+        color: var(--monospace-error-fg-color);
       }
 
       .help-mode-button {
-        color: #AAA;
-        background-color: #222;
-        border: 1px solid #222;
+        color: var(--tab-fg-color);
+        background-color: var(--tab-bg-color);
+        border: 1px solid var(--tab-bg-color);
         border-radius: 2px;
       }
 
       .help-mode-button.selected {
-        background-color: #aaaaaa;
-        color: #000;
+        color: var(--tab-active-fg-color);
+        background-color: var(--tab-active-bg-color);
       }
 
       .help-mode-button:hover {
-        background-color: #cccccc;
-        color: #000;
+        color: var(--tab-hover-fg-color);
+        background-color: var(--tab-hover-bg-color);
       }
 
       .hint a, .help-inner a {
-        color: #a5d2f6
+        color: var(--link-fg-color);
       }
 
       #app *::-webkit-scrollbar {
         width: 1vh;
         height: 1vh;
-        background-color: #0A0A0A;
+        background-color: var(--scrollbar-gutter-color);
       }
 
       #app *::-webkit-scrollbar-thumb {
-        background-color: #444;
+        background-color: var(--scrollbar-thumb-color);
       }
 
       #app * {
-        scrollbar-color: #444 #0A0A0A;
+        scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-gutter-color);
         scrollbar-width: thin;
       }
 
@@ -665,8 +767,8 @@
         width: 100%;
         border-radius: 0.2em;
         padding: 0.2em;
-        background: #000;
-        color: #CFCFCF;
+        color: var(--regex-input-fg-color);
+        background: var(--regex-input-bg-color);
       }
 
       .add-button, .delete-button {
@@ -686,23 +788,23 @@
 
       .add-button {
         margin-top: 0.4em;
-        color: #DDDDDD;
-        background-color: #21891d;
+        color: var(--add-button-fg-color);
+        background-color: var(--add-button-bg-color);
       }
 
       .add-button:hover {
-        color: #FFF;
-        background-color: #2dc217;
+        color: var(--add-button-hover-fg-color);
+        background-color: var(--add-button-hover-bg-color);
       }
 
       .delete-button {
-        color: #DDDDDD;
-        background-color: #840c0c;
+        color: var(--delete-button-fg-color);
+        background-color: var(--delete-button-bg-color);
       }
 
       .delete-button:hover {
-        color: #FFF;
-        background-color: #d61414;
+        color: var(--delete-button-hover-fg-color);
+        background-color: var(--delete-button-hover-bg-color);
       }
 
       .footnote {
@@ -894,7 +996,7 @@
               </div>
             </div>
             <div v-if="helpMode === 'appearance'" class="help-inner" style="font-size: 1.2rem;">
-              <h3 class="monospace" style="color: rgb(255, 65, 80);" v-if="!isLocalStorageAvailable">
+              <h3 class="monospace error" v-if="!isLocalStorageAvailable">
                 Error: could not load appearance settings from local storage. Your browser may be blocking sites from storing data in your browser.
               </h3>
               <h3 style="margin-bottom: 0.2rem;">Video alignment</h3>
