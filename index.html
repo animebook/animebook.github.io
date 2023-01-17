@@ -13,6 +13,7 @@
         --bw-400: hsl(0, 0%, 40%);
         --bw-700: hsl(0, 0%, 70%);
         --bw-750: hsl(0, 0%, 75%);
+        --bw-800: hsl(0, 0%, 80%);
         --bw-850: hsl(0, 0%, 85%);
         --bw-1000: hsl(0, 0%, 100%);
         --green-400: hsl(118, 65%, 33%);
@@ -34,39 +35,27 @@
         --red-900: hsl(0, 50%, 40%);
         --red-950: hsl(0, 83%, 46%);
         --red-980: hsl(355, 100%, 63%);
-        --main-bg-color: var(--bw-000);
         --main-fg-color: var(--bw-300);
+        --main-bg-color: var(--bw-000);
         --hint-fg-color: var(--bw-1000);
         --subtitle-fg-color: var(--bw-850);
         --subtitle-shadow-color: var(--bw-000);
-        --sidebar-fg-color: var(--bw-300);
-        --sidebar-bg-color: var(--bw-000);
-        --sidebar-hover-fg-color: var(--bw-000);
-        --sidebar-hover-bg-color: var(--pale-green-600);
-        --button-fg-color: var(--bw-300); /* TODO: Use these somewhere */
-        --button-bg-color: var(--bw-000); /* TODO: Use these somewhere */
         --button-hover-fg-color: var(--bw-000);
         --button-hover-bg-color: var(--pale-green-600);
+        --button-active-fg-color: var(--bw-000);
+        --button-active-bg-color: var(--pale-green-400);
+        --button-hover-active-fg-color: var(--bw-000);
+        --button-hover-active-bg-color: var(--pale-green-500);
+        --button-ap-hover-bg-color: var(--pale-blue-600);
+        --button-ap-active-bg-color: var(--pale-blue-400);
+        --button-ap-hover-active-bg-color: var(--pale-blue-500);
         --cancel-button-fg-color: var(--bw-300);
         --cancel-button-bg-color: var(--red-200);
         --cancel-button-hover-fg-color: var(--bw-000);
         --cancel-button-hover-bg-color: var(--red-600);
-        --sidebar-active-fg-color: var(--bw-000);
-        --sidebar-active-bg-color: var(--pale-green-400);
-        --sidebar-hover-active-fg-color: var(--bw-000);
-        --sidebar-hover-active-bg-color: var(--pale-green-500);
-        --sidebar-ap-hover-bg-color: var(--pale-blue-600);
-        --sidebar-ap-active-bg-color: var(--pale-blue-400);
-        --sidebar-ap-hover-active-bg-color: var(--pale-blue-500);
-        --custom-offset-fg-color: var(--pale-blue-600);
-        --custom-offset-bg-color: var(--bw-000);
-        --custom-offset-hover-fg-color: var(--bw-000);
-        --custom-offset-hover-bg-color: var(--pale-blue-600);
-        --input-border-color: var(--bw-000);
         --input-focus-outline-color: var(--bw-200);
         --caption-time-hint-color: var(--red-800);
-        --caption-time-hint-hover-color: var(--red-150);
-        --custom-time-hint-color: var(--red-400);
+        --caption-time-hint-hover-color: var(--red-400);
         --auto-pause-fg-color: var(--bw-400);
         --auto-pause-bg-color: var(--blue-200);
         --auto-pause-skip-bg-color: var(--red-400);
@@ -108,215 +97,8 @@
         box-sizing: border-box;
       }
 
-      html,
-      body,
-      #app,
-      .drop-wrapper,
-      .app-container,
-      .offset-input,
-      .custom-offset-input {
-        color: var(--main-fg-color);
-        background-color: var(--main-bg-color);
-      }
-
-      .hint {
-        color: var(--hint-fg-color);
-      }
-
-      .video-container {
-        background-color: var(--main-bg-color);
-      }
-
-      .current-caption, .notify-text {
-        color: var(--subtitle-fg-color);
-        paint-order: stroke;
-        -webkit-text-stroke: unset;
-        text-shadow: 
-        0.04em 0 0.03em var(--subtitle-shadow-color),
-        0 0.04em 0.03em var(--subtitle-shadow-color),
-        -0.04em 0 0.03em var(--subtitle-shadow-color),
-        0 -0.04em 0.03em var(--subtitle-shadow-color),
-        -0.04em -0.04em 0.03em var(--subtitle-shadow-color),
-        -0.04em 0.04em 0.03em var(--subtitle-shadow-color),
-        0.04em -0.04em 0.03em var(--subtitle-shadow-color),
-        0.04em 0.04em 0.03em var(--subtitle-shadow-color);
-      }
-
-      .captions-list {
-        color: var(--sidebar-fg-color);
-        background-color: var(--sidebar-bg-color);
-      }
-
-      .caption:hover {
-        color: var(--sidebar-hover-fg-color);
-        background-color: var(--sidebar-hover-bg-color);
-      }
-
-      .offset-button.off:hover, 
-      .help:hover,
-      .audio-track:hover {
-        color: var(--button-hover-fg-color);
-        background-color: var(--button-hover-bg-color);
-      }
-
-      .caption.active {
-        color: var(--sidebar-active-fg-color);
-        background-color: var(--sidebar-active-bg-color);
-      }
-
-      .caption.active:hover {
-        color: var(--sidebar-hover-active-fg-color);
-        background-color: var(--sidebar-hover-active-bg-color);
-      }
-
-      .caption.auto-pause:hover, 
-      .offset-button.auto-pause:hover, 
-      .help.auto-pause:hover,
-      .audio-track.auto-pause:hover {
-        background-color: var(--sidebar-ap-hover-bg-color);
-      }
-
-      .caption.auto-pause.active {
-        background-color: var(--sidebar-ap-active-bg-color);
-      }
-
-      .caption.auto-pause.active:hover {
-        background-color: var(--sidebar-ap-hover-active-bg-color);
-      }
-
-      .set-custom-offset-button {
-        color: var(--custom-offset-fg-color);
-        background-color: var(--custom-offset-bg-color);
-        border-width: 0 1px 1px 1px;
-        border-color: var(--custom-offset-fg-color);
-      }
-
-      .set-custom-offset-button:hover {
-        background-color: var(--custom-offset-hover-bg-color);
-        color: var(--custom-offset-hover-fg-color);
-        border: none;
-      }
-
-      .offset-input, .custom-offset-input, .regex-input {
-        border: 0;
-        border-width: 0 0.2vh;
-        border-color: var(--input-border-color);
-      }
-
-      .offset-input:focus, .custom-offset-input:focus {
-        outline: 0.2vh solid var(--input-focus-outline-color);
-      }
-
-      .offset-button.on {
-        color: var(--cancel-button-fg-color);
-        background-color: var(--cancel-button-bg-color);
-      }
-
-      .offset-button.on:hover {
-        color: var(--cancel-button-hover-fg-color);
-        background-color: var(--cancel-button-hover-bg-color);
-      }
-
-      .caption-time-offset {
-        color: var(--caption-time-hint-color);
-      }
-
-      .caption-time-offset:hover {
-        color: var(--caption-time-hint-hover-color);
-      }
-
-      .custom-time-offset {
-        opacity: 0;
-      }
-
-      .set-custom-offset-button:hover .custom-time-offset,
-      .custom-time-offset:hover {
-        color: var(--custom-time-hint-color);
-        opacity: 1;
-      }
-
-      .auto-pause-paused {
-        color: var(--auto-pause-fg-color);
-        background-color: var(--auto-pause-bg-color);
-      }
-
-      .auto-pause-skipping {
-        color: var(--auto-pause-fg-color);
-        background-color: var(--auto-pause-skip-bg-color);
-      }
-
-      .table-cell, .table-head {
-        border: var(--table-border-color) 1px solid;
-      }
-
-      .help-popup {
-        color: var(--help-fg-color);
-        background-color: var(--help-bg-color);
-      }
-
-      .exit-popup {
-        color: var(--exit-button-fg-color);
-        background-color: var(--exit-button-bg-color);
-      }
-
-      .delete-custom-offset {
-        color: var(--lowkey-delete-button-fg-color);
-        background-color: var(--lowkey-delete-button-bg-color);
-      }
-
-      .delete-custom-offset:hover {
-        color: var(--lowkey-delete-button-hover-fg-color);
-        background-color: var(--lowkey-delete-button-hover-bg-color);
-      }
-
-      .error > .custom-offset-input,
-      .error > .custom-offset-too-negative {
-        color: var(--error-fg-color);
-      }
-
-      .monospace, .footnote {
-        color: var(--monospace-fg-color);
-        background-color: var(--monospace-bg-color);
-      }
-
-      .monospace.error {
-        color: var(--monospace-error-fg-color);
-      }
-
-      .help-mode-button {
-        color: var(--tab-fg-color);
-        background-color: var(--tab-bg-color);
-        border: 1px solid var(--tab-bg-color);
-        border-radius: 2px;
-      }
-
-      .help-mode-button.selected {
-        color: var(--tab-active-fg-color);
-        background-color: var(--tab-active-bg-color);
-      }
-
-      .help-mode-button:hover {
-        color: var(--tab-hover-fg-color);
-        background-color: var(--tab-hover-bg-color);
-      }
-
-      .hint a, .help-inner a {
-        color: var(--link-fg-color);
-      }
-
-      #app *::-webkit-scrollbar {
-        width: 1vh;
-        height: 1vh;
-        background-color: var(--scrollbar-gutter-color);
-      }
-
-      #app *::-webkit-scrollbar-thumb {
-        background-color: var(--scrollbar-thumb-color);
-      }
-
-      #app * {
-        scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-gutter-color);
-        scrollbar-width: thin;
+      [v-cloak] {
+        display: none;
       }
 
       html,
@@ -330,6 +112,8 @@
         margin: 0;
         overflow: hidden;
         font-family: Helvetica, sans-serif;
+        color: var(--main-fg-color);
+        background-color: var(--main-bg-color);
       }
 
       .drop-wrapper {
@@ -369,6 +153,7 @@
         position: relative;
         z-index: 1;
         display: flex;
+        background-color: var(--main-bg-color);
       }
 
       .video-container.center {
@@ -407,11 +192,45 @@
 
       .captions-list {
         margin-left: 135px;
+        color: var(--main-fg-color);
+        background-color: var(--main-bg-color);
       }
 
       .caption-controls {
         display: block; 
         position: relative;
+      }
+
+      .button {
+        color: var(--button-fg-color);
+        background-color: var(--button-bg-color);
+      }
+
+      .button:hover {
+        color: var(--button-hover-fg-color);
+        background-color: var(--button-hover-bg-color);
+      }
+
+      .button.active {
+        color: var(--button-active-fg-color);
+        background-color: var(--button-active-bg-color);
+      }
+
+      .button.active:hover {
+        color: var(--button-hover-active-fg-color);
+        background-color: var(--button-hover-active-bg-color);
+      }
+
+      .button.auto-pause:hover {
+        background-color: var(--button-ap-hover-bg-color);
+      }
+
+      .button.auto-pause.active {
+        background-color: var(--button-ap-active-bg-color);
+      }
+
+      .button.auto-pause.active:hover {
+        background-color: var(--button-ap-hover-active-bg-color);
       }
 
       .caption {
@@ -451,6 +270,21 @@
         z-index: 2;
       }
 
+      .current-caption, .notify-text {
+        color: var(--subtitle-fg-color);
+        paint-order: stroke;
+        -webkit-text-stroke: unset;
+        text-shadow: 
+        0.04em 0 0.03em var(--subtitle-shadow-color),
+        0 0.04em 0.03em var(--subtitle-shadow-color),
+        -0.04em 0 0.03em var(--subtitle-shadow-color),
+        0 -0.04em 0.03em var(--subtitle-shadow-color),
+        -0.04em -0.04em 0.03em var(--subtitle-shadow-color),
+        -0.04em 0.04em 0.03em var(--subtitle-shadow-color),
+        0.04em -0.04em 0.03em var(--subtitle-shadow-color),
+        0.04em 0.04em 0.03em var(--subtitle-shadow-color);
+      }
+
       .resize-bar-wrapper {
         grid-area: resizeBar;
         height: 100%;
@@ -478,13 +312,23 @@
 
       .offset-input {
         padding: 0;
-        margin: 0 0 0 3%;
         font-size: 1.5vh;
         text-align: left;
         position: relative;
         width: 3em;
         min-width: 0;
         flex-grow: 3;
+      }
+
+      .offset-input, .custom-offset-input {
+        border: 0;
+        margin: 0.2vh;
+        color: var(--main-fg-color);
+        background-color: var(--main-bg-color);
+      }
+
+      .offset-input:focus, .custom-offset-input:focus {
+        outline: 0.2vh solid var(--input-focus-outline-color);
       }
 
       .offset-button,
@@ -510,11 +354,38 @@
         width: 4em;
       }
 
+      .offset-button.on {
+        color: var(--cancel-button-fg-color);
+        background-color: var(--cancel-button-bg-color);
+      }
+
+      .offset-button.on:hover {
+        color: var(--cancel-button-hover-fg-color);
+        background-color: var(--cancel-button-hover-bg-color);
+      }
+
       .caption-time-offset, .custom-time-offset {
         position: absolute;
         top: 0;
         right: 2px;
         font-size: 10px;
+        color: var(--caption-time-hint-color);
+      }
+
+      .caption.button:hover .caption-time-offset,
+      .caption-time-offset:hover,
+      .set-custom-offset-button:hover .custom-time-offset,
+      .custom-time-offset:hover {
+        color: var(--caption-time-hint-hover-color);
+      }
+
+      .custom-time-offset {
+        opacity: 0;
+      }
+
+      .set-custom-offset-button:hover .custom-time-offset,
+      .custom-time-offset:hover {
+        opacity: 1;
       }
 
       .set-custom-offset-button {
@@ -565,6 +436,11 @@
         padding: 10px;
       }
 
+      .error > .custom-offset-input,
+      .error > .custom-offset-too-negative {
+        color: var(--error-fg-color);
+      }
+
       .delete-custom-offset {
         display: flex;
         justify-content: center;
@@ -574,6 +450,13 @@
         overflow: hidden;
         padding: 2px;
         transition: background-color 100ms ease-out;
+        color: var(--lowkey-delete-button-fg-color);
+        background-color: var(--lowkey-delete-button-bg-color);
+      }
+
+      .delete-custom-offset:hover {
+        color: var(--lowkey-delete-button-hover-fg-color);
+        background-color: var(--lowkey-delete-button-hover-bg-color);
       }
 
       .offset-hint, .auto-pause-text {
@@ -606,6 +489,11 @@
         width: 90%;
         max-width: 750px;
         text-align: left;
+        color: var(--hint-fg-color);
+      }
+
+      .hint a, .help-inner a {
+        color: var(--link-fg-color);
       }
 
       .current-caption p {
@@ -621,11 +509,21 @@
         line-height: 1.3em;
       }
 
-      .auto-pause-playing, .auto-pause-paused, .auto-pause-skipping {
+      .auto-pause-icon {
         display: inline-block;
         margin-left: 0.6vh;
         padding: 0.6vh;
         border-radius: 0.2vh;
+      }
+
+      .auto-pause-icon.paused {
+        color: var(--auto-pause-fg-color);
+        background-color: var(--auto-pause-bg-color);
+      }
+
+      .auto-pause-icon.skipping {
+        color: var(--auto-pause-fg-color);
+        background-color: var(--auto-pause-skip-bg-color);
       }
 
       .notify-text {
@@ -653,6 +551,8 @@
         max-height: 90%;
         padding: 5px;
         z-index: 3;
+        color: var(--help-fg-color);
+        background-color: var(--help-bg-color);
       }
 
       .help-inner {
@@ -675,6 +575,8 @@
         font-size: 32px;
         cursor: pointer;
         border-radius: 0px;
+        color: var(--exit-button-fg-color);
+        background-color: var(--exit-button-bg-color);
       }
 
       .table {
@@ -690,31 +592,34 @@
         display: table-cell;
         padding: 0.8em;
         min-width: 150px;
+        border: var(--table-border-color) 1px solid;
       }
 
       .table-head {
         font-weight: bold;
       }
 
-      .monospace {
+      .monospace, .footnote {
         font-family: consolas, "Liberation Mono", courier, monospace;
+        color: var(--monospace-fg-color);
+        background-color: var(--monospace-bg-color);
         padding: 2px;
       }
 
-      [v-cloak] {
-        display: none;
+      .monospace.error {
+        color: var(--monospace-error-fg-color);
       }
 
       .help-inner li {
         padding: 0.2em;
       }
 
-      .help-mode-button-container {
+      .help-mode-tab-container {
         display: flex;
         margin-bottom: 0.4em;
       }
 
-      .help-mode-button {
+      .help-mode-tab {
         padding: .3rem;
         margin-right: .2em;
         font-size: 1.5em;
@@ -726,6 +631,20 @@
         transition: background-color 100ms linear;
         overflow: hidden;
         outline: 0;
+        color: var(--tab-fg-color);
+        background-color: var(--tab-bg-color);
+        border: 1px solid var(--tab-bg-color);
+        border-radius: 2px;
+      }
+
+      .help-mode-tab.selected {
+        color: var(--tab-active-fg-color);
+        background-color: var(--tab-active-bg-color);
+      }
+
+      .help-mode-tab:hover {
+        color: var(--tab-hover-fg-color);
+        background-color: var(--tab-hover-bg-color);
       }
 
       .offset-text {
@@ -765,7 +684,8 @@
       .regex-input {
         height: 100%;
         width: 100%;
-        border-radius: 0.2em;
+        border: 0;
+        margin: 0.2em;
         padding: 0.2em;
         color: var(--regex-input-fg-color);
         background: var(--regex-input-bg-color);
@@ -822,6 +742,21 @@
 
       .anki-export {
         display: none;
+      }
+
+      #app *::-webkit-scrollbar {
+        width: 1vh;
+        height: 1vh;
+        background-color: var(--scrollbar-gutter-color);
+      }
+
+      #app *::-webkit-scrollbar-thumb {
+        background-color: var(--scrollbar-thumb-color);
+      }
+
+      #app * {
+        scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-gutter-color);
+        scrollbar-width: thin;
       }
 
       [data-pseudo-content]::before {
@@ -963,7 +898,7 @@
           </div>
           <div v-if="shouldShowHelpPopup" class="help-popup">
             <div class="exit-popup unselectable" @click="toggleHelp()">&times;</div>
-            <div class="help-mode-button-container">
+            <div class="help-mode-tab-container">
               <div :class="helpButtonClass('hotkeys')" @click="enableHelpMode('hotkeys')">Hotkeys</div>
               <div :class="helpButtonClass('appearance')" @click="enableHelpMode('appearance')">Appearance</div>
               <div :class="helpButtonClass('tips')" @click="enableHelpMode('tips')">Tips</div>
@@ -1126,7 +1061,7 @@
             delete this.customOffsets[caption.id];
           },
           captionStyle: function (caption) {
-            return 'caption' +
+            return 'caption button' +
               (caption.isActive ? ' active' : '') +
               (this.isAutoPauseMode ? ' auto-pause' : '');
           },
@@ -1181,7 +1116,7 @@
                     <span v-if="isOffsetMode" class='caption-time-offset unselectable' v-html="displayCaptionOffset(caption)"></span>
                   </span>
                   <span v-html="newline()"></span>
-                  <span v-if="isOffsetMode" class='set-custom-offset-button unselectable' @click="setCustomOffset(caption)" data-pseudo-content="Only offset this line and lines after">
+                  <span v-if="isOffsetMode" class='set-custom-offset-button button unselectable' @click="setCustomOffset(caption)" data-pseudo-content="Only offset this line and lines after">
                     <span v-if="isOffsetMode" class='custom-time-offset' v-html="displayCaptionOffset(caption)"></span>
                   </span>
                   <span v-once :data-caption-id="caption.id" :id="'anki-export-' + caption.id" class="anki-export unselectable">
@@ -1408,7 +1343,7 @@
             return this.shownCaptions.map(function (c) { return c.id; }).join("_");
           },
           offsetButtonClass: function () {
-            return 'offset-button' + 
+            return 'offset-button button' + 
               (this.isOffsetMode ? ' on' : ' off') +
               (this.isAutoPauseMode ? ' auto-pause' : '') +
               ' unselectable';
@@ -1420,22 +1355,22 @@
             return 'video-container' + (this.savedSettings.videoAlignment === 'center' ? ' center' : ' top');
           },
           audioTrackClass: function () {
-            return 'audio-track' +
+            return 'audio-track button' +
               (this.isAutoPauseMode ? ' auto-pause' : '') +
               ' unselectable';
           },
           helpClass: function () {
-            return 'help' + 
+            return 'help button' + 
               (this.isAutoPauseMode ? ' auto-pause' : '') +
               ' unselectable';
           },
           autoPauseIcon: function () {
             if (!this.isPlaying)
-              return "<span class=\"auto-pause-paused\">Paused</span>";
+              return "<span class=\"auto-pause-icon paused\">Paused</span>";
             else if (this.skipNextAutoPause)
-              return "<span class=\"auto-pause-skipping\">Skipping</span>"
+              return "<span class=\"auto-pause-icon skipping\">Skipping</span>"
             else
-              return "<span class=\"auto-pause-playing\">Playing</span>"
+              return "<span class=\"auto-pause-icon playing\">Playing</span>"
           },
           videoTitle: function () {
             var self = this;
@@ -1800,7 +1735,7 @@
           },
 
           helpButtonClass: function (mode) {
-            return 'help-mode-button' +
+            return 'help-mode-tab' +
              (this.helpMode === mode ? ' selected' : '');
           },
 
