@@ -23,8 +23,11 @@
     right: 0px;
     width: 250px;
     padding: 8px;
-    color: #C0C0C0;
-    background-color: #405C61;
+    color: hsl(0, 0%, 75%);
+    background-color: hsl(0, 0%, 17%);
+    border-bottom: 2px solid #405C61;
+    border-bottom-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
 #ab-card-screenshot img {
@@ -43,6 +46,8 @@
     margin-top: 10px;
     color: #C0C0C0;
     background-color: #6d0a0a;
+    border-bottom-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
 #ab-error-message {
