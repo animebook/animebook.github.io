@@ -98,22 +98,24 @@ function onHTMLMutation(mutationsList, cardCreator) {
 };
 
 function handleKeyDown(e, cardCreator) {
-    switch (e.key) {
-        case 'e':
-        case 'E':
-            if (e.ctrlKey || e.altKey || e.metaKey)
-                return;
-            const caption = document.querySelector('.caption.active');
-            if (!caption || !caption.getAttribute('data-caption-id'))
-                return;
+    if (document.activeElement !== document.getElementById("custom-style-box")) { // Check if custom style textarea is in focus
+        switch (e.key) {
+            case 'e':
+            case 'E':
+                if (e.ctrlKey || e.altKey || e.metaKey)
+                    return;
+                const caption = document.querySelector('.caption.active');
+                if (!caption || !caption.getAttribute('data-caption-id'))
+                    return;
 
-            const selectionRange = cardCreator.findSelectionRange(window.getSelection());
-            const start = (selectionRange && selectionRange.length > 0) ? selectionRange[0] : caption;
-            const id = start.getAttribute('data-caption-id');
-            cardCreator.addCard(id);
-            break;
-        default:
-            break;
+                const selectionRange = cardCreator.findSelectionRange(window.getSelection());
+                const start = (selectionRange && selectionRange.length > 0) ? selectionRange[0] : caption;
+                const id = start.getAttribute('data-caption-id');
+                cardCreator.addCard(id);
+                break;
+            default:
+                break;
+        }
     }
 }
 
