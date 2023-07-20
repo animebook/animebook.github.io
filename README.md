@@ -1,8 +1,8 @@
+## (Notice 2023) Use asbplayer instead
+Animebook is unmaintained, but [asbplayer](https://killergerbah.github.io/asbplayer/) has basically every feature animebook has, with a much higher focus on ease-of-use and a lot of cool extra features. Please use it instead.
+
 # Animebook
 https://animebook.github.io
-
-## (NOTICE 2023) Use asbplayer instead
-Animebook is unmaintained, but [asbplayer](https://killergerbah.github.io/asbplayer/) has basically every feature animebook has, with a much higher focus on ease-of-use and a lot of cool extra features. Please use it instead.
 
 An HTML5 video player with navigable subtitles. Since subtitles are in the browser, you can quickly look up words with popup dictionaries like [yomichan](https://foosoft.net/projects/yomichan/), and you can quickly create flashcards for Anki using the [Animebook Chrome extension](https://chrome.google.com/webstore/detail/animebook-anki-export/ohcbgkombhgcbjcikjlgdmjkpibafppa).
 
