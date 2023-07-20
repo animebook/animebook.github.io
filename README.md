@@ -1,6 +1,9 @@
 # Animebook
 https://animebook.github.io
 
+## (NOTICE 2023) Use asbplayer instead
+Animebook is unmaintained, but [asbplayer](https://killergerbah.github.io/asbplayer/) has basically every feature animebook has, with a much higher focus on ease-of-use and a lot of cool extra features. Please use it instead.
+
 An HTML5 video player with navigable subtitles. Since subtitles are in the browser, you can quickly look up words with popup dictionaries like [yomichan](https://foosoft.net/projects/yomichan/), and you can quickly create flashcards for Anki using the [Animebook Chrome extension](https://chrome.google.com/webstore/detail/animebook-anki-export/ohcbgkombhgcbjcikjlgdmjkpibafppa).
 
 ![Animebook Screencapture](screencapture.gif)
@@ -38,7 +41,6 @@ Drag and drop your video file and your subtitle file (vtt, srt, or ass) onto the
 | Shift D | Download retimed subs as an srt file |
 | e | Add context to most recent anki card (requires the [Animebook Chrome extension](https://chrome.google.com/webstore/detail/animebook-anki-export/ohcbgkombhgcbjcikjlgdmjkpibafppa) to be installed) |
 
-
 ## Video format support (last update January 2023)
 
 If you find your video can't play, or that your video will play but there's no audio, it's almost always because your browser can't play the file's video or audio codec. This is the case with HEVC/H.265 video and AC3 audio, which browsers still have trouble supporting due to licensing issues. Current state of browser support:
@@ -59,6 +61,11 @@ Marmaduke Chromium installation instructions:
 2. Enable the Chrome web store, by manually installing https://github.com/NeverDecaf/chromium-web-store into Chromium (this is required because the Chromium build is ungoogled).
 
 *I used to recommend Microsoft Edge with HEVC Video Extensions to watch HEVC video on animebook, but as of October 2020 the Microsoft store started charging money for HEVC support, so I removed it from the browser list. It technically does support AC3 audio though, unlike Ungoogled Chromium.
+
+## I want to use asbplayer now, but is there anything missing from it that animebook has?
+The only things I couldn't get asbplayer to do that I have done with animebook are:
+- Record a flashcard without having to replay audio. This is probably not possible due to technical differences between the two projects, since animebook literally ships an entire Wasm binary of FFmpeg in its Chrome extension, while asbplayer uses browser apis to record audio. The asbplayer approach has its benefits (most notably not needing an extension to record flashcards), so unless you need to machine gun record flashcards without the audio clip playback driving you up the wall, this tradeoff probably benefits you.
+- Automatically select the flashcard you just created in the Anki browser. This could mean more clicks to edit/verify a flashcard you're mining, but it's most likely not a big deal.
 
 ## Similar Software
 - https://github.com/killergerbah/asbplayer - Web based player like animebook but with a ton of neat features and regular updates
